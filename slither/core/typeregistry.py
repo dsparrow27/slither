@@ -6,7 +6,6 @@ from slither.core import types
 from slither.core import classtypes
 
 
-
 class DataTypeRegistry(object):
     __metaclass__ = classtypes.Singleton
     dataTypes = {}

@@ -1,3 +1,5 @@
+"""A simple test for nested compound networks
+"""
 import pprint
 
 
@@ -13,32 +15,21 @@ class TestSubCompound(compound.Compound):
     input = attribute.InputDefinition(type_=float, default=0)
     output = attribute.OutputDefinition(type_=float, default=0)
 
-    def __init__(self, name):
-        """
-        :param name:
-        """
-        super(TestSubCompound, self).__init__(name)
-
     def mutate(self):
         fourthNode = sum.Sum("fourthNodeSub")
         fourthNode.inputB = 20
         self.addChild(fourthNode)
+        # connection between two attributes
         self.output = fourthNode.output
         fourthNode.inputA = self.input
 
 
 class TestCompound(compound.Compound):
-    """
+    """Root compound node which contains other nodes, compounds do not expand until executed via the executor class
     """
     input = attribute.InputDefinition(type_=float, default=0)
     output = attribute.OutputDefinition(type_=float, default=0)
     execution = attribute.OutputDefinition(type_=float, default=0)
-
-    def __init__(self, name):
-        """
-        :param name:
-        """
-        super(TestCompound, self).__init__(name)
 
     def mutate(self):
         firstNode = sum.Sum("firstNode")
@@ -47,7 +38,7 @@ class TestCompound(compound.Compound):
         secondNode = sum.Sum("secondNode")
         secondNode.inputB = 10
         thirdNodeComp = TestSubCompound("thirdNodeComp")
-
+        #add the nodes as children
         self.addChild(secondNode)
         self.addChild(thirdNodeComp)
         self.addChild(firstNode)

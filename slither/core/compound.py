@@ -6,9 +6,6 @@ from slither.core import nodeRegistry
 class Compound(node.BaseNode):
     """The Compound class encapsulates a set of child nodes, which can include other compounds.
     We provide methods to query the children nodes of the current compound.
-
-    Example::
-        use createNode("nodeType") to create a new instance of a node type and add it to the current compound.
     """
     nodeType = "system"
 
@@ -56,6 +53,9 @@ class Compound(node.BaseNode):
         return False
 
     def mutate(self):
+        """Special method that allows this node to generate(mutate) other nodes as child nodes this can also contain
+        other compounds
+        """
         pass
 
     def createNode(self, nodeType, nodeName):
