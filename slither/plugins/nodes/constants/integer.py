@@ -1,0 +1,13 @@
+from slither.core import attribute
+from slither.core import node
+
+
+class Integer(node.BaseNode):
+
+    category = "constant"
+    documentation = "integer"
+    value = attribute.InputDefinition(type_=int, default=0)
+    output = attribute.OutputDefinition(type_=int, default=0)
+
+    def execute(self):
+        self.output.setValue(int(self.input.value()))

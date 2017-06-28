@@ -1,0 +1,90 @@
+from collections import OrderedDict
+from slither.core import attribute
+
+
+def topologicalOrder(nodes):
+    unsorted = {}
+    for child in nodes:
+        unsorted[child] = child.upstreamNodes()
+    sortedNodes = OrderedDict()
+
+    while unsorted:
+        for node, nodes in unsorted.items():
+            for dependent in nodes:
+                if dependent in unsorted:
+                    break
+            else:
+                del unsorted[node]
+                sortedNodes[node] = node.upstreamNodes()
+
+    return sortedNodes
+
+
+def nodeBreadthFirstSearch(node):
+    visited, stack = [], [node]
+
+    while stack:
+        current = stack.pop(0)
+        upstreams = current.upstreamNodes()
+        visited.append(current)
+        stack.extend(upstreams)
+
+    return topologicalOrder(visited)
+
+
+def siblingNodes(node):
+    nodes = []
+    if node.parent:
+        for i in node.parent:
+            if i != node:
+                nodes.append(i)
+    return nodes
+
+
+def upstreamNodes(node):
+    nodes = []
+    for input_ in node.iterInputs():
+        if input_.hasUpstream():
+            nodes.append(input_.upstream.parent)
+    return nodes
+
+
+def downStreamNodes(node):
+    nodes = []
+    if node.parent:
+        children = node.parent.children
+        for i in children:
+            if node in i.upstreamNodes():
+                nodes.append(i)
+    return nodes
+
+
+def serializeCompound(compound, recursive=True):
+    data = {}
+    for child in compound.children:
+        if recursive and child.isCompound():
+            data = serializeCompound(child, recursive)
+            data[child.fullName()] = data
+            continue
+        data[child.fullName()] = child.serialize()
+    return data
+
+
+def createAttribute(nodeInstance, attributeDefinition):
+    if nodeInstance.hasAttribute(attributeDefinition.name):
+        raise ValueError("Name -> %s already exists" % attributeDefinition.name)
+
+    if attributeDefinition.isArray:
+        newAttribute = attribute.ArrayAttribute(attributeDefinition, parent=nodeInstance)
+    elif attributeDefinition.isCompound:
+        newAttribute = attribute.CompoundAttribute(attributeDefinition, parent=nodeInstance)
+    else:
+        newAttribute = attribute.Attribute(attributeDefinition, parent=nodeInstance)
+    return newAttribute
+
+
+def copyOutputData(node, outputs):
+    for name, value in iter(outputs.items()):
+        attr = node.attribute(name)
+        if attr is not None:
+            attr.setValue(value)
