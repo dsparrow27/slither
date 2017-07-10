@@ -18,10 +18,3 @@ class SubStringNode(node.BaseNode):
                   self.valuePlug_.value()]
         self.output.setValue(result)
         return result
-
-
-def getNode():
-    """General function that returns our node, used to get create our node via Ui etc
-    :return: Node instance
-    """
-    return SubStringNode
