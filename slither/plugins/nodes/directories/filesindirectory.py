@@ -15,9 +15,9 @@ class FilesInDirectory(node.BaseNode):
         directory = os.path.normpath(self.directory.value())
 
         if not self.recursive:
-            self.output.setValue([i for i in os.listdir(directory) if os.path.isfile(i)])
+            self.output.setValue([os.path.join(directory, i) for i in os.listdir(directory) if os.path.isfile(i)])
             return
         outFiles = []
         for root, dirs, files in os.walk(directory):
-            outFiles.extend(os.path.join(root, files))
+            outFiles.extend([os.path.join(root, f) for f in files])
         self.output.setValue(outFiles)
