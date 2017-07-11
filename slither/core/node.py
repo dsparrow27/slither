@@ -35,10 +35,11 @@ class BaseNode(object):
         self.attributes = []
         self.progress = 0
         self.metadata = {}
+        self.dependencies = []  # node level dependencies
+
         for name, attrDef in iter(self.__class__.__dict__.items()):
             if isinstance(attrDef, attribute.AttributeDefinition):
                 attr = service.createAttribute(self, attrDef)
-                print "attribute", attr
                 self.addAttribute(attr)
 
     def execute(self):
@@ -77,6 +78,10 @@ class BaseNode(object):
         if attr is not None:
             return attr
         return super(BaseNode, self).__getattribute__(name)
+
+    def addDependency(self, node):
+        if node not in self.dependencies:
+            self.dependencies.append(node)
 
     @classmethod
     def type(cls):

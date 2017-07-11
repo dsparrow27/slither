@@ -9,8 +9,6 @@ from slither.core import classtypes
 logger = logging.getLogger(__name__)
 
 
-
-
 class NodeRegistry(object):
     __metaclass__ = classtypes.Singleton
     NODE_LIB_ENV = "SLITHER_NODE_LIB"
@@ -37,12 +35,17 @@ class NodeRegistry(object):
             raise ValueError("Cannot find environmentVariable -> %s" % env)
         for p in paths.split(os.pathsep):
             importedModule = None
+
             if p:
-                importedModule = modules.importModule(p)
+                try:
+                    importedModule = modules.importModule(p)
+                except Exception:
+                    logger.error("Failed to import module {}".format(p), exc_info=True)
             if importedModule:
                 cls.registerByModule(importedModule)
                 continue
             cls.registerByPackage(p)
+
 
     @classmethod
     def registerNode(cls, classObject):
@@ -54,9 +57,11 @@ class NodeRegistry(object):
     def registerByModule(cls, module):
         if inspect.ismodule(module):
             for member in modules.iterMembers(module, predicate=inspect.isclass):
-                if issubclass(member[1], node.BaseNode) and member[1] != node.BaseNode:
-                    cls.registerNode(member[1])
-
+                try:
+                    if issubclass(member[1], node.BaseNode) and member[1] != node.BaseNode:
+                        cls.registerNode(member[1])
+                except Exception:
+                    logger.error("Failed to initialize Node {}".format(member[0]), exc_info=True)
     @classmethod
     def registerByPackage(cls, pkg):
         visited = set()

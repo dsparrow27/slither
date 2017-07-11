@@ -5,7 +5,10 @@ from slither.core import attribute
 def topologicalOrder(nodes):
     unsorted = {}
     for child in nodes:
-        unsorted[child] = child.upstreamNodes()
+        dependencies = child.upstreamNodes() # attribute level dependencies
+        dependencies.extend(child.dependencies) # add the node level dependencies
+        unsorted[child] = dependencies
+
     sortedNodes = OrderedDict()
 
     while unsorted:
@@ -14,8 +17,9 @@ def topologicalOrder(nodes):
                 if dependent in unsorted:
                     break
             else:
+
                 del unsorted[node]
-                sortedNodes[node] = node.upstreamNodes()
+                sortedNodes[node] = nodes
 
     return sortedNodes
 
@@ -33,6 +37,12 @@ def nodeBreadthFirstSearch(node):
 
 
 def siblingNodes(node):
+    """Finds and returns all the siblings nodes under the node parent
+    :param node:
+    :type node: BaseNode instance
+    :return:
+    :rtype: list(Basenode instance)
+    """
     nodes = []
     if node.parent:
         for i in node.parent:
