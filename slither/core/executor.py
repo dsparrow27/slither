@@ -3,7 +3,7 @@ import multiprocessing
 from slither.core import service
 
 
-class StandardExecutor(object):
+class Parallel(object):
     @classmethod
     def execute(cls, node):
         """Executes a given node in parellel if the node is a compound then the children will be executed
@@ -59,7 +59,7 @@ class StandardExecutor(object):
         # loop the indices that need to be removed
         # copy the output data from the process back into the main process output data
         # remove the process/connections/nodes[index] from the storage
-        # mark node finished?
+
         for processIndex in reversed(needToTerminate):
             node = nodes.keys()[processIndex]
 
@@ -84,3 +84,14 @@ class StandardExecutor(object):
         for output in outputs:
             data[output.name()] = output.value()
         parentConnection.send(data)
+
+
+class StandardExecutor(object):
+    @classmethod
+    def execute(cls, node):
+
+        if node.isCompound():
+            node.mutate()
+            nodes = service.topologicalOrder(node.children)
+        else:
+            nodes = service.nodeBreadthFirstSearch(node)
