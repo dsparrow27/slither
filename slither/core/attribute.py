@@ -13,6 +13,7 @@ class AttributeDefinition(object):
         self.isCompound = compound
         self.__doc__ = doc
         self.validateDefault()
+        self._validateType()
 
     def _validateType(self):
         """Validate's the dataType and converts it if necessary.
@@ -134,7 +135,7 @@ class Attribute(object):
         return self._value
 
     def setValue(self, value):
-        if self.value() != value:
+        if self._value != value:
             self._value = value
 
     def isInput(self):
@@ -174,8 +175,7 @@ class Attribute(object):
             data["definition"] = definition
         if self.parent:
             data["parent"] = self.parent.fullName()
-        if value != self.definition.default:
-            data["value"] = value
+        data["value"] = value
         if self.upstream:
             data["upstream"] = self.upstream.fullName()
         return data

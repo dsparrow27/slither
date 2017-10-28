@@ -11,7 +11,10 @@ class DataType(object):
         self._value = value
 
     def __eq__(self, other):
-        return isinstance(other, DataType) and self._value == other.value
+        return self.Type == other.Type and self._value == other.value
+
+    def __ne__(self, other):
+        return self._value != other.value()
 
     def value(self):
         return self._value

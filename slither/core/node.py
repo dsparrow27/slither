@@ -36,7 +36,6 @@ class BaseNode(object):
         self.progress = 0
         self.metadata = {}
         self.dependencies = []  # node level dependencies
-
         for name, attrDef in iter(self.__class__.__dict__.items()):
             if isinstance(attrDef, attribute.AttributeDefinition):
                 attr = service.createAttribute(self, attrDef)

@@ -5,8 +5,14 @@ from slither.core import types
 class FloatType(types.DataType):
     Type = float
 
-    def value(self):
+    def __add__(self, other):
+        return self.__class__(self._value + other.value())
+
+    def __float__(self):
         return float(self._value)
+
+    def value(self):
+        return float(self)
 
     def setValue(self, value):
         if self.value() != value:
@@ -16,8 +22,14 @@ class FloatType(types.DataType):
 class IntType(types.DataType):
     Type = int
 
-    def value(self):
+    def __add__(self, other):
+        return self.__class__(self._value + other.value())
+
+    def __int__(self):
         return int(self._value)
+
+    def value(self):
+        return int(self)
 
     def setValue(self, value):
         if self.value() != value:
@@ -27,8 +39,11 @@ class IntType(types.DataType):
 class StringType(types.DataType):
     Type = str
 
-    def value(self):
+    def __str__(self):
         return str(self._value)
+
+    def value(self):
+        return str(self)
 
     def setValue(self, value):
         if self.value() != value:
@@ -38,8 +53,11 @@ class StringType(types.DataType):
 class BooleanType(types.DataType):
     Type = bool
 
-    def value(self):
+    def __nonzero__(self):
         return bool(self._value)
+
+    def value(self):
+        return bool(self)
 
     def setValue(self, value):
         if self.value() != value:

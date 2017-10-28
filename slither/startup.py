@@ -2,6 +2,7 @@ import os
 from slither.core import nodeRegistry
 from slither.core import typeregistry
 
+
 def startup():
     NODE_LIB_ENV = "SLITHER_NODE_LIB"
     TYPE_LIB_ENV = "SLITHER_TYPE_LIB"
@@ -11,5 +12,3 @@ def startup():
     os.environ[TYPE_LIB_ENV] = os.path.join(pluginBase, "datatypes")
     typeregistry.DataTypeRegistry()
     nodeRegistry.NodeRegistry()
-
-startup()

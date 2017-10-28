@@ -25,7 +25,6 @@ class DataTypeRegistry(object):
     def registerDataType(cls, classObject):
         name = classObject.Type
         if name not in cls.dataTypes:
-            print "registered", classObject
             cls.dataTypes[name] = classObject
 
     @classmethod

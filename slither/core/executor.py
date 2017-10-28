@@ -89,9 +89,25 @@ class Parallel(object):
 class StandardExecutor(object):
     @classmethod
     def execute(cls, node):
-
         if node.isCompound():
             node.mutate()
             nodes = service.topologicalOrder(node.children)
         else:
             nodes = service.nodeBreadthFirstSearch(node)
+        for n, dependents in nodes.items():
+            for d in dependents:
+                if len(dependents) == 1 and dependents[0] == n.parent:
+                    nodes[n] = list()
+                    continue
+                cls.startProcess(d)
+
+            cls.startProcess(n)
+
+    @classmethod
+    def startProcess(cls, node):
+        node.progress = 0
+        if node.isCompound():
+            cls.execute(node)
+        # compounds can have its own logic once all the children have finished
+        node.execute()
+        node.progress = 100
