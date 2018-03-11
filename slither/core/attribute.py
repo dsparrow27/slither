@@ -154,6 +154,27 @@ class Attribute(object):
             return True
         return False
 
+    def canConnect(self, attribute):
+        if attribute.parent == self.parent:
+            return False
+        elif attribute.isInput() and self.isInput():
+            return False
+        elif attribute.isOutput() and self.isOutput():
+            return False
+        elif attribute.type() != self.type():
+            return False
+
+        return True
+
+    def isConnectedTo(self, attribute):
+        if self.isInput():
+            upstream = self.upstream
+            if upstream and upstream == attribute:
+                return False
+        elif self.isOutput():
+            return attribute.isConnectedTo(self)
+        return True
+
     def connectUpstream(self, attribute):
         if attribute != self.upstream:
             self.upstream = attribute

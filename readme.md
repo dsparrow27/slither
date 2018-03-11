@@ -1,6 +1,6 @@
 Crude implementation of a parallel execution engine in python but without dirty propagation , meant to be used via commandline. Currently we lock up maya when we use the gui due to maya thinking we want a separate shell which boots mayapy separately, will need to rework this to be single process when running in the GUI but works fine via commandline, yet to be tested over a farm system.
 
-
+:note:: This Repo is still WIP
 
 # TODO
 1. unittest
@@ -11,12 +11,10 @@ Crude implementation of a parallel execution engine in python but without dirty 
 6. on demand dirty propagation
 7. documentation
 8. error handling within nodes
-9. local graph variables similar to environment variable but at the graph level
-10 high level application configuration
-11. Skip attribute and node initialization if a node fails to initialize
-12. up front graph expansion since by default compounds we lazily expand only when we hit a compound not up front.
-13. example of creating a graph on the fly.
-14. deserialize a graph from json
+9. Skip attribute and node initialization if a node fails to initialize
+10. up front graph expansion since by default compounds we lazily expand only when we hit a compound not up front.
+11. example of creating a graph on the fly.
+12. deserialize a graph from json
 
 # Environment variables
 These variables store the node and data type library, you can add your own directory paths once slither is initialized
@@ -31,6 +29,8 @@ compound attributes
 node and datatype library extendability
 Graph mutation
 
+# DEPENDENCIES
+[Blinker](https://github.com/jek/blinker)
 
 # EXAMPLES
 
@@ -38,11 +38,14 @@ Graph mutation
 
 import os
 import sys
-from slither.core import nodeRegistry
-from slither.core import typeregistry
-import graphtest
-from slither import startup
-root = graphtest.TestCompound("root")
+from slither import api
+from slither.core import executor
+
+app = api.initialize()
+root = app.root
+
+testSum = app.createNode("testNode", type_="Sum")
+
 executor.StandardExecutor().execute(root)
 # pprint the graph
 pprint.pprint(root.serialize())

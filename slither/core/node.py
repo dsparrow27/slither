@@ -144,7 +144,7 @@ class BaseNode(object):
         return True if self.attribute(name) else False
 
     def inputs(self):
-        return [i for i in self.iterInputs()]
+        return list(self.iterInputs())
 
     def attributeCount(self):
         return len(self.attributes)
@@ -153,7 +153,7 @@ class BaseNode(object):
         return iter(self.attributes)
 
     def outputs(self):
-        return [i for i in self.iterOutputs()]
+        return list(self.iterOutputs())
 
     def depth(self):
         index = 0

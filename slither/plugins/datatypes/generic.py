@@ -108,3 +108,6 @@ class ListType(types.DataType):
             if not generic.isIteratable(value):
                 value = list(value)
             self._value = value
+
+class MultiType(types.DataType):
+    Type ="multi"

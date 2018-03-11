@@ -4,6 +4,7 @@ import logging
 
 from slither.core import modules
 from slither.core import node
+from slither.core import compound
 from slither.core import classtypes
 
 logger = logging.getLogger(__name__)
@@ -17,6 +18,7 @@ class NodeRegistry(object):
 
     def __init__(self):
         self.registerFromEnv(NodeRegistry.NODE_LIB_ENV)
+        NodeRegistry.nodes["system"] = compound.Compound
 
     @classmethod
     def node(cls, type_):
@@ -34,17 +36,26 @@ class NodeRegistry(object):
         if not paths:
             raise ValueError("Cannot find environmentVariable -> %s" % env)
         for p in paths.split(os.pathsep):
-            importedModule = None
-
-            if p:
-                try:
-                    importedModule = modules.importModule(p)
-                except Exception:
-                    logger.error("Failed to import module {}".format(p), exc_info=True)
-            if importedModule:
-                cls.registerByModule(importedModule)
+            if p.endswith(".pyc"):
                 continue
-            cls.registerByPackage(p)
+            elif os.path.isdir(p):
+                cls.registerByPackage(p)
+                continue
+            elif os.path.isfile(p):
+                importedModule = modules.importModule(p)
+                if importedModule:
+                    cls.registerByModule(importedModule)
+                    continue
+            #
+            # if p:
+            #     try:
+            #         importedModule = modules.importModule(p)
+            #     except Exception:
+            #         logger.error("Failed to import module {}".format(p), exc_info=True)
+            # if importedModule:
+            #     cls.registerByModule(importedModule)
+            #     continue
+            # cls.registerByPackage(p)
 
 
     @classmethod

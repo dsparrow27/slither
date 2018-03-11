@@ -1,13 +1,11 @@
 from slither.core import node
 from slither.core import service
-from slither.core import nodeRegistry
 
 
 class Compound(node.BaseNode):
     """The Compound class encapsulates a set of child nodes, which can include other compounds.
     We provide methods to query the children nodes of the current compound.
     """
-    nodeType = "system"
 
     def __init__(self, name):
         """
@@ -58,16 +56,12 @@ class Compound(node.BaseNode):
         """
         pass
 
-    def createNode(self, nodeType, nodeName):
-        node = nodeRegistry.NodeRegistry().node(nodeType)
-        if node is None:
-            raise ValueError("NodeType -> %s is not a valid type")
-        return node(nodeName)
-
     def child(self, name):
         for child in self:
             if child.name() == name:
                 return child
+            elif child.isCompound():
+                return child.child(name)
 
     def addChild(self, child):
         if child not in self.children:

@@ -38,6 +38,7 @@ def nodeBreadthFirstSearch(node):
 
 def siblingNodes(node):
     """Finds and returns all the siblings nodes under the node parent
+
     :param node:
     :type node: BaseNode instance
     :return:

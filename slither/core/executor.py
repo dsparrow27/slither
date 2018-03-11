@@ -19,7 +19,7 @@ class Parallel(object):
         parentConnections = []
         childConnections = []
         while nodes:
-            cls.stopPrcesses(nodes, processes, parentConnections, childConnections)
+            cls.stopProcesses(nodes, processes, parentConnections, childConnections)
             cls.startProcesses(nodes, processes, parentConnections, childConnections)
         return True
 
@@ -47,7 +47,7 @@ class Parallel(object):
             process.start()
 
     @classmethod
-    def stopPrcesses(cls, nodes, processes, parentConnections, childConnections):
+    def stopProcesses(cls, nodes, processes, parentConnections, childConnections):
         if not parentConnections:
             return
         needToTerminate = []
