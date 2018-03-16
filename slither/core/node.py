@@ -22,18 +22,17 @@ class NodeMeta(type):
 
 
 class BaseNode(object):
-    """
-    """
     __metaclass__ = NodeMeta
     category = ""
     tags = set()
     documentation = ""
 
-    def __init__(self, name):
+    def __init__(self, name, application):
+        self.application = application
         self.name = name
-        self.parent = None
+        self._parent = None
         self.attributes = []
-        self.progress = 0
+        self._progress = 0
         self.metadata = {}
         self.dependencies = []  # node level dependencies
         for name, attrDef in iter(self.__class__.__dict__.items()):
@@ -43,6 +42,15 @@ class BaseNode(object):
 
     def execute(self):
         pass
+
+    @property
+    def progress(self):
+        return self._progress
+
+    @progress.setter
+    def progress(self, value):
+        self._progress = value
+        self.application.events.nodeProgressUpdated.send(value)
 
     @staticmethod
     def isCompound():
@@ -82,6 +90,16 @@ class BaseNode(object):
         if node not in self.dependencies:
             self.dependencies.append(node)
 
+    @property
+    def parent(self):
+        return self._parent
+
+    @parent.setter
+    def parent(self, node):
+        if self._parent != node:
+            self._parent = node
+            self.application.events.nodeParentChanged.send(self, node)
+
     @classmethod
     def type(cls):
         """Returns the type of this node
@@ -97,6 +115,8 @@ class BaseNode(object):
         """
         if self.name != name:
             self.name = name
+            self.application.events.nodeNameChanged.send(name)
+
         return self.name
 
     def fullName(self):
@@ -115,20 +135,15 @@ class BaseNode(object):
     def addAttribute(self, attribute):
         if attribute not in self.attributes:
             self.attributes.append(attribute)
+            self.application.event.attributeCreated.send(self, attribute)
             return True
         return False
 
-    def createAttribute(self, name, **kwargs):
-        if not kwargs.get("input"):
-            definition = attribute.OutputDefinition(**kwargs)
-        else:
-            definition = attribute.InputDefinition(**kwargs)
-        definition.name = name
-        attr = service.createAttribute(self, definition)
+    def createAttribute(self, attributeDefinition):
+        attr = service.createAttribute(self, attributeDefinition)
         name = attr.name()
-
         className = "_%s" % name if not name.startswith("_") else name
-        super(BaseNode, self).__setattr__(className, definition)
+        super(BaseNode, self).__setattr__(className, attributeDefinition)
         self.addAttribute(attr)
         return attr
 
@@ -136,6 +151,7 @@ class BaseNode(object):
         for i in range(len(self.attributes)):
             attr = self.attributes[i]
             if attr.name() == name:
+                self.application.events.attributeRemoved.send(self, attr)
                 del self.attributes[i]
                 return True
         return False

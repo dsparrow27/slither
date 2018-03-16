@@ -12,8 +12,6 @@ os.environ[TYPE_LIB_ENV] = os.path.join(pluginBase, "datatypes")
 
 from .core import application as _application
 
-_currentApplication = None
-
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -21,15 +19,13 @@ logger.addHandler(logging.NullHandler())
 
 def initialize():
     global _currentApplication
-    current = currentInstance()
-    if current:
-        return current
+    if _currentApplication:
+        return _currentApplication
 
     _currentApplication = _application.Application()
     return _currentApplication
 
+currentInstance = initialize()
 
-def currentInstance():
-    global _currentApplication
-    if _currentApplication:
-        return _currentApplication
+from .core.attribute import InputDefinition, OutputDefinition
+from .core import ktypes

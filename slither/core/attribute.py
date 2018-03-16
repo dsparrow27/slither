@@ -94,7 +94,7 @@ class Attribute(object):
         self.upstream = None
         self._value = None
         if definition:
-            self._value = self.definition.default
+            self._value = self.definition.type
 
     def __repr__(self):
         return "attribute(%s)" % (self.name())
@@ -117,6 +117,8 @@ class Attribute(object):
     def setName(self, name):
         self.definition.setName(name)
 
+        self.parent.application.events.atttributeNameChanged.send(self, name)
+
     def fullName(self):
         if self.parent:
             return "|".join([self.parent.fullName(), self.name()])
@@ -132,11 +134,12 @@ class Attribute(object):
     def value(self):
         if self.upstream:
             return self.upstream.value()
-        return self._value
+        return self._value.value()
 
     def setValue(self, value):
         if self._value != value:
-            self._value = value
+            self._value.setValue(value)
+            self.parent.application.events.attributeValueChanged.send(self, value)
 
     def isInput(self):
         """Returns True if this attribute is an output attribute"""
@@ -178,6 +181,7 @@ class Attribute(object):
     def connectUpstream(self, attribute):
         if attribute != self.upstream:
             self.upstream = attribute
+            self.parent.application.events.connectionAdded.send(attribute, self)
             return True
         return False
 
@@ -185,7 +189,10 @@ class Attribute(object):
         attribute.connectUpstream(self)
 
     def disconnect(self):
-        self.upstream = None
+        if self.hasUpstream():
+            self.parent.application.events.connectionRemoved.send(self.upstream, self)
+            self.upstream = None
+
 
     def serialize(self):
         data = {"name": self.fullName()

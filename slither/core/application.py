@@ -35,6 +35,7 @@ class Application(object):
     def createNode(self, name, type_, parent=None):
         exists = self.root.child(name)
         if exists:
+            # :todo: error out
             return
         newNode = self._nodeRegistry.node(type_=type_)
         if newNode:
@@ -46,12 +47,19 @@ class Application(object):
             # should emit a event
             self.events.nodeCreated.send(newNode)
             return newNode
+        # :todo error out
 
 
 class ApplicationEvents(object):
     nodeCreated = signal("Node Created")
     nodeRemoved = signal("Node Deleted")
+    nodeNameChanged = signal("Node Name Changed")
+    nodeParentChanged = signal("Node parent Changed")
     attributeCreated = signal("Attribute Created", doc="Triggerd any time a new custom attribute is created")
     attributeRemoved = signal("Attribute Deleted")
+    attributeValueChanged = signal("Attribute Value Changed")
+    attributeNameChanged = signal("Attribute Name Changed")
+    nodeProgressUpdated = signal("Node Progress Updated")
     connectionCreated = signal("Connection Added")
     connectionRemoved = signal("Connection Removed")
+
