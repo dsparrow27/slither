@@ -98,7 +98,7 @@ class BaseNode(object):
     def parent(self, node):
         if self._parent != node:
             self._parent = node
-            self.application.events.nodeParentChanged.send(self, node)
+            self.application.events.nodeParentChanged.send(self.name,node=self, parent=node)
 
     @classmethod
     def type(cls):
@@ -115,7 +115,7 @@ class BaseNode(object):
         """
         if self.name != name:
             self.name = name
-            self.application.events.nodeNameChanged.send(name)
+            self.application.events.nodeNameChanged.send(self.name, name=name)
 
         return self.name
 
@@ -135,7 +135,7 @@ class BaseNode(object):
     def addAttribute(self, attribute):
         if attribute not in self.attributes:
             self.attributes.append(attribute)
-            self.application.event.attributeCreated.send(self, attribute)
+            self.application.events.attributeCreated.send(self.name, node=self, attribute=attribute)
             return True
         return False
 
@@ -151,7 +151,7 @@ class BaseNode(object):
         for i in range(len(self.attributes)):
             attr = self.attributes[i]
             if attr.name() == name:
-                self.application.events.attributeRemoved.send(self, attr)
+                self.application.events.attributeRemoved.send(self.name,node=self, attribute=attr)
                 del self.attributes[i]
                 return True
         return False

@@ -139,7 +139,7 @@ class Attribute(object):
     def setValue(self, value):
         if self._value != value:
             self._value.setValue(value)
-            self.parent.application.events.attributeValueChanged.send(self, value)
+            self.parent.application.events.attributeValueChanged.send(self.name(), attribute=self, value=value)
 
     def isInput(self):
         """Returns True if this attribute is an output attribute"""
@@ -172,7 +172,8 @@ class Attribute(object):
     def isConnectedTo(self, attribute):
         if self.isInput():
             upstream = self.upstream
-            if upstream and upstream == attribute:
+            print self, attribute
+            if upstream is not None and upstream == attribute:
                 return False
         elif self.isOutput():
             return attribute.isConnectedTo(self)
@@ -181,7 +182,7 @@ class Attribute(object):
     def connectUpstream(self, attribute):
         if attribute != self.upstream:
             self.upstream = attribute
-            self.parent.application.events.connectionAdded.send(attribute, self)
+            self.parent.application.events.connectionAdded.send(self.name(), source=attribute, destination=self)
             return True
         return False
 
@@ -190,7 +191,7 @@ class Attribute(object):
 
     def disconnect(self):
         if self.hasUpstream():
-            self.parent.application.events.connectionRemoved.send(self.upstream, self)
+            self.parent.application.events.connectionRemoved.send(self.name(),source=self.upstream, destination=self)
             self.upstream = None
 
 

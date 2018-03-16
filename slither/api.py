@@ -4,7 +4,7 @@ NODE_LIB_ENV = "SLITHER_NODE_LIB"
 TYPE_LIB_ENV = "SLITHER_TYPE_LIB"
 
 # :todo piss this off
-root = os.path.realpath(os.path.dirname(__file__), "..")
+root = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(os.path.join(root, "thirdparty"))
 pluginBase = os.path.join(root, "slither", "plugins")
 os.environ[NODE_LIB_ENV] = os.path.join(pluginBase, "nodes")
@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
-
+_currentApplication = None
 def initialize():
     global _currentApplication
     if _currentApplication:

@@ -7,12 +7,12 @@ class Compound(node.BaseNode):
     We provide methods to query the children nodes of the current compound.
     """
 
-    def __init__(self, name):
+    def __init__(self, name, application):
         """
         :param name: The name that this node will have, if the name already exist a number we be appended.
         :type name: str
         """
-        super(Compound, self).__init__(name)
+        super(Compound, self).__init__(name, application=application)
         self.children = []
 
     @staticmethod

@@ -27,7 +27,7 @@ class Application(object):
     def root(self):
         if self._root:
             return self._root
-        self._root = self._nodeRegistry.node(type_="system")(name="system")
+        self._root = self._nodeRegistry.node(type_="system")(name="system", application=self)
         # should emit event
         return self._root
 
@@ -39,7 +39,7 @@ class Application(object):
             return
         newNode = self._nodeRegistry.node(type_=type_)
         if newNode:
-            newNode = newNode(name=name)
+            newNode = newNode(name=name, application=self)
             if parent is None:
                 self.root.addChild(newNode)
             elif parent.isCompound():
@@ -60,6 +60,6 @@ class ApplicationEvents(object):
     attributeValueChanged = signal("Attribute Value Changed")
     attributeNameChanged = signal("Attribute Name Changed")
     nodeProgressUpdated = signal("Node Progress Updated")
-    connectionCreated = signal("Connection Added")
+    connectionAdded = signal("Connection Added")
     connectionRemoved = signal("Connection Removed")
 
