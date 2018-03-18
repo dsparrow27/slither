@@ -43,7 +43,7 @@ class Application(object):
             if parent is None:
                 self.root.addChild(newNode)
             elif parent.isCompound():
-                parent.child(parent)
+                parent.addChild(newNode)
             # should emit a event
             self.events.nodeCreated.send(newNode)
             return newNode
