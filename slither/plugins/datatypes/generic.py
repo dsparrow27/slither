@@ -3,7 +3,7 @@ from slither.core import types
 
 
 class FloatType(types.DataType):
-    Type = "float"
+    Type = float
 
     def __add__(self, other):
         return self.__class__(self._value + other.value())
@@ -20,7 +20,7 @@ class FloatType(types.DataType):
 
 
 class IntType(types.DataType):
-    Type = "int"
+    Type = int
 
     def __add__(self, other):
         return self.__class__(self._value + other.value())
@@ -37,7 +37,7 @@ class IntType(types.DataType):
 
 
 class StringType(types.DataType):
-    Type = "str"
+    Type = str
 
     def __str__(self):
         return str(self._value)
@@ -51,7 +51,7 @@ class StringType(types.DataType):
 
 
 class BooleanType(types.DataType):
-    Type = "bool"
+    Type = bool
 
     def __nonzero__(self):
         return bool(self._value)
@@ -65,7 +65,7 @@ class BooleanType(types.DataType):
 
 
 class DictType(types.DataType):
-    Type = "dict"
+    Type = dict
 
     def __init__(self, value):
         super(DictType, self).__init__(value)
@@ -89,7 +89,7 @@ class DictType(types.DataType):
 
 
 class ListType(types.DataType):
-    Type = "list"
+    Type = list
 
     def __iter__(self):
         return iter(self._value)

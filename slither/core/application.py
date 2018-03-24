@@ -25,7 +25,7 @@ class Application(object):
 
     @property
     def root(self):
-        if self._root:
+        if self._root is not None:
             return self._root
         self._root = self._nodeRegistry.node(type_="system")(name="system", application=self)
         # should emit event
@@ -35,8 +35,12 @@ class Application(object):
     def createNode(self, name, type_, parent=None):
         exists = self.root.child(name)
         if exists:
-            # :todo: error out
-            return
+            newName = name
+            counter = 1
+            while self.root.child(newName):
+                newName = name + str(counter)
+                counter += 1
+            name = newName
         newNode = self._nodeRegistry.node(type_=type_)
         if newNode:
             newNode = newNode(name=name, application=self)
@@ -62,4 +66,3 @@ class ApplicationEvents(object):
     nodeProgressUpdated = signal("Node Progress Updated")
     connectionAdded = signal("Connection Added")
     connectionRemoved = signal("Connection Removed")
-

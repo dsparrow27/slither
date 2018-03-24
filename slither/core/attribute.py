@@ -172,15 +172,15 @@ class Attribute(object):
     def isConnectedTo(self, attribute):
         if self.isInput():
             upstream = self.upstream
-            print self, attribute
             if upstream is not None and upstream == attribute:
-                return False
+                return True
         elif self.isOutput():
             return attribute.isConnectedTo(self)
         return True
 
     def connectUpstream(self, attribute):
         if attribute != self.upstream:
+            self.parent.application.events.connectionRemoved.send(self.name(), source=self.upstream, destination=self)
             self.upstream = attribute
             self.parent.application.events.connectionAdded.send(self.name(), source=attribute, destination=self)
             return True

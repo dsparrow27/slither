@@ -58,7 +58,7 @@ class Compound(node.BaseNode):
 
     def child(self, name):
         for child in self:
-            if child.name() == name:
+            if child.name == name:
                 return child
             elif child.isCompound():
                 return child.child(name)

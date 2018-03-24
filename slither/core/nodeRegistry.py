@@ -46,21 +46,12 @@ class NodeRegistry(object):
                 if importedModule:
                     cls.registerByModule(importedModule)
                     continue
-            #
-            # if p:
-            #     try:
-            #         importedModule = modules.importModule(p)
-            #     except Exception:
-            #         logger.error("Failed to import module {}".format(p), exc_info=True)
-            # if importedModule:
-            #     cls.registerByModule(importedModule)
-            #     continue
-            # cls.registerByPackage(p)
 
 
     @classmethod
     def registerNode(cls, classObject):
         name = classObject.__name__
+
         if name not in cls.nodes:
             cls.nodes[name] = classObject
 
@@ -73,11 +64,14 @@ class NodeRegistry(object):
                         cls.registerNode(member[1])
                 except Exception:
                     logger.error("Failed to initialize Node {}".format(member[0]), exc_info=True)
+
     @classmethod
     def registerByPackage(cls, pkg):
         visited = set()
+
         for subModule in modules.iterModules(pkg):
             filename = os.path.splitext(os.path.basename(subModule))[0]
+
             if filename.startswith("__") or filename in visited:
                 continue
             visited.add(filename)

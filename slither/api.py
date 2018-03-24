@@ -10,7 +10,7 @@ pluginBase = os.path.join(root, "slither", "plugins")
 os.environ[NODE_LIB_ENV] = os.path.join(pluginBase, "nodes")
 os.environ[TYPE_LIB_ENV] = os.path.join(pluginBase, "datatypes")
 
-from .core import application as _application
+from slither.core import application as _application
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -27,5 +27,5 @@ def initialize():
 
 currentInstance = initialize()
 
-from .core.attribute import InputDefinition, OutputDefinition
-from .core import ktypes
+from slither.core.attribute import InputDefinition, OutputDefinition
+from slither.core import ktypes
