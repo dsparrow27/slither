@@ -98,14 +98,13 @@ class BaseNode(object):
     def parent(self, node):
         if self._parent != node:
             self._parent = node
-            self.application.events.nodeParentChanged.send(self.name,node=self, parent=node)
+            self.application.events.nodeParentChanged.send(self.name, node=self, parent=node)
 
-    @classmethod
-    def type(cls):
+    def type(self):
         """Returns the type of this node
         :rtype: string
         """
-        return cls.__class__.__name__
+        return self.__class__.__name__
 
     def setName(self, name):
         """Sets the name of the node if the name already exists in the graph then a number will be append
@@ -151,7 +150,7 @@ class BaseNode(object):
         for i in range(len(self.attributes)):
             attr = self.attributes[i]
             if attr.name() == name:
-                self.application.events.attributeRemoved.send(self.name,node=self, attribute=attr)
+                self.application.events.attributeRemoved.send(self.name, node=self, attribute=attr)
                 del self.attributes[i]
                 return True
         return False

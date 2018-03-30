@@ -12,6 +12,8 @@ class AttributeDefinition(object):
         self.default = default
         self.isArray = array
         self.isCompound = compound
+        doc += "\nType: {}".format(str(type))
+
         self.__doc__ = doc
         self.validateDefault()
         self._validateType()
