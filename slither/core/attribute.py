@@ -1,4 +1,5 @@
 from slither.core import typeregistry
+from slither.core import errors
 
 
 class AttributeDefinition(object):
@@ -179,21 +180,18 @@ class Attribute(object):
         return True
 
     def connectUpstream(self, attribute):
-        if attribute != self.upstream:
-            self.parent.application.events.connectionRemoved.send(self.name(), source=self.upstream, destination=self)
-            self.upstream = attribute
-            self.parent.application.events.connectionAdded.send(self.name(), source=attribute, destination=self)
-            return True
-        return False
+        if self.upstream:
+            raise errors.AttributeAlreadyConnected(self, attribute)
+        self.upstream = attribute
+        self.parent.application.events.connectionAdded.send(self.name(), source=attribute, destination=self)
 
     def connectDownstream(self, attribute):
         attribute.connectUpstream(self)
 
     def disconnect(self):
         if self.hasUpstream():
-            self.parent.application.events.connectionRemoved.send(self.name(),source=self.upstream, destination=self)
+            self.parent.application.events.connectionRemoved.send(self.name(), source=self.upstream, destination=self)
             self.upstream = None
-
 
     def serialize(self):
         data = {"name": self.fullName()

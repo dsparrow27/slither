@@ -1,9 +1,13 @@
 from .nodeRegistry import NodeRegistry
 from .typeregistry import DataTypeRegistry
+from slither.core import executor
 from blinker import signal
 
 
 class Application(object):
+    PARALLELEXECUTOR = 0
+    STANDARDEXECUTOR = 1
+
     def __init__(self):
         self._nodeRegistry = NodeRegistry()
         self._typeRegistry = DataTypeRegistry()
@@ -52,6 +56,17 @@ class Application(object):
             self.events.nodeCreated.send(newNode)
             return newNode
         # :todo error out
+
+    def execute(self, node, executorType):
+        if executorType == Application.PARALLELEXECUTOR:
+            exe = executor.Parallel()
+            exe.execute(node)
+            return True
+        elif executorType == Application.STANDARDEXECUTOR:
+            exe = executor.StandardExecutor()
+            exe.execute(node)
+            return True
+        return False
 
 
 class ApplicationEvents(object):
