@@ -153,7 +153,9 @@ class Attribute(object):
         return isinstance(self.definition, OutputDefinition)
 
     def hasUpstream(self):
-        """Determines if the current attribute has a connection, an attribute can have only one connection
+        """Determines if the current attribute has a connection, an attribute can have only one connection if its an
+        input.
+
         :return: bool
         """
         if self.upstream:
