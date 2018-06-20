@@ -30,6 +30,7 @@ class BaseNode(object):
     def __init__(self, name, application):
         self.application = application
         self.name = name
+        self.selected = False
         self._parent = None
         self.attributes = []
         self._progress = 0

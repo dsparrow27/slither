@@ -15,24 +15,37 @@ class Compound(node.BaseNode):
         super(Compound, self).__init__(name, application=application)
         self.children = []
 
+    def setSelected(self, selected):
+        """Overridden to select/de-select all children if this compound gets the selection changed
+
+        :param selected: selection value True or False
+        :type selected: bool
+        """
+        self.selected = selected
+        for child in self.children:
+            child.setSelected(selected)
+
     @staticmethod
     def isCompound():
         return True
 
     def __len__(self):
         """returns the number of child nodes for this compound
+
         :return: int
         """
         return len(self.children)
 
     def __iter__(self):
         """Returns a generator of the child nodes
+
         :return: generator
         """
         return iter(self.children)
 
     def __add__(self, other):
         """Adds the nodes from one compound to this one
+
         :param other: Compound
         """
         if isinstance(other, Compound):
