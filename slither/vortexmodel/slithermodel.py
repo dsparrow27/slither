@@ -4,8 +4,9 @@ Qt model for the vortex ui which bind slithers core engine and vortex GUI.
 FYI: Currently this is being prototyped so it pulls and pushes directly to the core without an undo.
 
 """
+from functools import partial
 from slither import api
-from qt import QtGui
+from qt import QtGui,QtWidgets
 from vortex.ui.graphics import graphicsdatamodel
 from vortex.ui import application
 
@@ -69,6 +70,12 @@ class Application(application.UIApplication):
     def onExecute(self):
         print self.currentModel.slitherNode
 
+    def createContextMenu(self, objectModel):
+        if isinstance(objectModel, SlitherUIObject) and objectModel.isCompound():
+            menu = QtWidgets.QMenu()
+            menu.addAction("Create Attribute", partial(objectModel.createAttribute, "testAttr", str, "output"))
+            return menu
+
 
 class SlitherUIObject(graphicsdatamodel.ObjectModel):
 
@@ -82,6 +89,12 @@ class SlitherUIObject(graphicsdatamodel.ObjectModel):
         else:
             self._children = []
         self._attributes = []
+
+    def isSelected(self):
+        return self.slitherNode.selected
+
+    def setSelected(self, value):
+        self.slitherNode.selected = value
 
     def isCompound(self):
         return self.slitherNode.isCompound()
@@ -119,8 +132,14 @@ class SlitherUIObject(graphicsdatamodel.ObjectModel):
             return True
         return False
 
-    def createAttribute(self, **kwargs):
-        pass
+    def createAttribute(self, name, Type, IOType="output"):
+        if not self.canCreateAttributes():
+            return
+        attrDef = api.OutputDefinition(Type)
+        attrDef.name = name
+        self.slitherNode.createAttribute(attrDef)
+        print self.slitherNode.attributes
+
 
     def deleteAttribute(self, attribute):
         pass

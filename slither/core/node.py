@@ -30,7 +30,7 @@ class BaseNode(object):
     def __init__(self, name, application):
         self.application = application
         self.name = name
-        self.selected = False
+        self._selected = False
         self._parent = None
         self.attributes = []
         self._progress = 0
@@ -40,6 +40,14 @@ class BaseNode(object):
             if isinstance(attrDef, attribute.AttributeDefinition):
                 attr = service.createAttribute(self, attrDef)
                 self.addAttribute(attr)
+    @property
+    def selected(self):
+        return self._selected
+    @selected.setter
+    def selected(self, value):
+        if self._selected != value:
+            self._selected = value
+            self.application.event.selectedChanged.send(self, value)
 
     def execute(self):
         pass
@@ -51,7 +59,7 @@ class BaseNode(object):
     @progress.setter
     def progress(self, value):
         self._progress = value
-        self.application.events.nodeProgressUpdated.send(value)
+        self.application.events.nodeProgressUpdated.send(self, value)
 
     @staticmethod
     def isCompound():

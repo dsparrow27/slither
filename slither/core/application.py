@@ -74,6 +74,7 @@ class ApplicationEvents(object):
     nodeRemoved = signal("Node Deleted")
     nodeNameChanged = signal("Node Name Changed")
     nodeParentChanged = signal("Node parent Changed")
+    selectedChanged = signal("Selection Changed")
     attributeCreated = signal("Attribute Created", doc="Triggerd any time a new custom attribute is created")
     attributeRemoved = signal("Attribute Deleted")
     attributeValueChanged = signal("Attribute Value Changed")
