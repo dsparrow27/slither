@@ -1,5 +1,9 @@
+import logging
+
 from slither.core import typeregistry
 from slither.core import errors
+
+logger = logging.getLogger("Slither")
 
 
 class AttributeDefinition(object):
@@ -130,6 +134,8 @@ class Attribute(object):
     def setParent(self, parent):
         if self.parent != parent:
             self.parent = parent
+            logger.debug("Parent for child: {} has been set to: {}".format(self.fullName(),
+                                                                           self.parent.fullName()))
 
     def type(self):
         return self.definition.type
@@ -163,13 +169,14 @@ class Attribute(object):
         return False
 
     def canConnect(self, attribute):
+        isCompound = attribute.parent.isCompound() or self.parent.isCompound()
         if attribute.parent == self.parent:
             return False
-        elif attribute.isInput() and self.isInput():
+        elif attribute.isInput() and self.isInput() and not isCompound:
             return False
-        elif attribute.isOutput() and self.isOutput():
+        elif attribute.isOutput() and self.isOutput() and not isCompound:
             return False
-        elif attribute.type() != self.type():
+        elif not isinstance(attribute.type(), self.type().__class__):
             return False
 
         return True
@@ -187,6 +194,8 @@ class Attribute(object):
         if self.upstream:
             raise errors.AttributeAlreadyConnected(self, attribute)
         self.upstream = attribute
+        logger.debug("Connected Attributes, upstream: {}, downstream: {}".format(self.upstream.fullName(),
+                                                                                 self.fullName()))
         self.parent.application.events.connectionAdded.send(self.name(), source=attribute, destination=self)
 
     def connectDownstream(self, attribute):

@@ -14,7 +14,7 @@ class DataType(object):
         return self.Type == other.Type and self._value == other.value
 
     def __ne__(self, other):
-        return self._value != other.value()
+        return self.Type != other.Type or self._value != other.value()
 
     def value(self):
         return self._value

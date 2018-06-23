@@ -4,11 +4,15 @@ Qt model for the vortex ui which bind slithers core engine and vortex GUI.
 FYI: Currently this is being prototyped so it pulls and pushes directly to the core without an undo.
 
 """
+import logging
+import pprint
 from functools import partial
 from slither import api
 from qt import QtGui,QtWidgets
 from vortex.ui.graphics import graphicsdatamodel
 from vortex.ui import application
+logger = logging.getLogger(__name__)
+
 
 ATTRIBUTETYPEMAP = {'Quaternion': QtGui.QColor(126.999945, 24.999944999999997, 24.999944999999997),
                     'color': QtGui.QColor(22.999980000000015, 255, 255),
@@ -68,13 +72,21 @@ class Application(application.UIApplication):
         act.triggered.connect(self.onExecute)
 
     def onExecute(self):
-        print self.currentModel.slitherNode
+        # note: temp
+        logger.debug(pprint.pformat(self.currentModel.slitherNode.serialize()))
 
     def createContextMenu(self, objectModel):
         if isinstance(objectModel, SlitherUIObject) and objectModel.isCompound():
             menu = QtWidgets.QMenu()
-            menu.addAction("Create Attribute", partial(objectModel.createAttribute, "testAttr", str, "output"))
+            import uuid
+            #note: this is temp, should run through a dialog
+            menu.addAction("Create Attribute", partial(objectModel.createAttribute, str(uuid.uuid4()), str, "output"))
             return menu
+
+    def onSelectionChangedEvent(self, slitherNode, state):
+        for child in self.currentModel.children():
+            if child.slitherNode == slitherNode:
+                self.onSelectionChanged.emit(child, state)
 
 
 class SlitherUIObject(graphicsdatamodel.ObjectModel):
@@ -135,11 +147,13 @@ class SlitherUIObject(graphicsdatamodel.ObjectModel):
     def createAttribute(self, name, Type, IOType="output"):
         if not self.canCreateAttributes():
             return
-        attrDef = api.OutputDefinition(Type)
+        # temp, should be constants
+        if IOType == "output":
+            attrDef = api.OutputDefinition(Type)
+        else:
+            attrDef = api.InputDefinition(Type)
         attrDef.name = name
         self.slitherNode.createAttribute(attrDef)
-        print self.slitherNode.attributes
-
 
     def deleteAttribute(self, attribute):
         pass

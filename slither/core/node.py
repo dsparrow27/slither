@@ -47,7 +47,7 @@ class BaseNode(object):
     def selected(self, value):
         if self._selected != value:
             self._selected = value
-            self.application.event.selectedChanged.send(self, value)
+            self.application.events.selectedChanged.send(self, state=value)
 
     def execute(self):
         pass
@@ -59,7 +59,7 @@ class BaseNode(object):
     @progress.setter
     def progress(self, value):
         self._progress = value
-        self.application.events.nodeProgressUpdated.send(self, value)
+        self.application.events.nodeProgressUpdated.send(self, progress=value)
 
     @staticmethod
     def isCompound():
