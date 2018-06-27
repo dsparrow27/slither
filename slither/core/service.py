@@ -1,6 +1,8 @@
+import logging
 from collections import OrderedDict
 from slither.core import attribute
 
+logger = logging.getLogger("Slither")
 
 def topologicalOrder(nodes):
     unsorted = {}
@@ -83,14 +85,16 @@ def serializeCompound(compound, recursive=True):
 
 def createAttribute(nodeInstance, attributeDefinition):
     if nodeInstance.hasAttribute(attributeDefinition.name):
-        raise ValueError("Name -> %s already exists" % attributeDefinition.name)
-
+        logger.error("Can't create attribute: {} because it already exists".format(attributeDefinition.name))
+        raise ValueError("Name -> {} already exists".format(attributeDefinition.name))
+    logger.debug("Creating Attribute: {} on node: {}".format(attributeDefinition.name,
+                                                             nodeInstance.name))
     if attributeDefinition.isArray:
-        newAttribute = attribute.ArrayAttribute(attributeDefinition, parent=nodeInstance)
+        newAttribute = attribute.ArrayAttribute(attributeDefinition, node=nodeInstance)
     elif attributeDefinition.isCompound:
-        newAttribute = attribute.CompoundAttribute(attributeDefinition, parent=nodeInstance)
+        newAttribute = attribute.CompoundAttribute(attributeDefinition, node=nodeInstance)
     else:
-        newAttribute = attribute.Attribute(attributeDefinition, parent=nodeInstance)
+        newAttribute = attribute.Attribute(attributeDefinition, node=nodeInstance)
     return newAttribute
 
 

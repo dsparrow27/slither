@@ -13,7 +13,7 @@ os.environ[TYPE_LIB_ENV] = os.path.join(pluginBase, "datatypes")
 from slither.core import application as _application
 
 logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("Slither")
 logger.addHandler(logging.NullHandler())
 
 _currentApplication = None

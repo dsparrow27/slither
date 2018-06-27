@@ -8,11 +8,11 @@ import logging
 import pprint
 from functools import partial
 from slither import api
-from qt import QtGui,QtWidgets
+from qt import QtGui, QtWidgets
 from vortex.ui.graphics import graphicsdatamodel
 from vortex.ui import application
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 ATTRIBUTETYPEMAP = {'Quaternion': QtGui.QColor(126.999945, 24.999944999999997, 24.999944999999997),
                     'color': QtGui.QColor(22.999980000000015, 255, 255),
@@ -41,6 +41,42 @@ class Application(application.UIApplication):
         self.onNewNodeRequested.emit({"model": self.currentModel,
                                       "newTab": True})
         self._apiApplication.events.nodeCreated.connect(self.uiNodeForCore)
+        # self._apiApplication.events.connectionAdded.connect(self.onConnectionAdded)
+        # self._apiApplication.events.connectionRemoved.connect(self.onConnectionRemoved)
+
+    def onConnectionAdded(self, sender, source, destination, sourceNode, destinationNode):
+        sNode = None
+        destNode = None
+        for child in self.currentModel.children():
+            if child.slitherNode == sourceNode:
+                source = child
+            elif child.slitherNode == destinationNode:
+                destination = child
+            if sNode and destNode:
+                break
+
+        if sNode and destination:
+            sourceAttr = sNode.attribute(source.name)
+            destinationAttr = destNode.attribute(destination.name)
+            sourceAttr.createConnection(destinationAttr)
+            self.onConnectionAddedRequested.emit(sourceAttr, destinationAttr)
+
+    def onConnectionRemoved(self, sender, source, destination, sourceNode, destinationNode):
+        sNode = None
+        destNode = None
+        for child in self.currentModel.children():
+            if child.slitherNode == sourceNode:
+                source = child
+            elif child.slitherNode == destinationNode:
+                destination = child
+            if sNode and destNode:
+                break
+
+        if sNode and destination:
+            sourceAttr = sNode.attribute(source.name)
+            destinationAttr = destNode.attribute(destination.name)
+            sourceAttr.deleteConnection(destinationAttr)
+            self.onConnectionDeleteRequested.emit(sourceAttr, destinationAttr)
 
     def uiNodeForCore(self, node):
         """Called by the core api to added node to current model
@@ -79,7 +115,7 @@ class Application(application.UIApplication):
         if isinstance(objectModel, SlitherUIObject) and objectModel.isCompound():
             menu = QtWidgets.QMenu()
             import uuid
-            #note: this is temp, should run through a dialog
+            # note: this is temp, should run through a dialog
             menu.addAction("Create Attribute", partial(objectModel.createAttribute, str(uuid.uuid4()), str, "output"))
             return menu
 
@@ -101,6 +137,28 @@ class SlitherUIObject(graphicsdatamodel.ObjectModel):
         else:
             self._children = []
         self._attributes = []
+        self.slitherNode.events.addCallback(self.slitherNode.events.kAddConnection, self._onConnectionAdded)
+
+    def _onConnectionAdded(self, sender, source, destination, sourceNode, destinationNode):
+        if not self.isCompound():
+            destinationNodeModel = None
+            destinationAttr = None
+            for i in self.parentObject().children():
+                if i.slitherNode == destinationNode:
+                    destinationNodeModel = i
+                    for attr in i.attributes():
+                        if attr.internalAttr == destination:
+                            destinationAttr = attr
+                            break
+                    break
+            sourceAttr = None
+            for attr in self.attributes():
+                if attr.internalAttr == source:
+                    sourceAttr = attr
+                    break
+            if destinationNodeModel and sourceAttr and destinationAttr:
+                self.addConnectionSig.emit(self, destinationNodeModel,
+                                           sourceAttr, destinationAttr)
 
     def isSelected(self):
         return self.slitherNode.selected

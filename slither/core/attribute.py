@@ -91,13 +91,16 @@ class Attribute(object):
     """
     type_ = "generic"
 
-    def __init__(self, definition, parent=None):
+    def __init__(self, definition, node=None):
         """
         :param definition:
-        :param parent:
+        :param node:
         """
         self.definition = definition
-        self.parent = parent
+        # node that this attribute is attached too.
+        self.node = node
+        # parent attribute
+        self.parent = None
         self.upstream = None
         self._value = None
         if definition:
@@ -123,8 +126,9 @@ class Attribute(object):
 
     def setName(self, name):
         self.definition.setName(name)
-
-        self.parent.application.events.atttributeNameChanged.send(self, name)
+        self.node.events.emitCallback(self.node.events.kAttributeNameChanged, node=self.node, attribute=self,
+                                      name=name)
+        # self.node.application.events.atttributeNameChanged.send(self, name)
 
     def fullName(self):
         if self.parent:
@@ -137,6 +141,12 @@ class Attribute(object):
             logger.debug("Parent for child: {} has been set to: {}".format(self.fullName(),
                                                                            self.parent.fullName()))
 
+    def setNode(self, node):
+        if self.node != node:
+            self.node = node
+            logger.debug("Parent for child: {} has been set to: {}".format(self.fullName(),
+                                                                           self.node.fullName()))
+
     def type(self):
         return self.definition.type
 
@@ -148,7 +158,10 @@ class Attribute(object):
     def setValue(self, value):
         if self._value != value:
             self._value.setValue(value)
-            self.parent.application.events.attributeValueChanged.send(self.name(), attribute=self, value=value)
+            self.node.events.emitCallback(self.node.events.kAttributeValueChanged,
+                                          node=self.node,
+                                          attribute=self,
+                                          value=value)
 
     def isInput(self):
         """Returns True if this attribute is an output attribute"""
@@ -169,8 +182,8 @@ class Attribute(object):
         return False
 
     def canConnect(self, attribute):
-        isCompound = attribute.parent.isCompound() or self.parent.isCompound()
-        if attribute.parent == self.parent:
+        isCompound = attribute.node.isCompound() or self.node.isCompound()
+        if attribute.parent == self.node:
             return False
         elif attribute.isInput() and self.isInput() and not isCompound:
             return False
@@ -196,14 +209,22 @@ class Attribute(object):
         self.upstream = attribute
         logger.debug("Connected Attributes, upstream: {}, downstream: {}".format(self.upstream.fullName(),
                                                                                  self.fullName()))
-        self.parent.application.events.connectionAdded.send(self.name(), source=attribute, destination=self)
+        self.node.events.emitCallback(self.node.events.kAddConnection,
+                                      source=attribute,
+                                      destination=self,
+                                      sourceNode=self.upstream.node,
+                                      destinationNode=self.node)
 
     def connectDownstream(self, attribute):
         attribute.connectUpstream(self)
 
     def disconnect(self):
         if self.hasUpstream():
-            self.parent.application.events.connectionRemoved.send(self.name(), source=self.upstream, destination=self)
+            # self.node.events.emitCallback(self.node.events.kRemoveConnection,
+            #                               source=self.upstream,
+            #                               destination=self,
+            #                               sourceNode=self.upstream.node,
+            #                               destinationNode=self.node)
             self.upstream = None
 
     def serialize(self):
@@ -213,8 +234,8 @@ class Attribute(object):
         value = self.value()
         if definition:
             data["definition"] = definition
-        if self.parent:
-            data["parent"] = self.parent.fullName()
+        if self.node:
+            data["parent"] = self.node.fullName()
         data["value"] = value
         if self.upstream:
             data["upstream"] = self.upstream.fullName()
@@ -228,8 +249,8 @@ class Attribute(object):
 class CompoundAttribute(Attribute):
     type_ = "compound"
 
-    def __init__(self, definition, parent=None):
-        super(CompoundAttribute, self).__init__(definition, parent=parent)
+    def __init__(self, definition, node=None):
+        super(CompoundAttribute, self).__init__(definition, node=node)
         self.children = []
 
     def __repr__(self):
@@ -273,9 +294,6 @@ class ArrayAttribute(Attribute):
     """Array base Attribute which is used for sequence data types eg.lists, tuples etc
     """
     type_ = "array"
-
-    def __init__(self, definition, parent=None):
-        super(ArrayAttribute, self).__init__(definition, parent)
 
     def __repr__(self):
         return "ArrayAttribute(%s)" % (self.name())

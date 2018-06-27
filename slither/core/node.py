@@ -1,7 +1,62 @@
 import copy
-
+import uuid
+from blinker import signal
 from slither.core import attribute
 from slither.core import service
+
+class NodeEvents(object):
+    kAddAttribute = 0
+    kAttributeNameChanged = 1
+    kNodeNameChanged = 2
+    kRemoveAttribute = 3
+    kAddConnection = 4
+    kRemoveConnection = 5
+    kValueChanged = 6
+    kSelectionChanged = 7
+    kProgressUpdated = 8
+    kParentChanged = 9
+
+    def __init__(self):
+        #{callbackType: {"event": Signal,
+                        # "ids": {id: func}
+        #               }
+        # }
+        self.callbacks = {}
+
+    def emitCallback(self, callbackType, **kwargs):
+        existing = self.callbacks.get(callbackType)
+        if existing is None:
+            return
+        ids = existing["ids"]
+        if not ids:
+            return
+        existing["event"].send(self.emitCallback,**kwargs)
+
+    def addCallback(self, callbackType, func):
+        existingCallback = self.callbacks.get(callbackType)
+
+        # we have existing callback for the type so just connect to it
+        callbackId = uuid.uuid4()
+        if existingCallback is not None:
+            existingCallback["event"].connect(func)
+            existingCallback["ids"].update({callbackId: func})
+        else:
+            # no existing callback so create One
+            event = signal(callbackType)
+            event.connect(func, sender=self.emitCallback)
+            self.callbacks[callbackType] = {"event": event,
+                                            "ids": {callbackId: func}}
+        return callbackId
+
+    def removeCallback(self, callbackId):
+        for eventInfo in self.callbacks.values():
+            ids = eventInfo["ids"]
+            func = ids.get(callbackId)
+            if func is not None:
+                eventInfo["event"].disconnect(func)
+                del ids[callbackId]
+                return True
+        return False
 
 
 class NodeMeta(type):
@@ -29,6 +84,7 @@ class BaseNode(object):
 
     def __init__(self, name, application):
         self.application = application
+        self.events = NodeEvents()
         self.name = name
         self._selected = False
         self._parent = None
@@ -43,11 +99,12 @@ class BaseNode(object):
     @property
     def selected(self):
         return self._selected
+
     @selected.setter
     def selected(self, value):
         if self._selected != value:
             self._selected = value
-            self.application.events.selectedChanged.send(self, state=value)
+            self.events.emitCallback(NodeEvents.kSelectionChanged, node=self, state=value)
 
     def execute(self):
         pass
@@ -59,7 +116,7 @@ class BaseNode(object):
     @progress.setter
     def progress(self, value):
         self._progress = value
-        self.application.events.nodeProgressUpdated.send(self, progress=value)
+        self.events.emitCallback(NodeEvents.kProgressUpdated, node=self, progress=value)
 
     @staticmethod
     def isCompound():
@@ -71,6 +128,15 @@ class BaseNode(object):
 
     def __repr__(self):
         return "{0}({1})".format(self.__class__.__name__, self.name)
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        return other is not None and self.name == other.name
+
+    def __ne__(self, other):
+        return other is not None and self.name != other.name
 
     def __setattr__(self, name, value):
         if hasattr(self, "attributes"):
@@ -107,7 +173,7 @@ class BaseNode(object):
     def parent(self, node):
         if self._parent != node:
             self._parent = node
-            self.application.events.nodeParentChanged.send(self.name, node=self, parent=node)
+            self.events.emitCallback(NodeEvents.kParentChanged, node=self, parent=node)
 
     def type(self):
         """Returns the type of this node
@@ -123,7 +189,7 @@ class BaseNode(object):
         """
         if self.name != name:
             self.name = name
-            self.application.events.nodeNameChanged.send(self.name, name=name)
+            self.events.emitCallback(NodeEvents.kNodeNameChanged, node=self, name=self)
 
         return self.name
 
@@ -143,7 +209,7 @@ class BaseNode(object):
     def addAttribute(self, attribute):
         if attribute not in self.attributes:
             self.attributes.append(attribute)
-            self.application.events.attributeCreated.send(self.name, node=self, attribute=attribute)
+            self.events.emitCallback(NodeEvents.kAddAttribute, node=self, attribute=attribute)
             return True
         return False
 
@@ -159,7 +225,7 @@ class BaseNode(object):
         for i in range(len(self.attributes)):
             attr = self.attributes[i]
             if attr.name() == name:
-                self.application.events.attributeRemoved.send(self.name, node=self, attribute=attr)
+                self.events.emitCallback(NodeEvents.kRemoveAttribute, node=self, attribute=attr)
                 del self.attributes[i]
                 return True
         return False
