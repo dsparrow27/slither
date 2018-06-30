@@ -27,6 +27,7 @@ ATTRIBUTETYPEMAP = {'Quaternion': QtGui.QColor(126.999945, 24.999944999999997, 2
                     list: QtGui.QColor(56.000040000000006, 47.99992500000001, 45.00010500000001),
                     str: QtGui.QColor(244.9999965, 214.999935, 59.99997)
                     }
+ATTRIBUTE_DISCONNECTED_COLOR = QtGui.QColor(25, 25, 25)
 NODECOLORMAP = {}
 
 
@@ -279,8 +280,18 @@ class AttributeModel(graphicsdatamodel.AttributeModel):
     def isOutput(self):
         return self.internalAttr.isOutput()
 
+    def itemEdgeColor(self):
+        attr = self.internalAttr
+        Map = ATTRIBUTETYPEMAP.get(attr.type().Type)
+        if Map:
+            return Map
+        return super(AttributeModel, self).itemEdgeColor()
+
     def itemColour(self):
-        Map = ATTRIBUTETYPEMAP.get(self.internalAttr.type().Type)
+        attr = self.internalAttr
+        if attr.isInput() and not attr.upstream:
+            return ATTRIBUTE_DISCONNECTED_COLOR
+        Map = ATTRIBUTETYPEMAP.get(attr.type().Type)
         if Map:
             return Map
         return super(AttributeModel, self).itemColour()

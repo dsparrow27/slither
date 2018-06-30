@@ -4,11 +4,11 @@ from slither.core import attribute
 
 logger = logging.getLogger("Slither")
 
+
 def topologicalOrder(nodes):
     unsorted = {}
     for child in nodes:
-        dependencies = child.upstreamNodes() # attribute level dependencies
-        dependencies.extend(child.dependencies) # add the node level dependencies
+        dependencies = child.upstreamNodes()  # attribute level dependencies
         unsorted[child] = dependencies
 
     sortedNodes = OrderedDict()

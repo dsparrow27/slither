@@ -89,7 +89,8 @@ class Compound(node.BaseNode):
     def removeChild(self, child):
         if isinstance(child, str):
             child = self.child(child)
-
+        if not child.isLocked or child.isInternal:
+            return False
         if child in self:
             child.disconnectAll()
             self.children.remove(child)
@@ -100,6 +101,15 @@ class Compound(node.BaseNode):
         for child in self.children:
             self.removeChild(child)
         self.children = []
+
+    def remove(self):
+        if self.isLocked or self.isInternal:
+            return False
+        par = self.parent
+        if par is not None:
+            self.clear()
+            par.removeChild(self)
+        return True
 
     def hasChild(self, name):
         for i in self:

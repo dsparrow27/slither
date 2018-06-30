@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 
 class DataType(object):
-    Type = ""
+    Type = None
 
     def __init__(self, value=None):
         self._value = value

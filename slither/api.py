@@ -1,5 +1,9 @@
 import logging, os, sys
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger("Slither")
+logger.addHandler(logging.NullHandler())
+
 NODE_LIB_ENV = "SLITHER_NODE_LIB"
 TYPE_LIB_ENV = "SLITHER_TYPE_LIB"
 
@@ -11,12 +15,12 @@ os.environ[NODE_LIB_ENV] = os.path.join(pluginBase, "nodes")
 os.environ[TYPE_LIB_ENV] = os.path.join(pluginBase, "datatypes")
 
 from slither.core import application as _application
-
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger("Slither")
-logger.addHandler(logging.NullHandler())
+from slither.core.attribute import InputDefinition, OutputDefinition
+from slither.core import ktypes
 
 _currentApplication = None
+
+
 def initialize():
     global _currentApplication
     if _currentApplication:
@@ -25,7 +29,5 @@ def initialize():
     _currentApplication = _application.Application()
     return _currentApplication
 
-currentInstance = initialize()
 
-from slither.core.attribute import InputDefinition, OutputDefinition
-from slither.core import ktypes
+currentInstance = initialize()

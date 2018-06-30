@@ -18,7 +18,8 @@ class NodeRegistry(object):
 
     def __init__(self):
         self.registerFromEnv(NodeRegistry.NODE_LIB_ENV)
-        NodeRegistry.nodes["system"] = compound.Compound
+        # add the compound base node
+        NodeRegistry.nodes["Compound"] = compound.Compound
 
     @classmethod
     def node(cls, type_):

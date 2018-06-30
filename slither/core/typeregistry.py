@@ -8,7 +8,7 @@ from slither.core import classtypes
 
 class DataTypeRegistry(object):
     __metaclass__ = classtypes.Singleton
-    dataTypes = {}
+    dataTypes = {types.DataType.Type: types.DataType}
     TYPE_LIB_ENV = "SLITHER_TYPE_LIB"
 
     def __init__(self):

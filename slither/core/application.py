@@ -15,6 +15,9 @@ class Application(object):
         self._root = None
         self.globals = {}
 
+    def __repr__(self):
+        return "<{}>".format(self.__class__.__name__)
+
     @property
     def events(self):
         return self._events
@@ -31,7 +34,10 @@ class Application(object):
     def root(self):
         if self._root is not None:
             return self._root
-        self._root = self._nodeRegistry.node(type_="system")(name="system", application=self)
+        self._root = self._nodeRegistry.node(type_="Compound")(name="Root System", application=self)
+        # mark the root as internal and locked so it can't be deleted.
+        self._root.isLocked = True
+        self._root.isInternal = True
         # should emit event
         return self._root
 

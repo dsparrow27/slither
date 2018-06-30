@@ -4,6 +4,7 @@ from blinker import signal
 from slither.core import attribute
 from slither.core import service
 
+
 class NodeEvents(object):
     kAddAttribute = 0
     kAttributeNameChanged = 1
@@ -17,8 +18,8 @@ class NodeEvents(object):
     kParentChanged = 9
 
     def __init__(self):
-        #{callbackType: {"event": Signal,
-                        # "ids": {id: func}
+        # {callbackType: {"event": Signal,
+        # "ids": {id: func}
         #               }
         # }
         self.callbacks = {}
@@ -30,7 +31,7 @@ class NodeEvents(object):
         ids = existing["ids"]
         if not ids:
             return
-        existing["event"].send(self.emitCallback,**kwargs)
+        existing["event"].send(self.emitCallback, **kwargs)
 
     def addCallback(self, callbackType, func):
         existingCallback = self.callbacks.get(callbackType)
@@ -67,7 +68,6 @@ class NodeMeta(type):
             if isinstance(attr, attribute.AttributeDefinition):
                 attr.setName(name)
                 attrsToRename.append(attr)
-
         for attr in attrsToRename:
             name = attr.name
             newName = "_%s" % name if not name.startswith("_") else name
@@ -86,16 +86,27 @@ class BaseNode(object):
         self.application = application
         self.events = NodeEvents()
         self.name = name
+        self.attributes = []
+        self.metadata = {}
+        self.isLocked = False
+        self.isLocked = False
+        self.isInternal = False
         self._selected = False
         self._parent = None
-        self.attributes = []
         self._progress = 0
-        self.metadata = {}
-        self.dependencies = []  # node level dependencies
+        attrDef = attribute.InputDefinition(type_=None,
+                                                    default=None,
+                                                    required=False, array=True,
+                                                    doc="Node Level dependencies")
+        attrDef.name = "Dependencies"
+        attr = service.createAttribute(self, attrDef)
+        self.addAttribute(attr)
+
         for name, attrDef in iter(self.__class__.__dict__.items()):
             if isinstance(attrDef, attribute.AttributeDefinition):
                 attr = service.createAttribute(self, attrDef)
                 self.addAttribute(attr)
+
     @property
     def selected(self):
         return self._selected
@@ -160,10 +171,6 @@ class BaseNode(object):
         if attr is not None:
             return attr
         return super(BaseNode, self).__getattribute__(name)
-
-    def addDependency(self, node):
-        if node not in self.dependencies:
-            self.dependencies.append(node)
 
     @property
     def parent(self):
