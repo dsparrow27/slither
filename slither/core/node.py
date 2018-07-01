@@ -335,3 +335,16 @@ class BaseNode(object):
 
     def clone(self):
         copy.deepcopy(self)
+
+    def copyOutputData(self, outputs):
+        """Copies the output data on to this nodes output values.
+
+        :param outputs:
+        :type outputs:
+        :return:
+        :rtype:
+        """
+        for name, value in iter(outputs.items()):
+            attr = self.attribute(name)
+            if attr is not None:
+                attr.setValue(value)

@@ -35,10 +35,3 @@ def nodeBreadthFirstSearch(node):
         stack.extend(upstreams)
 
     return topologicalOrder(visited)
-
-
-def copyOutputData(node, outputs):
-    for name, value in iter(outputs.items()):
-        attr = node.attribute(name)
-        if attr is not None:
-            attr.setValue(value)

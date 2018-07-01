@@ -4,7 +4,7 @@ from slither.core import types
 from zoo.libs.plugin import pluginmanager
 from slither.core import node
 from slither.core import compound
-from slither.core import classtypes
+from zoo.libs.utils import classtypes
 
 logger = logging.getLogger(__name__)
 

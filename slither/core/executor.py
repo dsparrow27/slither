@@ -3,7 +3,13 @@ import multiprocessing
 from slither.core import service
 
 
-class Parallel(object):
+class Executor(object):
+    Type = "base"
+
+
+class Parallel(Executor):
+    Type = "Parallel"
+
     @classmethod
     def execute(cls, node):
         """Executes a given node in parellel if the node is a compound then the children will be executed
@@ -86,7 +92,9 @@ class Parallel(object):
         parentConnection.send(data)
 
 
-class StandardExecutor(object):
+class StandardExecutor(Executor):
+    Type = "Serial"
+
     @classmethod
     def execute(cls, node):
         if node.isCompound():

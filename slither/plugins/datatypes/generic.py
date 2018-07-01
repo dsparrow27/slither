@@ -1,4 +1,4 @@
-from slither.utils import generic
+from zoo.libs.utils import general
 from slither.core import types
 
 
@@ -105,9 +105,10 @@ class ListType(types.DataType):
 
     def setValue(self, value):
         if self.value() != value:
-            if not generic.isIteratable(value):
+            if not general.isIteratable(value):
                 value = list(value)
             self._value = value
 
+
 class MultiType(types.DataType):
-    Type ="multi"
+    Type = "multi"
