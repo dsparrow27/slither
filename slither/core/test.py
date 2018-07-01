@@ -1,7 +1,7 @@
 import unittest
 import os
 import tempfile
-from slither.core import nodeRegistry
+from slither.core import registry
 from slither.core import executor
 
 
@@ -37,7 +37,7 @@ class BaseUnitest(unittest.TestCase):
 
 
 class TestExecutor(BaseUnitest):
-    registry = nodeRegistry.NodeRegistry()
+    registry = registry.NodeRegistry()
 
     def registerTasks(self, modulePath):
         for path in modulePath.split(os.pathsep):

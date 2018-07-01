@@ -3,6 +3,9 @@ import uuid
 from blinker import signal
 from slither.core import attribute
 from slither.core import service
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class NodeEvents(object):
@@ -94,18 +97,17 @@ class BaseNode(object):
         self._selected = False
         self._parent = None
         self._progress = 0
-        attrDef = attribute.InputDefinition(type_=None,
-                                                    default=None,
-                                                    required=False, array=True,
-                                                    doc="Node Level dependencies")
+        attrDef = attribute.AttributeDefinition(isInput=True,
+                                                type_=None,
+                                                default=None,
+                                                required=False, array=True,
+                                                doc="Node Level dependencies")
         attrDef.name = "Dependencies"
-        attr = service.createAttribute(self, attrDef)
-        self.addAttribute(attr)
+        self.createAttribute(attrDef)
 
         for name, attrDef in iter(self.__class__.__dict__.items()):
             if isinstance(attrDef, attribute.AttributeDefinition):
-                attr = service.createAttribute(self, attrDef)
-                self.addAttribute(attr)
+                self.createAttribute(attrDef)
 
     @property
     def selected(self):
@@ -221,12 +223,23 @@ class BaseNode(object):
         return False
 
     def createAttribute(self, attributeDefinition):
-        attr = service.createAttribute(self, attributeDefinition)
-        name = attr.name()
-        className = "_%s" % name if not name.startswith("_") else name
+        if self.hasAttribute(attributeDefinition.name):
+            logger.error("Can't create attribute: {} because it already exists".format(attributeDefinition.name))
+            raise ValueError("Name -> {} already exists".format(attributeDefinition.name))
+        logger.debug("Creating Attribute: {} on node: {}".format(attributeDefinition.name,
+                                                                 self.name))
+        if attributeDefinition.isArray:
+            newAttribute = attribute.ArrayAttribute(attributeDefinition, node=self)
+        elif attributeDefinition.isCompound:
+            newAttribute = attribute.CompoundAttribute(attributeDefinition, node=self)
+        else:
+            newAttribute = attribute.Attribute(attributeDefinition, node=self)
+
+        name = newAttribute.name()
+        className = "_{}".format(name) if not name.startswith("_") else name
         super(BaseNode, self).__setattr__(className, attributeDefinition)
-        self.addAttribute(attr)
-        return attr
+        self.addAttribute(newAttribute)
+        return newAttribute
 
     def removeAttribute(self, name):
         for i in range(len(self.attributes)):
@@ -281,13 +294,33 @@ class BaseNode(object):
         return False
 
     def upstreamNodes(self):
-        return service.upstreamNodes(self)
+        nodes = []
+        for input_ in self.iterInputs():
+            if input_.hasUpstream():
+                nodes.append(input_.upstream.node)
+        return nodes
 
     def downStreamNodes(self):
-        return service.downStreamNodes(self)
+        nodes = []
+        if self.parent:
+            children = self.parent.children
+            for i in children:
+                if self in i.upstreamNodes():
+                    nodes.append(i)
+        return nodes
 
     def siblings(self):
-        return service.siblingNodes(self)
+        """Finds and returns all the siblings nodes under the node parent
+
+        :return:
+        :rtype: list(Basenode instance)
+        """
+        nodes = []
+        if self.parent:
+            for i in self.parent:
+                if i != self:
+                    nodes.append(i)
+        return nodes
 
     def disconnectAll(self):
         for attr in self.iterAttributes():

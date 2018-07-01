@@ -12,7 +12,6 @@ def isIteratable(obj):
         return False
 
 
-
 def loadJson(filePath):
     """
     This procedure loads and returns the data of a json file
@@ -47,4 +46,3 @@ def saveJson(data, filepath, **kws):
     logger.info("------->> file correctly saved to : {0}".format(filepath))
 
     return True
-
