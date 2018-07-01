@@ -4,17 +4,15 @@ Crude implementation of a parallel execution engine in python but without dirty 
 
 # TODO
 1. unittest
-2. single process runner
-3. system compound for general use
-4. maya processing nodes(I/O)
-5. 3dsmax nodes
-6. on demand dirty propagation
-7. documentation
-8. error handling within nodes
-9. Skip attribute and node initialization if a node fails to initialize
-10. up front graph expansion since by default compounds we lazily expand only when we hit a compound not up front.
-11. example of creating a graph on the fly.
-12. deserialize a graph from json
+2. maya processing nodes(I/O)
+3. 3dsmax nodes
+4. on demand dirty propagation
+5. documentation
+6. error handling within nodes
+7. Skip attribute and node initialization if a node fails to initialize
+8. up front graph expansion since by default compounds we lazily expand only when we hit a compound not up front.
+10. example of creating a graph on the fly.
+11. deserialize a graph from json
 
 # Environment variables
 These variables store the node and data type library, you can add your own directory paths once slither is initialized
