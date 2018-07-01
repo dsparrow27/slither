@@ -15,6 +15,7 @@ class Application(object):
         self._root = None
         self.globals = {}
 
+
     def __repr__(self):
         return "<{}>".format(self.__class__.__name__)
 
@@ -76,11 +77,12 @@ class Application(object):
 
 
 class ApplicationEvents(object):
-    nodeCreated = signal("Node Created")
-    nodeRemoved = signal("Node Deleted")
+    def __init__(self):
+        self.nodeCreated = signal("Node Created")
+        self.nodeRemoved = signal("Node Deleted")
+        self.selectedChanged = signal("Selection Changed")
     # nodeNameChanged = signal("Node Name Changed")
     # nodeParentChanged = signal("Node parent Changed")
-    # selectedChanged = signal("Selection Changed")
     # attributeCreated = signal("Attribute Created", doc="Triggerd any time a new custom attribute is created")
     # attributeRemoved = signal("Attribute Deleted")
     # attributeValueChanged = signal("Attribute Value Changed")

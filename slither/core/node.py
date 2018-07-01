@@ -13,7 +13,7 @@ class NodeEvents(object):
     kAddConnection = 4
     kRemoveConnection = 5
     kValueChanged = 6
-    kSelectionChanged = 7
+    # kSelectionChanged = 7
     kProgressUpdated = 8
     kParentChanged = 9
 
@@ -95,9 +95,9 @@ class BaseNode(object):
         self._parent = None
         self._progress = 0
         attrDef = attribute.InputDefinition(type_=None,
-                                                    default=None,
-                                                    required=False, array=True,
-                                                    doc="Node Level dependencies")
+                                            default=None,
+                                            required=False, array=True,
+                                            doc="Node Level dependencies")
         attrDef.name = "Dependencies"
         attr = service.createAttribute(self, attrDef)
         self.addAttribute(attr)
@@ -115,7 +115,7 @@ class BaseNode(object):
     def selected(self, value):
         if self._selected != value:
             self._selected = value
-            self.events.emitCallback(NodeEvents.kSelectionChanged, node=self, state=value)
+            self.application.events.selectedChanged.send(self, state=value)
 
     def execute(self):
         pass

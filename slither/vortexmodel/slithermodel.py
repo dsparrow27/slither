@@ -11,7 +11,7 @@ from slither import api
 from qt import QtGui, QtWidgets
 from vortex.ui.graphics import graphicsdatamodel
 from vortex.ui import application
-
+import attributewidgets
 logger = logging.getLogger(__name__)
 
 ATTRIBUTETYPEMAP = {'Quaternion': QtGui.QColor(126.999945, 24.999944999999997, 24.999944999999997),
@@ -42,6 +42,7 @@ class Application(application.UIApplication):
         self.onNewNodeRequested.emit({"model": self.currentModel,
                                       "newTab": True})
         self._apiApplication.events.nodeCreated.connect(self.uiNodeForCore)
+        self._apiApplication.events.selectedChanged.connect(self.onSelectionChangedEvent)
         # self._apiApplication.events.connectionAdded.connect(self.onConnectionAdded)
         # self._apiApplication.events.connectionRemoved.connect(self.onConnectionRemoved)
 
@@ -120,9 +121,9 @@ class Application(application.UIApplication):
             menu.addAction("Create Attribute", partial(objectModel.createAttribute, str(uuid.uuid4()), str, "output"))
             return menu
 
-    def onSelectionChangedEvent(self, slitherNode, state):
+    def onSelectionChangedEvent(self, node, state=False):
         for child in self.currentModel.children():
-            if child.slitherNode == slitherNode:
+            if child.slitherNode == node:
                 self.onSelectionChanged.emit(child, state)
 
 
@@ -234,6 +235,29 @@ class SlitherUIObject(graphicsdatamodel.ObjectModel):
     def contextMenu(self, menu):
         pass
 
+    def attributeWidget(self, parent):
+
+        # mainWidget =
+        # for i in self.attributes(True, False):
+        #     Type = i.internalAttr.type().Type
+        #     print Type
+        #     if isinstance(Type, int):
+        #         print "int"
+        #     elif Type is float:
+        #         print "float"
+        # ATTRIBUTETYPEMAP = {'Quaternion': Vector,
+        #                     'color': QtGui.QColor(22.999980000000015, 255, 255),
+        #                     'matrix4': Matrix,
+        #                     'vector2D': Vector,
+        #                     'vector3D': Vector,
+        #                     bool: QtWidgets.QCheckBox,
+        #                     dict: QtGui.QColor(204.0, 127.5, 163.20000000000002),
+        #                     float: NumericAttributeWidget,
+        #                     int: NumericAttributeWidget,
+        #                     list: QtGui.QColor(56.000040000000006, 47.99992500000001, 45.00010500000001),
+        #                     str: stringEdit
+        #                     }
+        print "attyr"
 
 class AttributeModel(graphicsdatamodel.AttributeModel):
     def __init__(self, slitherAttribute, objectModel):
