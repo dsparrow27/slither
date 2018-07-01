@@ -1,5 +1,5 @@
-from .nodeRegistry import NodeRegistry
-from .typeregistry import DataTypeRegistry
+from .registry import NodeRegistry
+from .registry import DataTypeRegistry
 from slither.core import executor
 from blinker import signal
 
@@ -35,7 +35,7 @@ class Application(object):
     def root(self):
         if self._root is not None:
             return self._root
-        self._root = self._nodeRegistry.node(type_="Compound")(name="Root System", application=self)
+        self._root = self._nodeRegistry.loadPlugin("Compound", name="Root System", application=self)
         # mark the root as internal and locked so it can't be deleted.
         self._root.isLocked = True
         self._root.isInternal = True
@@ -52,9 +52,8 @@ class Application(object):
                 newName = name + str(counter)
                 counter += 1
             name = newName
-        newNode = self._nodeRegistry.node(type_=type_)
-        if newNode:
-            newNode = newNode(name=name, application=self)
+        newNode = self._nodeRegistry.loadPlugin(type_, name=name, application=self)
+        if newNode is not None:
             if parent is None:
                 self.root.addChild(newNode)
             elif parent.isCompound():

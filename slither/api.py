@@ -15,8 +15,7 @@ os.environ[NODE_LIB_ENV] = os.path.join(pluginBase, "nodes")
 os.environ[TYPE_LIB_ENV] = os.path.join(pluginBase, "datatypes")
 
 from slither.core import application as _application
-from slither.core.attribute import InputDefinition, OutputDefinition
-from slither.core import ktypes
+
 
 _currentApplication = None
 

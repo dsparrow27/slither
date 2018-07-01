@@ -6,8 +6,8 @@ class Integer(node.BaseNode):
 
     category = "constant"
     documentation = "integer"
-    value = attribute.InputDefinition(type_=int, default=0)
-    output = attribute.OutputDefinition(type_=int, default=0)
+    value = attribute.AttributeDefinition(isInput=True,type_=int, default=0)
+    output = attribute.AttributeDefinition(isOutput=True,type_=int, default=0)
 
     def execute(self):
         self.output.setValue(int(self.input.value()))

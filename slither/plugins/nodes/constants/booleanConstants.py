@@ -5,8 +5,8 @@ from slither.core import node
 class Boolean(node.BaseNode):
     category = "constant"
     documentation = "boolean"
-    value = attribute.InputDefinition(type_=bool, default=True)
-    output = attribute.OutputDefinition(type_=bool, default=True)
+    value = attribute.AttributeDefinition(type_=bool, default=True, isInput=True)
+    output = attribute.AttributeDefinition(type_=bool, default=True, isOutput=True)
 
     def execute(self):
         self.output.setValue(bool(self.input.value()))

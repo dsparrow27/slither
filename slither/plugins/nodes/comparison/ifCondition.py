@@ -3,10 +3,10 @@ from slither.core import attribute
 
 
 class IfNode(node.BaseNode):
-    ifTrue = attribute.InputDefinition(float)
-    ifFalse = attribute.InputDefinition(float)
-    condition = attribute.InputDefinition(float)
-    result = attribute.OutputDefinition(bool)
+    ifTrue = attribute.AttributeDefinition(float, isInput=True)
+    ifFalse = attribute.AttributeDefinition(float, isInput=True)
+    condition = attribute.AttributeDefinition(float, isInput=True)
+    result = attribute.AttributeDefinition(bool, isOutput=True)
 
     def execute(self):
         if self.conditionPlug_.value:

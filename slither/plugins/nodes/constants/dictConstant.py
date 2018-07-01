@@ -5,8 +5,8 @@ from slither.core import node
 class Dictionary(node.BaseNode):
     category = "constant"
     documentation = "Dictionary"
-    input = attribute.OutputDefinition(type_=dict, default=dict())
-    output = attribute.OutputDefinition(type_=dict, default=dict())
+    input = attribute.AttributeDefinition(isOutput=True,type_=dict, default=dict())
+    output = attribute.AttributeDefinition(isOutput=True,type_=dict, default=dict())
 
     def execute(self):
         self.output.setValue(dict(self.input.value()))

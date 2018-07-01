@@ -1,6 +1,6 @@
 import logging
 
-from slither.core import typeregistry
+from slither.core import registry
 from slither.core import errors
 
 logger = logging.getLogger("Slither")
@@ -10,12 +10,17 @@ class AttributeDefinition(object):
     """Acts as a blob of data to be attached to any given attribute, If you're
     """
 
-    def __init__(self, type_=None, default=None, array=False, compound=False, doc=""):
+    def __init__(self, type_=None, default=None, array=False, compound=False, doc="", **kwargs):
         self.name = ""
         self.type = type_
         self.default = default
         self.isArray = array
         self.isCompound = compound
+        self.required = kwargs.get("required", False)
+        self.affectedBy = []
+        self.isInput = kwargs.get("isInput", False)
+        self.isOutput = kwargs.get("isOutput", False)
+
         doc += "\nType: {}".format(str(type))
 
         self.__doc__ = doc
@@ -25,7 +30,7 @@ class AttributeDefinition(object):
     def _validateType(self):
         """Validate's the dataType and converts it if necessary.
         """
-        Type = typeregistry.DataTypeRegistry().dataType(self.type)
+        Type = registry.DataTypeRegistry().loadedPlugins.get(self.type)
         if Type is None:
             raise TypeError("The request type -> %s is incorrect" % self.type)
         self.type = Type(self.default)
@@ -60,30 +65,6 @@ class AttributeDefinition(object):
         for name, value in iter(data.items()):
             if value != self.__getattribute__(name):
                 self.__setattr__(name, value)
-
-
-class InputDefinition(AttributeDefinition):
-    """
-    """
-
-    def __init__(self, type_, default=None, required=False, array=False, doc=""):
-        """
-        """
-        super(InputDefinition, self).__init__(type_, default, array=array, doc=doc)
-        self.required = required
-
-
-class OutputDefinition(AttributeDefinition):
-    """
-    """
-
-    def __init__(self, type_, default=None, array=False, affectedBy=None, doc=""):
-        """
-        """
-        super(OutputDefinition, self).__init__(type_, default, array=array, doc=doc)
-        if affectedBy is None:
-            affectedBy = []
-        self.affectedBy = affectedBy
 
 
 class Attribute(object):
@@ -165,11 +146,11 @@ class Attribute(object):
 
     def isInput(self):
         """Returns True if this attribute is an output attribute"""
-        return isinstance(self.definition, InputDefinition)
+        return self.definition.isInput
 
     def isOutput(self):
         """Returns True if this attribute is an input attribute"""
-        return isinstance(self.definition, OutputDefinition)
+        return self.definition.isOutput
 
     def hasUpstream(self):
         """Determines if the current attribute has a connection, an attribute can have only one connection if its an

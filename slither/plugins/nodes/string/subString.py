@@ -8,10 +8,10 @@ class SubStringNode(node.BaseNode):
     """
     category = "string"
     documentation = __doc__
-    value = attribute.InputDefinition(type_=str, default="", array=True)
-    search = attribute.InputDefinition(type_=str, default="")
-    replace = attribute.InputDefinition(type_=str, default="")
-    output = attribute.OutputDefinition(type_=str, array=True, default=[])
+    value = attribute.AttributeDefinition(isInput=True,type_=str, default="", array=True)
+    search = attribute.AttributeDefinition(isInput=True,type_=str, default="")
+    replace = attribute.AttributeDefinition(isInput=True,type_=str, default="")
+    output = attribute.AttributeDefinition(isOutput=True,type_=str, array=True, default=[])
 
     def execute(self):
         result = [re.sub(self.self.search.value(), self.replace.value(), char) for char in
