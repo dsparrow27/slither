@@ -8,8 +8,8 @@ from slither.core import node
 class Rename(node.BaseNode):
     category = "directories"
     documentation = "Rename"
-    file = attribute.InputDefinition(type_=str, default="")
-    name = attribute.InputDefinition(type_=str, default="")
+    file = attribute.AttributeDefinition(isInput=True,type_=str, default="")
+    name = attribute.AttributeDefinition(isInput=True,type_=str, default="")
 
     def execute(self):
         self.output.setValue(math.pi)

@@ -7,9 +7,9 @@ from slither.core import node
 class FolderInDirectory(node.BaseNode):
     category = "directories"
     documentation = "returns a list of folders in a directory, if recursive is True(default is False) then all subfolders will be returned as well"
-    directory = attribute.InputDefinition(type_=str, default="")
-    recursive = attribute.InputDefinition(type_=bool, default=False)
-    output = attribute.OutputDefinition(type_=str, array=True, default=[])
+    directory = attribute.AttributeDefinition(isInput=True,type_=str, default="")
+    recursive = attribute.AttributeDefinition(isInput=True,type_=bool, default=False)
+    output = attribute.AttributeDefinition(isOutput=True,type_=str, array=True, default=[])
 
     def execute(self):
         directory = os.path.normpath(self.directory.value())
