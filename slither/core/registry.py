@@ -27,4 +27,5 @@ class DataTypeRegistry(pluginmanager.PluginManager):
     def __init__(self):
         super(DataTypeRegistry, self).__init__(types.DataType, variableName="Type")
         self.registerPaths(os.environ[DataTypeRegistry.TYPE_LIB_ENV].split(os.pathsep))
+        print self.loadPlugin
         self.registerPlugin(types.DataType)

@@ -1,6 +1,6 @@
 import logging
 
-from slither.core import registry
+
 from slither.core import errors
 
 logger = logging.getLogger("Slither")
@@ -30,10 +30,11 @@ class AttributeDefinition(object):
     def _validateType(self):
         """Validate's the dataType and converts it if necessary.
         """
-        Type = registry.DataTypeRegistry().loadedPlugins.get(self.type)
+        from slither.core import registry
+        Type = registry.DataTypeRegistry().loadPlugin(self.type, value=self.default)
         if Type is None:
             raise TypeError("The request type -> %s is incorrect" % self.type)
-        self.type = Type(self.default)
+        self.type = Type
 
     def __eq__(self, other):
         if not isinstance(other, AttributeDefinition):

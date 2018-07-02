@@ -103,7 +103,7 @@ class Application(application.UIApplication):
         :rtype: dict
         """
 
-        return dict([(k, v.category) for k, v in self._apiApplication.nodeRegistry.nodes.items()])
+        return dict([(k, v.category) for k, v in self._apiApplication.nodeRegistry.plugins.items()])
 
     def customToolbarActions(self, parent):
         act = parent.addAction("Execute")

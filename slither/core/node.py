@@ -2,7 +2,7 @@ import copy
 import uuid
 from blinker import signal
 from slither.core import attribute
-from slither.core import service
+# from slither.core import service
 import logging
 
 logger = logging.getLogger(__name__)
@@ -91,7 +91,6 @@ class BaseNode(object):
         self.name = name
         self.attributes = []
         self.metadata = {}
-        self.isLocked = False
         self.isLocked = False
         self.isInternal = False
         self._selected = False
