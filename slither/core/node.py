@@ -2,7 +2,6 @@ import copy
 import uuid
 from blinker import signal
 from slither.core import attribute
-# from slither.core import service
 import logging
 
 logger = logging.getLogger(__name__)
@@ -16,9 +15,8 @@ class NodeEvents(object):
     kAddConnection = 4
     kRemoveConnection = 5
     kValueChanged = 6
-    # kSelectionChanged = 7
-    kProgressUpdated = 8
-    kParentChanged = 9
+    kProgressUpdated = 7
+    kParentChanged = 8
 
     def __init__(self):
         # {callbackType: {"event": Signal,
@@ -116,7 +114,9 @@ class BaseNode(object):
     def selected(self, value):
         if self._selected != value:
             self._selected = value
-            self.application.events.selectedChanged.send(self, state=value)
+            if self.node is not None:
+                self.application.events.emitCallback(self.application.kSelection,
+                                                     node=self, state=value)
 
     def execute(self):
         pass

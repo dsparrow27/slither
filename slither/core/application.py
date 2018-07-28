@@ -15,7 +15,6 @@ class Application(object):
         self._root = None
         self.globals = {}
 
-
     def __repr__(self):
         return "<{}>".format(self.__class__.__name__)
 

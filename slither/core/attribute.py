@@ -108,10 +108,10 @@ class Attribute(object):
 
     def setName(self, name):
         self.definition.setName(name)
-        self.node.events.emitCallback(self.node.events.kAttributeNameChanged, node=self.node, attribute=self,
-                                      name=name)
-        # self.node.application.events.atttributeNameChanged.send(self, name)
-
+        if self.node is not None:
+            self.node.events.emitCallback(self.node.events.kAttributeNameChanged,
+                                          node=self.node, attribute=self,
+                                          name=name)
     def fullName(self):
         if self.parent:
             return "|".join([self.parent.fullName(), self.name()])
@@ -140,10 +140,11 @@ class Attribute(object):
     def setValue(self, value):
         if self._value != value:
             self._value.setValue(value)
-            self.node.events.emitCallback(self.node.events.kAttributeValueChanged,
-                                          node=self.node,
-                                          attribute=self,
-                                          value=value)
+            if self.node is not None:
+                self.node.events.emitCallback(self.node.events.kAttributeValueChanged,
+                                              node=self.node,
+                                              attribute=self,
+                                              value=value)
 
     def isInput(self):
         """Returns True if this attribute is an output attribute"""
@@ -191,22 +192,24 @@ class Attribute(object):
         self.upstream = attribute
         logger.debug("Connected Attributes, upstream: {}, downstream: {}".format(self.upstream.fullName(),
                                                                                  self.fullName()))
-        self.node.events.emitCallback(self.node.events.kAddConnection,
-                                      source=attribute,
-                                      destination=self,
-                                      sourceNode=self.upstream.node,
-                                      destinationNode=self.node)
+        if self.node is not None:
+            self.node.events.emitCallback(self.node.events.kAddConnection,
+                                          source=attribute,
+                                          destination=self,
+                                          sourceNode=self.upstream.node,
+                                          destinationNode=self.node)
 
     def connectDownstream(self, attribute):
         attribute.connectUpstream(self)
 
     def disconnect(self):
         if self.hasUpstream():
-            # self.node.events.emitCallback(self.node.events.kRemoveConnection,
-            #                               source=self.upstream,
-            #                               destination=self,
-            #                               sourceNode=self.upstream.node,
-            #                               destinationNode=self.node)
+            if self.node is not None:
+                self.node.events.emitCallback(self.node.events.kRemoveConnection,
+                                              source=self.upstream,
+                                              destination=self,
+                                              sourceNode=self.upstream.node,
+                                              destinationNode=self.node)
             self.upstream = None
 
     def serialize(self):
