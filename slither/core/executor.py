@@ -70,7 +70,7 @@ class Parallel(Executor):
             node = nodes.keys()[processIndex]
 
             childConnection = childConnections.pop(processIndex)
-            service.copyOutputData(node, childConnection.recv())
+            node.copyOutputData(childConnection.recv())
             process = processes.pop(processIndex)
             process.join()
             del parentConnections[processIndex]

@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 class NodeEvents(object):
     kAddAttribute = 0
     kAttributeNameChanged = 1
+    kAttributeValueChanged = 1
     kNodeNameChanged = 2
     kRemoveAttribute = 3
     kAddConnection = 4

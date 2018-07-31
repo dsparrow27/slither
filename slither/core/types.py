@@ -22,3 +22,5 @@ class DataType(object):
     def setValue(self, value):
         if self._value != value:
             self._value = value
+            return True
+        return False

@@ -2,6 +2,9 @@ from .registry import NodeRegistry
 from .registry import DataTypeRegistry
 from slither.core import executor
 from blinker import signal
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Application(object):
@@ -29,6 +32,9 @@ class Application(object):
     @property
     def typeRegistry(self):
         return self._typeRegistry
+
+    def dataType(self, typeName):
+        return self.typeRegistry.loadPlugin(typeName)
 
     @property
     def root(self):
@@ -64,8 +70,10 @@ class Application(object):
 
     def execute(self, node, executorType):
         if executorType == Application.PARALLELEXECUTOR:
+            logger.debug("Starting execution")
             exe = executor.Parallel()
             exe.execute(node)
+            logger.debug("finished")
             return True
         elif executorType == Application.STANDARDEXECUTOR:
             exe = executor.StandardExecutor()

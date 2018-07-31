@@ -17,6 +17,8 @@ class FloatType(types.DataType):
     def setValue(self, value):
         if self.value() != value:
             self._value = float(value)
+            return True
+        return False
 
 
 class IntType(types.DataType):
@@ -34,6 +36,8 @@ class IntType(types.DataType):
     def setValue(self, value):
         if self.value() != value:
             self._value = int(value)
+            return True
+        return False
 
 
 class StringType(types.DataType):
@@ -48,6 +52,8 @@ class StringType(types.DataType):
     def setValue(self, value):
         if self.value() != value:
             self._value = str(value)
+            return True
+        return False
 
 
 class BooleanType(types.DataType):
@@ -62,6 +68,8 @@ class BooleanType(types.DataType):
     def setValue(self, value):
         if self.value() != value:
             self._value = bool(value)
+            return True
+        return False
 
 
 class DictType(types.DataType):
@@ -86,6 +94,8 @@ class DictType(types.DataType):
     def setValue(self, value):
         if value != self.value():
             self._value = dict(value)
+            return True
+        return False
 
 
 class ListType(types.DataType):
@@ -108,6 +118,8 @@ class ListType(types.DataType):
             if not general.isIteratable(value):
                 value = list(value)
             self._value = value
+            return True
+        return False
 
 
 class MultiType(types.DataType):

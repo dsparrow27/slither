@@ -2,41 +2,38 @@
 """
 import pprint
 
+from slither import api
 from slither.core import attribute
 from slither.core import compound
-from slither.core import executor
 from slither.plugins.nodes.math.basic import sum
 
 
 class TestSubCompound(compound.Compound):
-    """
-    """
-    input = attribute.InputDefinition(type_=float, default=0)
-    output = attribute.OutputDefinition(type_=float, default=0)
+    input = attribute.AttributeDefinition(isInput=True, type_=float, default=0)
+    output = attribute.AttributeDefinition(isOutput=True, type_=float, default=0)
 
     def mutate(self):
-        fourthNode = sum.Sum("fourthNodeSub")
+        fourthNode = sum.Sum("fourthNodeSub", application=self.application)
         fourthNode.inputB = 20
         self.addChild(fourthNode)
         # connection between two attributes
-        self.output = fourthNode.output
         fourthNode.inputA = self.input
 
 
 class TestCompound(compound.Compound):
     """Root compound node which contains other nodes, compounds do not expand until executed via the executor class
     """
-    input = attribute.InputDefinition(type_=float, default=0)
-    output = attribute.OutputDefinition(type_=float, default=0)
-    execution = attribute.OutputDefinition(type_=float, default=0)
+    input = attribute.AttributeDefinition(isInput=True, type_=float, default=0)
+    output = attribute.AttributeDefinition(isOutput=True, type_=float, default=0)
+    execution = attribute.AttributeDefinition(isOutput=True, type_=float, default=0)
 
     def mutate(self):
-        firstNode = sum.Sum("firstNode")
+        firstNode = sum.Sum("firstNode", application=self.application)
         firstNode.inputA = 20
         firstNode.inputB = 10
-        secondNode = sum.Sum("secondNode")
+        secondNode = sum.Sum("secondNode", application=self.application)
         secondNode.inputB = 10
-        thirdNodeComp = TestSubCompound("thirdNodeComp")
+        thirdNodeComp = TestSubCompound("thirdNodeComp", application=self.application)
         # add the nodes as children
         self.addChild(secondNode)
         self.addChild(thirdNodeComp)
@@ -47,6 +44,12 @@ class TestCompound(compound.Compound):
 
 
 def run():
-    root = TestCompound("root")
-    executor.StandardExecutor().execute(root)
-    return root
+    app = api.currentInstance
+    app.root.addChild(TestCompound("subChild", application=app))
+    app.execute(app.root.child("subChild"), executorType=app.PARALLELEXECUTOR)
+    return app
+
+
+if __name__ == "__main__":
+    app = run()
+    pprint.pprint(app.root.serialize())

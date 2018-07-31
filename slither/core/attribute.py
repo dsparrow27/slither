@@ -138,13 +138,12 @@ class Attribute(object):
         return self._value.value()
 
     def setValue(self, value):
-        if self._value != value:
-            self._value.setValue(value)
-            if self.node is not None:
-                self.node.events.emitCallback(self.node.events.kAttributeValueChanged,
-                                              node=self.node,
-                                              attribute=self,
-                                              value=value)
+        success = self._value.setValue(value)
+        if success and self.node is not None:
+            self.node.events.emitCallback(self.node.events.kAttributeValueChanged,
+                                          node=self.node,
+                                          attribute=self,
+                                          value=value)
 
     def isInput(self):
         """Returns True if this attribute is an output attribute"""
