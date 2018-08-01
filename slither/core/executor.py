@@ -18,7 +18,7 @@ class Parallel(Executor):
         """
         if node.isCompound():
             node.mutate()
-            nodes = service.topologicalOrder(node.children)
+            nodes = node.topologicalOrder()
         else:
             nodes = service.nodeBreadthFirstSearch(node)
         processes = []
@@ -95,27 +95,30 @@ class Parallel(Executor):
 class StandardExecutor(Executor):
     Type = "Serial"
 
-    @classmethod
-    def execute(cls, node):
+    def __init__(self):
+        self.visited = set()
+
+    def execute(self, node):
         if node.isCompound():
             node.mutate()
-            nodes = service.topologicalOrder(node.children)
+            nodes = node.topologicalOrder()
         else:
             nodes = service.nodeBreadthFirstSearch(node)
+
         for n, dependents in nodes.items():
             for d in dependents:
                 if len(dependents) == 1 and dependents[0] == n.parent:
                     nodes[n] = list()
                     continue
-                cls.startProcess(d)
+                self.startProcess(d)
+            self.startProcess(n)
 
-            cls.startProcess(n)
-
-    @classmethod
-    def startProcess(cls, node):
+    def startProcess(self, node):
         node.progress = 0
         if node.isCompound():
-            cls.execute(node)
+            self.execute(node)
         # compounds can have its own logic once all the children have finished
-        node.execute()
-        node.progress = 100
+        if node not in self.visited:
+            node.execute()
+            node.progress = 100
+            self.visited.add(node)

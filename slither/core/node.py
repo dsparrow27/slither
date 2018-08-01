@@ -10,14 +10,14 @@ logger = logging.getLogger(__name__)
 class NodeEvents(object):
     kAddAttribute = 0
     kAttributeNameChanged = 1
-    kAttributeValueChanged = 1
-    kNodeNameChanged = 2
-    kRemoveAttribute = 3
-    kAddConnection = 4
-    kRemoveConnection = 5
-    kValueChanged = 6
-    kProgressUpdated = 7
-    kParentChanged = 8
+    kAttributeValueChanged = 2
+    kNodeNameChanged = 3
+    kRemoveAttribute = 4
+    kAddConnection = 5
+    kRemoveConnection = 6
+    kValueChanged = 7
+    kProgressUpdated = 8
+    kParentChanged = 9
 
     def __init__(self):
         # {callbackType: {"event": Signal,
@@ -146,10 +146,10 @@ class BaseNode(object):
         return hash(self.name)
 
     def __eq__(self, other):
-        return other is not None and self.name == other.name
+        return hash(self) == hash(other)
 
     def __ne__(self, other):
-        return other is not None and self.name != other.name
+        return hash(self) != hash(other)
 
     def __setattr__(self, name, value):
         if hasattr(self, "attributes"):

@@ -80,7 +80,7 @@ class Compound(node.BaseNode):
         if child not in self.children:
             self.children.append(child)
             parent = child.parent
-            if parent and parent.isCompound() and parent != self:
+            if parent and parent.isCompound():
                 parent.removeChild(child)
             child.parent = self
             return True
