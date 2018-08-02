@@ -98,27 +98,30 @@ class StandardExecutor(Executor):
     def __init__(self):
         self.visited = set()
 
-    def execute(self, node):
+    def _dependents(self, node):
         if node.isCompound():
             node.mutate()
-            nodes = node.topologicalOrder()
-        else:
-            nodes = service.nodeBreadthFirstSearch(node)
+            return node.topologicalOrder()
+        return service.nodeBreadthFirstSearch(node)
 
+    def startProcess(self, node):
+        nodes = self._dependents(node)
         for n, dependents in nodes.items():
             for d in dependents:
                 if len(dependents) == 1 and dependents[0] == n.parent:
                     nodes[n] = list()
                     continue
-                self.startProcess(d)
-            self.startProcess(n)
+                self.execute(d)
+            self.execute(n)
 
-    def startProcess(self, node):
+    def execute(self, node):
         node.progress = 0
+
         if node.isCompound():
-            self.execute(node)
-        # compounds can have its own logic once all the children have finished
-        if node not in self.visited:
+            self.startProcess(node)
             node.execute()
-            node.progress = 100
-            self.visited.add(node)
+        else:
+            node.execute()
+        node.progress = 100
+        self.visited.add(node)
+        return True

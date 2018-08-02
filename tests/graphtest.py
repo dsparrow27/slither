@@ -59,7 +59,6 @@ class TestGraphStandardExecutor(unittest.TestCase):
     @contextlib.contextmanager
     def executeGraphContext(app):
         try:
-            print app.root
             app.root.addChild(TestCompound("subChild", application=app))
             app.execute(app.root, executorType=app.STANDARDEXECUTOR)
             yield
@@ -71,7 +70,7 @@ class TestGraphStandardExecutor(unittest.TestCase):
 
     def test_graphExecutesWithoutFail(self):
         with TestGraphStandardExecutor.executeGraphContext(self.app):
-            pass
+            pprint.pprint(self.app.root.serialize())
 
     def test_childCounts(self):
         with TestGraphStandardExecutor.executeGraphContext(self.app):
@@ -85,9 +84,10 @@ class TestGraphStandardExecutor(unittest.TestCase):
                 for c in iter(node):
                     checkChildren(c)
             self.assertEquals(node.progress, 100, msg="Failed progress state: {}".format(node))
+
         with TestGraphStandardExecutor.executeGraphContext(self.app):
             checkChildren(self.app.root)
 
+
 if __name__ == "__main__":
     unittest.main()
-    pprint.pprint(app.root.serialize())
