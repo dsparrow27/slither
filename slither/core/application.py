@@ -1,3 +1,5 @@
+import uuid
+
 from .registry import NodeRegistry
 from .registry import DataTypeRegistry
 from slither.core import executor
@@ -64,7 +66,7 @@ class Application(object):
             elif parent.isCompound():
                 parent.addChild(newNode)
             # should emit a event
-            self.events.nodeCreated.send(newNode)
+            self.events.emitCallback(self.events.kNodeCreated, node=newNode)
             return newNode
         # :todo error out
 
@@ -83,16 +85,57 @@ class Application(object):
 
 
 class ApplicationEvents(object):
+    kNodeCreated = 0
+    kNodeRemoved = 1
+    kSelectedChanged = 2
+    kNodeNameChanged = 3
+    kNodeParentChanged = 4
+    kAttributeCreated = 5
+    kAttributeRemoved = 6
+    kAttributeValueChanged =7
+    kAttributeNameChanged = 8
+    kNodeProgressUpdated = 9
+    kConnectionAdded = 10
+    kConnectionRemoved = 11
+
     def __init__(self):
-        self.nodeCreated = signal("Node Created")
-        self.nodeRemoved = signal("Node Deleted")
-        self.selectedChanged = signal("Selection Changed")
-    # nodeNameChanged = signal("Node Name Changed")
-    # nodeParentChanged = signal("Node parent Changed")
-    # attributeCreated = signal("Attribute Created", doc="Triggerd any time a new custom attribute is created")
-    # attributeRemoved = signal("Attribute Deleted")
-    # attributeValueChanged = signal("Attribute Value Changed")
-    # attributeNameChanged = signal("Attribute Name Changed")
-    # nodeProgressUpdated = signal("Node Progress Updated")
-    # connectionAdded = signal("Connection Added")
-    # connectionRemoved = signal("Connection Removed")
+        # {callbackType: {"event": Signal,
+        # "ids": {id: func}
+        #               }
+        # }
+        self.callbacks = {}
+
+    def emitCallback(self, callbackType, **kwargs):
+        existing = self.callbacks.get(callbackType)
+        if existing is None:
+            return
+        ids = existing["ids"]
+        if not ids:
+            return
+        existing["event"].send(self, **kwargs)
+
+    def addCallback(self, callbackType, func):
+        existingCallback = self.callbacks.get(callbackType)
+
+        # we have existing callback for the type so just connect to it
+        callbackId = uuid.uuid4()
+        if existingCallback is not None:
+            existingCallback["event"].connect(func)
+            existingCallback["ids"].update({callbackId: func})
+        else:
+            # no existing callback so create One
+            event = signal(callbackType)
+            event.connect(func, sender=self)
+            self.callbacks[callbackType] = {"event": event,
+                                            "ids": {callbackId: func}}
+        return callbackId
+
+    def removeCallback(self, callbackId):
+        for eventInfo in self.callbacks.values():
+            ids = eventInfo["ids"]
+            func = ids.get(callbackId)
+            if func is not None:
+                eventInfo["event"].disconnect(func)
+                del ids[callbackId]
+                return True
+        return False

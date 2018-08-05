@@ -33,7 +33,7 @@ class NodeEvents(object):
         ids = existing["ids"]
         if not ids:
             return
-        existing["event"].send(self.emitCallback, **kwargs)
+        existing["event"].send(self, **kwargs)
 
     def addCallback(self, callbackType, func):
         existingCallback = self.callbacks.get(callbackType)
@@ -46,7 +46,7 @@ class NodeEvents(object):
         else:
             # no existing callback so create One
             event = signal(callbackType)
-            event.connect(func, sender=self.emitCallback)
+            event.connect(func, sender=self)
             self.callbacks[callbackType] = {"event": event,
                                             "ids": {callbackId: func}}
         return callbackId

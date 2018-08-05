@@ -49,7 +49,7 @@ class Parallel(Executor):
             childConnections.append(childConnection)
             process = multiprocessing.Process(target=cls.startProcess(node, parentConnection))
             processes.append(process)
-            node.progress = 0
+
             process.start()
 
     @classmethod
@@ -60,36 +60,38 @@ class Parallel(Executor):
         # determine indices for processes that need to be removed
         for index, childConnection in enumerate(childConnections):
             if childConnection.poll():
+                recvData = childConnection.recv()
+                node = nodes.keys()[index]
+                # copy the output data from the process back into the main process output data
+                node.copyOutputData(recvData)
+                del nodes[node]
+                for dependent, dependents in nodes.items():
+                    if node in dependents:
+                        nodes[dependent].pop(dependents.index(node))
                 needToTerminate.append(index)
-
         # loop the indices that need to be removed
-        # copy the output data from the process back into the main process output data
+
         # remove the process/connections/nodes[index] from the storage
-
         for processIndex in reversed(needToTerminate):
-            node = nodes.keys()[processIndex]
-
-            childConnection = childConnections.pop(processIndex)
-            node.copyOutputData(childConnection.recv())
+            childConnections.pop(processIndex)
             process = processes.pop(processIndex)
             process.join()
             del parentConnections[processIndex]
-            del nodes[node]
-            node.progress = 100
-            for dependent, dependents in nodes.items():
-                if node in dependents:
-                    nodes[dependent].pop(dependents.index(node))
 
     @classmethod
     def startProcess(cls, node, parentConnection):
-        if node.isCompound():
-            cls.execute(node)
-        node.execute()
-        outputs = node.outputs()
-        data = {}
-        for output in outputs:
-            data[output.name()] = output.value()
-        parentConnection.send(data)
+        node.progress = 0
+        try:
+            if node.isCompound():
+                cls.execute(node)
+            node.execute()
+            outputs = node.outputs()
+            data = {}
+            for output in outputs:
+                data[output.name()] = output.value()
+            parentConnection.send(data)
+        finally:
+            node.progress = 100
 
 
 class StandardExecutor(Executor):
@@ -116,12 +118,13 @@ class StandardExecutor(Executor):
 
     def execute(self, node):
         node.progress = 0
-
-        if node.isCompound():
-            self.startProcess(node)
-            node.execute()
-        else:
-            node.execute()
-        node.progress = 100
+        try:
+            if node.isCompound():
+                self.startProcess(node)
+                node.execute()
+            else:
+                node.execute()
+        finally:
+            node.progress = 100
         self.visited.add(node)
         return True

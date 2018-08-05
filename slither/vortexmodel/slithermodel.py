@@ -41,10 +41,10 @@ class Application(application.UIApplication):
     def initialize(self):
         self.onNewNodeRequested.emit({"model": self.currentModel,
                                       "newTab": True})
-        self._apiApplication.events.nodeCreated.connect(self.uiNodeForCore)
-        self._apiApplication.events.selectedChanged.connect(self.onSelectionChangedEvent)
-        # self._apiApplication.events.connectionAdded.connect(self.onConnectionAdded)
-        # self._apiApplication.events.connectionRemoved.connect(self.onConnectionRemoved)
+        self._apiApplication.events.addCallback(self._apiApplication.events.kNodeCreated, self.uiNodeForCore)
+        self._apiApplication.events.addCallback(self._apiApplication.events.kSelectedChanged, self.onSelectionChangedEvent)
+        # self._apiApplication.events.addCallback(self._apiApplication.events.kConnectionAdded, self.onConnectionAdded)
+        # self._apiApplication.events.addCallback(self._apiApplication.events.kConnectionRemoved, self.onConnectionRemoved)
 
     def onConnectionAdded(self, sender, source, destination, sourceNode, destinationNode):
         sNode = None

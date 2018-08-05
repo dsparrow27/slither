@@ -57,23 +57,24 @@ def run():
 class TestGraphStandardExecutor(unittest.TestCase):
     @staticmethod
     @contextlib.contextmanager
-    def executeGraphContext(app):
+    def executeGraphContext(app, executeType):
         try:
             app.root.addChild(TestCompound("subChild", application=app))
-            app.execute(app.root, executorType=app.STANDARDEXECUTOR)
+            app.execute(app.root, executorType=executeType)
             yield
         finally:
             app.root.clear()
 
     def setUp(self):
         self.app = api.currentInstance
+        self.executeType = self.app.STANDARDEXECUTOR
 
     def test_graphExecutesWithoutFail(self):
-        with TestGraphStandardExecutor.executeGraphContext(self.app):
+        with TestGraphStandardExecutor.executeGraphContext(self.app, self.executeType):
             pprint.pprint(self.app.root.serialize())
 
     def test_childCounts(self):
-        with TestGraphStandardExecutor.executeGraphContext(self.app):
+        with TestGraphStandardExecutor.executeGraphContext(self.app, self.executeType):
             self.assertEquals(len(self.app.root), 1)
             self.assertEquals(len(self.app.root.child("subChild")), 3)
             self.assertEquals(len(self.app.root.child("subChild").child("thirdNodeComp")), 1)
@@ -85,8 +86,27 @@ class TestGraphStandardExecutor(unittest.TestCase):
                     checkChildren(c)
             self.assertEquals(node.progress, 100, msg="Failed progress state: {}".format(node))
 
-        with TestGraphStandardExecutor.executeGraphContext(self.app):
+        with TestGraphStandardExecutor.executeGraphContext(self.app, self.executeType):
             checkChildren(self.app.root)
+
+    def test_ProgressSignal(self):
+        def onProgressChanged(event, **kwargs):
+            self.assertIsInstance(event, self.app.root.events.__class__)
+            self.assertIsInstance(kwargs["progress"], int)
+
+        try:
+            self.app.root.addChild(TestCompound("subChild", application=self.app))
+            self.app.root.child("subChild").events.addCallback(self.app.root.events.kProgressUpdated, onProgressChanged)
+            self.app.execute(self.app.root, executorType=self.executeType)
+        finally:
+            self.app.root.clear()
+
+
+class TestParallelExecutor(TestGraphStandardExecutor):
+
+    def setUp(self):
+        self.app = api.currentInstance
+        self.executeType = self.app.PARALLELEXECUTOR
 
 
 if __name__ == "__main__":
