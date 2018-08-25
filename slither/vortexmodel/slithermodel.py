@@ -33,7 +33,7 @@ NODECOLORMAP = {}
 
 class Application(application.UIApplication):
     def __init__(self, uiConfig):
-        app = api.initialize()
+        app = api.currentInstance
         super(Application, self).__init__(uiConfig, app)
         self.currentModel = SlitherUIObject(app.root, self.config)
         self.models[self.currentModel.text()] = self.currentModel
@@ -80,7 +80,7 @@ class Application(application.UIApplication):
             sourceAttr.deleteConnection(destinationAttr)
             self.onConnectionDeleteRequested.emit(sourceAttr, destinationAttr)
 
-    def uiNodeForCore(self, node):
+    def uiNodeForCore(self, event, node):
         """Called by the core api to added node to current model
 
         :param node:
@@ -90,7 +90,7 @@ class Application(application.UIApplication):
         """
 
         self.onNewNodeRequested.emit({"model": SlitherUIObject(node, self.config, parent=self.currentModel),
-                                      "newTab": node.isCompound()})
+                                      "newTab": False})
 
     def onNodeCreated(self, Type):
         name = Type

@@ -33,7 +33,10 @@ class NodeEvents(object):
         ids = existing["ids"]
         if not ids:
             return
-        existing["event"].send(self, **kwargs)
+        kwargs["eventType"] = callbackType
+        ev = existing["event"]
+        if bool(ev.receivers):
+            ev.send(self, **kwargs)
 
     def addCallback(self, callbackType, func):
         existingCallback = self.callbacks.get(callbackType)
@@ -115,9 +118,8 @@ class BaseNode(object):
     def selected(self, value):
         if self._selected != value:
             self._selected = value
-            if self.node is not None:
-                self.application.events.emitCallback(self.application.kSelection,
-                                                     node=self, state=value)
+            self.application.events.emitCallback(self.application.events.kSelectedChanged,
+                                                 node=self, state=value)
 
     def execute(self):
         pass

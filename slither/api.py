@@ -16,17 +16,16 @@ os.environ[TYPE_LIB_ENV] = os.path.join(pluginBase, "datatypes")
 
 from slither.core import application as _application
 
-
-_currentApplication = None
-
-
-def initialize():
-    global _currentApplication
-    if _currentApplication:
-        return _currentApplication
-
-    _currentApplication = _application.Application()
-    return _currentApplication
+currentInstance = None
+instances = []
 
 
-currentInstance = initialize()
+def newInstance(current=True):
+    global currentInstance, instances
+
+    app = _application.Application()
+    instances.append(app)
+    if current:
+        currentInstance = app
+    return app
+currentInstance = newInstance()
