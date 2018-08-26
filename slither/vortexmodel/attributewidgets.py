@@ -1,5 +1,6 @@
 from qt import QtWidgets, QtCore
 
+
 class AttributeItemWidget(QtWidgets.QFrame):
     """Class which encapsulates a single attribute widget
     """
@@ -64,4 +65,3 @@ class NumericAttributeWidget(QtWidgets.QFrame):
             self.valueSpinBox.setValue(value)
         if self.slider.value() != value:
             self.slider.setValue(value)
-

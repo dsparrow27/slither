@@ -12,6 +12,7 @@ from qt import QtGui, QtWidgets
 from vortex.ui.graphics import graphicsdatamodel
 from vortex.ui import application
 import attributewidgets
+
 logger = logging.getLogger(__name__)
 
 ATTRIBUTETYPEMAP = {'Quaternion': QtGui.QColor(126.999945, 24.999944999999997, 24.999944999999997),
@@ -42,7 +43,9 @@ class Application(application.UIApplication):
         self.onNewNodeRequested.emit({"model": self.currentModel,
                                       "newTab": True})
         self._apiApplication.events.addCallback(self._apiApplication.events.kNodeCreated, self.uiNodeForCore)
-        self._apiApplication.events.addCallback(self._apiApplication.events.kSelectedChanged, self.onSelectionChangedEvent)
+        self._apiApplication.events.addCallback(self._apiApplication.events.kSelectedChanged,
+                                                self.onSelectionChangedEvent)
+        self._apiApplication.events.addCallback(self._apiApplication.events.kNodeRemoved, self.onNodeRemoved)
         # self._apiApplication.events.addCallback(self._apiApplication.events.kConnectionAdded, self.onConnectionAdded)
         # self._apiApplication.events.addCallback(self._apiApplication.events.kConnectionRemoved, self.onConnectionRemoved)
 
@@ -62,6 +65,12 @@ class Application(application.UIApplication):
             destinationAttr = destNode.attribute(destination.name)
             sourceAttr.createConnection(destinationAttr)
             self.onConnectionAddedRequested.emit(sourceAttr, destinationAttr)
+
+    def onNodeRemoved(self, event, node):
+        for child in self.currentModel.children():
+            if child.slitherNode == node:
+                self.onNodeDeleteRequested.emit(child)
+                return True
 
     def onConnectionRemoved(self, sender, source, destination, sourceNode, destinationNode):
         sNode = None
@@ -121,7 +130,9 @@ class Application(application.UIApplication):
             menu.addAction("Create Attribute", partial(objectModel.createAttribute, str(uuid.uuid4()), str, "output"))
             return menu
 
-    def onSelectionChangedEvent(self, node, state=False):
+    def onSelectionChangedEvent(self, event, **kwargs):
+        node = kwargs["node"]
+        state = kwargs["state"]
         for child in self.currentModel.children():
             if child.slitherNode == node:
                 self.onSelectionChanged.emit(child, state)
@@ -140,27 +151,29 @@ class SlitherUIObject(graphicsdatamodel.ObjectModel):
             self._children = []
         self._attributes = []
         self.slitherNode.events.addCallback(self.slitherNode.events.kAddConnection, self._onConnectionAdded)
+        self.slitherNode.events.addCallback(self.slitherNode.events.kRemoveConnection,
+                                            self.onConnectionRemoved)
 
-    def _onConnectionAdded(self, sender, source, destination, sourceNode, destinationNode):
-        if not self.isCompound():
-            destinationNodeModel = None
-            destinationAttr = None
-            for i in self.parentObject().children():
-                if i.slitherNode == destinationNode:
-                    destinationNodeModel = i
-                    for attr in i.attributes():
-                        if attr.internalAttr == destination:
-                            destinationAttr = attr
-                            break
-                    break
-            sourceAttr = None
-            for attr in self.attributes():
-                if attr.internalAttr == source:
-                    sourceAttr = attr
-                    break
-            if destinationNodeModel and sourceAttr and destinationAttr:
-                self.addConnectionSig.emit(self, destinationNodeModel,
-                                           sourceAttr, destinationAttr)
+    def onConnectionRemoved(self, event, **kwargs):
+        sourceNodeModel = self._childBySlither(kwargs["sourceNode"])
+        sourceAttributeModel = self.attribute(kwargs["source"].name())
+        destinationModel = self._childBySlither(kwargs["destinationNode"])
+        if sourceNodeModel and sourceAttributeModel:
+            self.removeConnectionSig.emit(sourceAttributeModel,
+                                          destinationModel.attribute(kwargs["destination"].name()))
+
+    def _onConnectionAdded(self, event, **kwargs):
+        sourceNodeModel = self._childBySlither(kwargs["sourceNode"])
+        sourceAttributeModel = sourceNodeModel.attribute(kwargs["source"].name())
+        destinationModel = self._childBySlither(kwargs["destinationNode"])
+        destinationAttributeModel = destinationModel.attribute(kwargs["destination"].name())
+        if sourceAttributeModel and sourceNodeModel and destinationAttributeModel:
+            self.addConnectionSig.emit(sourceAttributeModel, destinationAttributeModel)
+
+    def _childBySlither(self, slitherNode):
+        for i in iter(self.parentObject().children()):
+            if i.slitherNode == slitherNode:
+                return i
 
     def isSelected(self):
         return self.slitherNode.selected
@@ -236,7 +249,7 @@ class SlitherUIObject(graphicsdatamodel.ObjectModel):
         pass
 
     def attributeWidget(self, parent):
-
+        print parent
         # mainWidget =
         # for i in self.attributes(True, False):
         #     Type = i.internalAttr.type().Type
@@ -257,7 +270,7 @@ class SlitherUIObject(graphicsdatamodel.ObjectModel):
         #                     list: QtGui.QColor(56.000040000000006, 47.99992500000001, 45.00010500000001),
         #                     str: stringEdit
         #                     }
-        print "attyr"
+
 
 class AttributeModel(graphicsdatamodel.AttributeModel):
     def __init__(self, slitherAttribute, objectModel):
@@ -280,6 +293,8 @@ class AttributeModel(graphicsdatamodel.AttributeModel):
         return self.internalAttr.canConnect(plug.internalAttr)
 
     def createConnection(self, attribute):
+        if not self.canAcceptConnection(attribute):
+            return False
         if self.internalAttr.isInput():
             self.internalAttr.connectUpstream(attribute.internalAttr)
         else:

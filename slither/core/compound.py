@@ -89,10 +89,12 @@ class Compound(node.BaseNode):
     def removeChild(self, child):
         if isinstance(child, str):
             child = self.child(child)
-        if not child.isLocked or child.isInternal:
+        if child.isLocked or child.isInternal:
             return False
         if child in self:
             child.disconnectAll()
+            self.application.events.emitCallback(self.application.events.kNodeRemoved,
+                                                node=child)
             self.children.remove(child)
             return True
         return False

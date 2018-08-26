@@ -171,7 +171,7 @@ class Attribute(object):
             return False
         elif attribute.isOutput() and self.isOutput() and not isCompound:
             return False
-        elif not isinstance(attribute.type(), self.type().__class__):
+        elif attribute.type().Type != self.type().Type:
             return False
 
         return True
@@ -195,7 +195,7 @@ class Attribute(object):
             self.node.events.emitCallback(self.node.events.kAddConnection,
                                           source=attribute,
                                           destination=self,
-                                          sourceNode=self.upstream.node,
+                                          sourceNode=attribute.node,
                                           destinationNode=self.node)
 
     def connectDownstream(self, attribute):

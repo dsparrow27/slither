@@ -88,15 +88,6 @@ class ApplicationEvents(object):
     kNodeCreated = 0
     kNodeRemoved = 1
     kSelectedChanged = 2
-    kNodeNameChanged = 3
-    kNodeParentChanged = 4
-    kAttributeCreated = 5
-    kAttributeRemoved = 6
-    kAttributeValueChanged =7
-    kAttributeNameChanged = 8
-    kNodeProgressUpdated = 9
-    kConnectionAdded = 10
-    kConnectionRemoved = 11
 
     def __init__(self):
         # {callbackType: {"event": Signal,
