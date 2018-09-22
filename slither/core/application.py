@@ -129,4 +129,4 @@ class ApplicationEvents(object):
                 eventInfo["event"].disconnect(func)
                 del ids[callbackId]
                 return True
-        return False
+        return True
