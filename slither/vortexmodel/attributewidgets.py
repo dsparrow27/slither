@@ -1,4 +1,5 @@
 from qt import QtWidgets, QtCore
+import weakref
 
 
 class AttributeItemWidget(QtWidgets.QFrame):
@@ -20,12 +21,14 @@ class AttributeItemWidget(QtWidgets.QFrame):
 class NumericAttributeWidget(QtWidgets.QFrame):
     valueChanged = QtCore.Signal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, model, parent=None):
         super(NumericAttributeWidget, self).__init__(parent=parent)
+        self.model = weakref.ref(model)
         layout = QtWidgets.QHBoxLayout()
         layout.setSpacing(2)
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
+        self.label = QtWidgets.QLabel(self.model().text(), parent=self)
         self.slider = QtWidgets.QSlider(QtCore.Qt.Horizontal, parent=self)
         self.valueSpinBox = QtWidgets.QSpinBox(parent=self)
         self.valueSpinBox.setFocusPolicy(QtCore.Qt.StrongFocus)
@@ -34,6 +37,7 @@ class NumericAttributeWidget(QtWidgets.QFrame):
         self.valueSpinBox.valueChanged.connect(self.setValue)
         self.slider.valueChanged.connect(self.setValue)
         self.valueSpinBox.valueChanged.connect(self.valueChanged.emit)
+        layout.addWidget(self.label)
         layout.addWidget(self.slider)
         layout.addWidget(self.valueSpinBox)
         self.setStyleSheet("""
@@ -65,3 +69,6 @@ class NumericAttributeWidget(QtWidgets.QFrame):
             self.valueSpinBox.setValue(value)
         if self.slider.value() != value:
             self.slider.setValue(value)
+        ref = self.model()
+        if ref is not None:
+            ref.setValue(value)

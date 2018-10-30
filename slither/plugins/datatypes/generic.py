@@ -1,5 +1,12 @@
-from zoo.libs.utils import general
 from slither.core import types
+
+
+def isIteratable(obj):
+    try:
+        for i in iter(obj):
+            return True
+    except TypeError:
+        return False
 
 
 class FloatType(types.DataType):
@@ -98,6 +105,10 @@ class DictType(types.DataType):
         return False
 
 
+class FileType(types.DataType):
+    Type = "file"
+
+
 class ListType(types.DataType):
     Type = list
 
@@ -115,7 +126,7 @@ class ListType(types.DataType):
 
     def setValue(self, value):
         if self.value() != value:
-            if not general.isIteratable(value):
+            if not isIteratable(value):
                 value = list(value)
             self._value = value
             return True

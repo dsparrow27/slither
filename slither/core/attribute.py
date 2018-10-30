@@ -31,7 +31,7 @@ class AttributeDefinition(object):
         """Validate's the dataType and converts it if necessary.
         """
         from slither.core import registry
-        Type = registry.DataTypeRegistry().loadPlugin(self.type, value=self.default)
+        Type = registry.DataTypeRegistry().loadPlugin(str(self.type), value=self.default)
         if Type is None:
             raise TypeError("The request type -> %s is incorrect" % self.type)
         self.type = Type
@@ -283,7 +283,7 @@ class ArrayAttribute(Attribute):
         return "ArrayAttribute(%s)" % (self.name())
 
     def __getitem__(self, item):
-        if item in range(self):
+        if item in range(len(self)):
             return self.value()[item]
 
     def __setitem__(self, key, value):

@@ -1,6 +1,5 @@
 import logging
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -24,3 +23,6 @@ class DataType(object):
             self._value = value
             return True
         return False
+
+    def serialize(self):
+        return self._value
