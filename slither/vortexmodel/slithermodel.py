@@ -22,6 +22,8 @@ ATTRIBUTETYPEMAP = {'Quaternion': {"color": QtGui.QColor(126.999945, 24.99994499
                     'multi': {"color": QtGui.QColor(255, 255, 255)},
                     'vector2D': {"color": QtGui.QColor(147.000105, 102.0, 156.000075)},
                     'vector3D': {"color": QtGui.QColor(184.99994999999998, 126.999945, 184.99994999999998)},
+                    "path": {"color": QtGui.QColor(184.99994999999998, 126.999945, 184.99994999999998),
+                             "widget": attributewidgets.PathWidget},
                     bool: {"color": QtGui.QColor(38.00010000000001, 73.99998000000001, 114.000045)},
                     dict: {"color": QtGui.QColor(204.0, 127.5, 163.20000000000002)},
                     float: {"color": QtGui.QColor(133.000095, 102.0, 147.99996000000002),
@@ -29,7 +31,8 @@ ATTRIBUTETYPEMAP = {'Quaternion': {"color": QtGui.QColor(126.999945, 24.99994499
                     int: {"color": QtGui.QColor(133.000095, 102.0, 147.99996000000002),
                           "widget": attributewidgets.NumericAttributeWidget},
                     list: {"color": QtGui.QColor(56.000040000000006, 47.99992500000001, 45.00010500000001)},
-                    str: {"color": QtGui.QColor(244.9999965, 214.999935, 59.99997)}
+                    str: {"color": QtGui.QColor(244.9999965, 214.999935, 59.99997),
+                          "widget": attributewidgets.StringWidget}
                     }
 ATTRIBUTE_DISCONNECTED_COLOR = QtGui.QColor(25, 25, 25)
 NODECOLORMAP = {}
@@ -254,16 +257,18 @@ class SlitherUIObject(graphicsdatamodel.ObjectModel):
     def attributeWidget(self, parent):
         # todo: mostly temp so we'll need a more ideal solution maybe json?
         parentWidget = QtWidgets.QWidget(parent)
-        layout = QtWidgets.QVBoxLayout()
+        layout = QtWidgets.QFormLayout(parent=parentWidget)
         parentWidget.setLayout(layout)
         for i in self.attributes(True, False):
+            if not i.isInput():
+                continue
             Type = i.internalAttr.type().Type
             typeInfo = ATTRIBUTETYPEMAP.get(Type)
             if typeInfo:
                 widget = typeInfo.get("widget")
                 if widget is not None:
                     widget = widget(i, parent=parentWidget)
-                    layout.addWidget(widget)
+                    layout.addRow(i.text(), widget)
         return parentWidget
 
 
@@ -336,3 +341,5 @@ class AttributeModel(graphicsdatamodel.AttributeModel):
         if Map:
             return Map["color"]
         return super(AttributeModel, self).itemColour()
+
+

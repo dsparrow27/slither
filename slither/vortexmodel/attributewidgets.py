@@ -8,7 +8,7 @@ class AttributeItemWidget(QtWidgets.QFrame):
 
     def __init__(self, label, widget, parent=None):
         super(AttributeItemWidget, self).__init__(parent=parent)
-        layout = QtWidgets.QHBoxLayout()
+        layout = QtWidgets.QFormLayout()
         layout.setSpacing(2)
         layout.setContentsMargins(0, 0, 0, 0)
         label = QtWidgets.QLabel(label, parent=self)
@@ -18,6 +18,18 @@ class AttributeItemWidget(QtWidgets.QFrame):
         self.setLayout(layout)
 
 
+class StringWidget(QtWidgets.QLineEdit):
+    def __init__(self, model, parent=None):
+        super(StringWidget, self).__init__(parent=parent)
+        self.model = model
+
+
+class PathWidget(QtWidgets.QFrame):
+    def __init__(self, model, parent=None):
+        super(PathWidget, self).__init__(parent=parent)
+        self.model = model
+
+
 class NumericAttributeWidget(QtWidgets.QFrame):
     valueChanged = QtCore.Signal(object)
 
@@ -25,10 +37,10 @@ class NumericAttributeWidget(QtWidgets.QFrame):
         super(NumericAttributeWidget, self).__init__(parent=parent)
         self.model = weakref.ref(model)
         layout = QtWidgets.QHBoxLayout()
-        layout.setSpacing(2)
+        layout.setSpacing(1)
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
-        self.label = QtWidgets.QLabel(self.model().text(), parent=self)
+
         self.slider = QtWidgets.QSlider(QtCore.Qt.Horizontal, parent=self)
         self.valueSpinBox = QtWidgets.QSpinBox(parent=self)
         self.valueSpinBox.setFocusPolicy(QtCore.Qt.StrongFocus)
@@ -37,7 +49,6 @@ class NumericAttributeWidget(QtWidgets.QFrame):
         self.valueSpinBox.valueChanged.connect(self.setValue)
         self.slider.valueChanged.connect(self.setValue)
         self.valueSpinBox.valueChanged.connect(self.valueChanged.emit)
-        layout.addWidget(self.label)
         layout.addWidget(self.slider)
         layout.addWidget(self.valueSpinBox)
         self.setStyleSheet("""

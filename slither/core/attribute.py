@@ -1,6 +1,5 @@
 import logging
 
-
 from slither.core import errors
 
 logger = logging.getLogger("Slither")
@@ -112,6 +111,7 @@ class Attribute(object):
             self.node.events.emitCallback(self.node.events.kAttributeNameChanged,
                                           node=self.node, attribute=self,
                                           name=name)
+
     def fullName(self):
         if self.parent:
             return "|".join([self.parent.fullName(), self.name()])
