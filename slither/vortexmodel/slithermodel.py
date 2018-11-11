@@ -34,7 +34,7 @@ ATTRIBUTETYPEMAP = {'Quaternion': {"color": QtGui.QColor(126.999945, 24.99994499
                     str: {"color": QtGui.QColor(244.9999965, 214.999935, 59.99997),
                           "widget": attributewidgets.StringWidget}
                     }
-ATTRIBUTE_DISCONNECTED_COLOR = QtGui.QColor(25, 25, 25)
+ATTRIBUTE_DISCONNECTED_COLOR = QtGui.QColor(2, 25, 25)
 NODECOLORMAP = {}
 
 
@@ -173,11 +173,18 @@ class SlitherUIObject(graphicsdatamodel.ObjectModel):
         sourceAttributeModel = sourceNodeModel.attribute(kwargs["source"].name())
         destinationModel = self._childBySlither(kwargs["destinationNode"])
         destinationAttributeModel = destinationModel.attribute(kwargs["destination"].name())
-        if sourceAttributeModel and sourceNodeModel and destinationAttributeModel:
+        if sourceAttributeModel and destinationAttributeModel:
             self.addConnectionSig.emit(sourceAttributeModel, destinationAttributeModel)
 
     def _childBySlither(self, slitherNode):
-        for i in iter(self.parentObject().children()):
+        if slitherNode == self.slitherNode:
+            return self
+        parent = self._parent
+        if parent is None:
+            return self
+        elif parent.slitherNode == slitherNode:
+            return parent
+        for i in iter(parent.children()):
             if i.slitherNode == slitherNode:
                 return i
 
@@ -211,10 +218,12 @@ class SlitherUIObject(graphicsdatamodel.ObjectModel):
     def attributes(self, inputs=True, outputs=True):
         if not self._attributes:
             attrs = []
-            if inputs:
-                attrs.extend([AttributeModel(i, self) for i in self.slitherNode.inputs()])
-            if outputs:
-                attrs.extend([AttributeModel(i, self) for i in self.slitherNode.outputs()])
+            for attr in self.slitherNode.iterAttributes():
+                if inputs and attr.isInput():
+                    attrs.append(AttributeModel(attr, self))
+                    continue
+                if outputs and attr.isOutput():
+                    attrs.append(AttributeModel(attr, self))
             self._attributes = attrs
         return self._attributes
 
@@ -277,6 +286,15 @@ class AttributeModel(graphicsdatamodel.AttributeModel):
         super(AttributeModel, self).__init__(objectModel)
         self.internalAttr = slitherAttribute
 
+    def __ne__(self, other):
+        return self.internalAttr != other.internalAttr
+
+    def __eq__(self, other):
+        return self.internalAttr != other.internalAttr
+
+    def __hash__(self):
+        return hash(self.internalAttr.name())
+
     def text(self):
         return self.internalAttr.name()
 
@@ -284,7 +302,7 @@ class AttributeModel(graphicsdatamodel.AttributeModel):
         self.internalAttr.setName(str(text))
 
     def toolTip(self):
-        return self.internalAttr.__doc__
+        return self.internalAttr.definition.documentation()
 
     def isConnected(self):
         return self.internalAttr.hasUpstream()
@@ -310,9 +328,6 @@ class AttributeModel(graphicsdatamodel.AttributeModel):
             return True
         return False
 
-    def toolTip(self):
-        return self.internalAttr.definition.documentation()
-
     def isInput(self):
         return self.internalAttr.isInput()
 
@@ -335,11 +350,9 @@ class AttributeModel(graphicsdatamodel.AttributeModel):
 
     def itemColour(self):
         attr = self.internalAttr
-        if attr.isInput() and not attr.upstream:
+        if attr.upstream is None:
             return ATTRIBUTE_DISCONNECTED_COLOR
         Map = ATTRIBUTETYPEMAP.get(attr.type().Type)
         if Map:
             return Map["color"]
         return super(AttributeModel, self).itemColour()
-
-

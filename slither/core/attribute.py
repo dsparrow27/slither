@@ -113,9 +113,13 @@ class Attribute(object):
                                           name=name)
 
     def fullName(self):
-        if self.parent:
+        if self.parent is not None:
             return "|".join([self.parent.fullName(), self.name()])
-        return self.name()
+        prefix = ""
+        if self.node is not None:
+            prefix = self.node.fullName()
+
+        return "|".join([prefix, self.name()])
 
     def setParent(self, parent):
         if self.parent != parent:
@@ -133,7 +137,7 @@ class Attribute(object):
         return self.definition.type
 
     def value(self):
-        if self.upstream:
+        if self.upstream is not None:
             return self.upstream.value()
         return self._value.value()
 
@@ -159,9 +163,7 @@ class Attribute(object):
 
         :return: bool
         """
-        if self.upstream:
-            return True
-        return False
+        return self.upstream is not None
 
     def canConnect(self, attribute):
         isCompound = attribute.node.isCompound() or self.node.isCompound()
@@ -186,7 +188,7 @@ class Attribute(object):
         return True
 
     def connectUpstream(self, attribute):
-        if self.upstream:
+        if self.upstream is not None:
             raise errors.AttributeAlreadyConnected(self, attribute)
         self.upstream = attribute
         logger.debug("Connected Attributes, upstream: {}, downstream: {}".format(self.upstream.fullName(),
@@ -221,7 +223,7 @@ class Attribute(object):
         if self.node:
             data["parent"] = self.node.fullName()
         data["value"] = value
-        if self.upstream:
+        if self.upstream is not None:
             data["upstream"] = self.upstream.fullName()
         return data
 
@@ -307,7 +309,7 @@ class ArrayAttribute(Attribute):
         """override
         :return:
         """
-        if self.upstream:
+        if self.upstream is not None:
             value = self.upstream.value()
             if not isinstance(value, list):
                 return [value]

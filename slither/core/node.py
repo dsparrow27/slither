@@ -99,6 +99,7 @@ class BaseNode(object):
         self._parent = None
         self._progress = 0
         attrDef = attribute.AttributeDefinition(isInput=True,
+                                                isOutput=True,
                                                 type_=None,
                                                 default=None,
                                                 required=False, array=True,
