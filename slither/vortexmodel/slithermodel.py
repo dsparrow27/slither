@@ -214,22 +214,35 @@ class SlitherUIObject(graphicsdatamodel.ObjectModel):
     def text(self):
         return self.slitherNode.name
 
+    def setText(self, value):
+        self.slitherNode.name = value
+        return self.slitherNode.name
     def secondaryText(self):
         return self.slitherNode.type()
 
     def toolTip(self):
         return self.slitherNode.documentation
 
-    def attributes(self, inputs=True, outputs=True):
-        if not self._attributes:
+    def attributes(self, inputs=True, outputs=True, attributeVisLevel=0):
+        attrs = []
+        if attributeVisLevel == self.ATTRIBUTE_VIS_LEVEL_ZERO:
             attrs = []
+        # display only connected
+        elif attributeVisLevel == self.ATTRIBUTE_VIS_LEVEL_ONE:
+            for attr in self.slitherNode.iterAttributes():
+                if inputs and attr.isInput() and attr.hasUpstream():
+                    attrs.append(AttributeModel(attr, self))
+                    continue
+                if outputs and attr.isOutput():
+                    attrs.append(AttributeModel(attr, self))
+        else:
             for attr in self.slitherNode.iterAttributes():
                 if inputs and attr.isInput():
                     attrs.append(AttributeModel(attr, self))
                     continue
                 if outputs and attr.isOutput():
                     attrs.append(AttributeModel(attr, self))
-            self._attributes = attrs
+        self._attributes = attrs
         return self._attributes
 
     def canCreateAttributes(self):
