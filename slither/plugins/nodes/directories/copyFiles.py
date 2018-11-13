@@ -7,9 +7,9 @@ from slither.core import attribute
 class CopyFilesToNode(node.BaseNode):
     """Copy a list of files to a directory and returns the new file paths
     """
-    source = attribute.AttributeDefinition(isInput=True,type_=str, isArray=True)
-    destinationFolder = attribute.AttributeDefinition(isInput=True,type_=str)
-    result = attribute.AttributeDefinition(isOutput=True,type_=str, isArray=True)
+    source = attribute.AttributeDefinition(isInput=True,type_="file", isArray=True)
+    destinationFolder = attribute.AttributeDefinition(isInput=True,type_="directory")
+    result = attribute.AttributeDefinition(isOutput=True,type_="file", isArray=True)
 
     def execute(self):
         source = self.source.value()

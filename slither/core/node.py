@@ -100,8 +100,8 @@ class BaseNode(object):
         self._progress = 0
         attrDef = attribute.AttributeDefinition(isInput=True,
                                                 isOutput=True,
-                                                type_=None,
-                                                default=None,
+                                                type_=list,
+                                                default=list(),
                                                 required=False, array=True,
                                                 doc="Node Level dependencies")
         attrDef.name = "Dependencies"

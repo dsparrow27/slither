@@ -8,6 +8,7 @@ import logging
 import pprint
 from functools import partial
 from slither import api
+from slither.core import executor
 from qt import QtGui, QtWidgets
 from vortex.ui.graphics import graphicsdatamodel
 from vortex.ui import application
@@ -22,8 +23,10 @@ ATTRIBUTETYPEMAP = {'Quaternion': {"color": QtGui.QColor(126.999945, 24.99994499
                     'multi': {"color": QtGui.QColor(255, 255, 255)},
                     'vector2D': {"color": QtGui.QColor(147.000105, 102.0, 156.000075)},
                     'vector3D': {"color": QtGui.QColor(184.99994999999998, 126.999945, 184.99994999999998)},
-                    "path": {"color": QtGui.QColor(184.99994999999998, 126.999945, 184.99994999999998),
+                    "file": {"color": QtGui.QColor(184.99994999999998, 126.999945, 184.99994999999998),
                              "widget": attributewidgets.PathWidget},
+                    "directory": {"color": QtGui.QColor(184.99994999999998, 126.999945, 184.99994999999998),
+                                  "widget": attributewidgets.DirectoryWidget},
                     bool: {"color": QtGui.QColor(38.00010000000001, 73.99998000000001, 114.000045)},
                     dict: {"color": QtGui.QColor(204.0, 127.5, 163.20000000000002)},
                     float: {"color": QtGui.QColor(133.000095, 102.0, 147.99996000000002),
@@ -126,6 +129,8 @@ class Application(application.UIApplication):
 
     def onExecute(self):
         # note: temp
+        exe = executor.StandardExecutor()
+        exe.execute(self.currentModel.slitherNode)
         logger.debug(pprint.pformat(self.currentModel.slitherNode.serialize()))
 
     def createContextMenu(self, objectModel):
@@ -304,6 +309,12 @@ class AttributeModel(graphicsdatamodel.AttributeModel):
     def toolTip(self):
         return self.internalAttr.definition.documentation()
 
+    def isArray(self):
+        return self.internalAttr.definition.isArray
+
+    def isCompound(self):
+        return self.internalAttr.definition.isCompound
+
     def isConnected(self):
         return self.internalAttr.hasUpstream()
 
@@ -341,17 +352,12 @@ class AttributeModel(graphicsdatamodel.AttributeModel):
         return self.internalAttr.value()
 
     def itemEdgeColor(self):
-        attr = self.internalAttr
-
-        Map = ATTRIBUTETYPEMAP.get(attr.type().Type)
-        if Map:
-            return Map["color"]
-        return super(AttributeModel, self).itemEdgeColor()
+        return ATTRIBUTE_DISCONNECTED_COLOR
 
     def itemColour(self):
         attr = self.internalAttr
-        if attr.upstream is None:
-            return ATTRIBUTE_DISCONNECTED_COLOR
+        # if attr.upstream is None:
+        #     return ATTRIBUTE_DISCONNECTED_COLOR
         Map = ATTRIBUTETYPEMAP.get(attr.type().Type)
         if Map:
             return Map["color"]

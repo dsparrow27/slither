@@ -87,6 +87,18 @@ class Attribute(object):
         if definition:
             self._value = self.definition.type
 
+    @property
+    def isElement(self):
+        return self.parent.definition.isArray
+
+    @property
+    def isCompound(self):
+        return self.definition.isCompound
+
+    @property
+    def isArray(self):
+        return self.definition.isArray
+
     def __repr__(self):
         return "attribute(%s)" % (self.name())
 
@@ -281,29 +293,31 @@ class ArrayAttribute(Attribute):
     """
     type_ = "array"
 
+    def __init__(self, definition, node=None):
+        super(ArrayAttribute, self).__init__(definition, node)
+        self.elements = []
+
     def __repr__(self):
         return "ArrayAttribute(%s)" % (self.name())
 
     def __getitem__(self, item):
         if item in range(len(self)):
-            return self.value()[item]
+            return self.elements[item]
 
     def __setitem__(self, key, value):
-        self.value()[key] = value
+        self.elements[key] = value
 
     def __add__(self, other):
         if isinstance(other, Attribute):
-            self.setValue(self.value() + other.value())
-        elif isinstance(other, list):
-            self.setValue(self.value() + other)
+            self.setValue(self.elements + [other])
         else:
-            self.setValue(self.value() + [other])
+            self.setValue(self.elements + [other])
 
     def __iter__(self):
-        return iter(self.value())
+        return iter(self.elements)
 
     def __len__(self):
-        return len(self.value())
+        return len(self.elements)
 
     def value(self):
         """override
@@ -313,30 +327,24 @@ class ArrayAttribute(Attribute):
             value = self.upstream.value()
             if not isinstance(value, list):
                 return [value]
-            return self.upstream.value()
-        return self._value
+            return value
+        return [element.value() for element in self.elements]
 
     def element(self, index):
-        if index in range(self):
-            return self.value()[index]
+        if index in range(len(self)):
+            return self.elements[index]
 
-    def additem(self, value):
-        self + value
+    def append(self, value):
+        self.elements.append(value)
         return self
 
     def remove(self, index):
-        if index in range(self):
-            value = self.value()
-            value.remove(index)
-            self.setValue(value)
+        if index in range(len(self)):
+            self.elements.remove(index)
 
     def insert(self, value, index):
-        newvalue = self.value()
-        newvalue.insert(index, value)
-        self.setValue(newvalue)
+        self.elements.insert(index, value)
 
     def pop(self, index):
-        if index in range(self):
-            value = self.value()
-            popped = value.pop(index)
-            return popped
+        if index in range(len(self)):
+            return self.elements.pop(index)

@@ -109,6 +109,10 @@ class FileType(types.DataType):
     Type = "file"
 
 
+class DirectoryType(types.DataType):
+    Type = "directory"
+
+
 class ListType(types.DataType):
     Type = list
 

@@ -7,9 +7,9 @@ from slither.core import node
 class FilesInDirectory(node.BaseNode):
     category = "directories"
     documentation = "returns a list of files in a directory"
-    directory = attribute.AttributeDefinition(isInput=True,type_=str, default="")
+    directory = attribute.AttributeDefinition(isInput=True,type_="directory", default="")
     recursive = attribute.AttributeDefinition(isInput=True,type_=bool, default=False)
-    output = attribute.AttributeDefinition(isOutput=True,type_=str, array=True, default=[])
+    output = attribute.AttributeDefinition(isOutput=True,type_="file", array=True, default=[])
 
     def execute(self):
         directory = os.path.normpath(self.directory.value())

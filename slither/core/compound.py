@@ -59,9 +59,7 @@ class Compound(node.BaseNode):
                     self.children.remove(child)
 
     def __contains__(self, item):
-        if item in self.children:
-            return True
-        return False
+        return item in self.children
 
     def mutate(self):
         """Special method that allows this node to generate(mutate) other nodes as child nodes this can also contain
