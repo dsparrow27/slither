@@ -1,8 +1,8 @@
-import copy
 import uuid
 from blinker import signal
 from slither.core import attribute
 import logging
+from slither.core import service
 
 logger = logging.getLogger(__name__)
 
@@ -338,9 +338,6 @@ class BaseNode(object):
                 }
         return data
 
-    def clone(self):
-        copy.deepcopy(self)
-
     def copyOutputData(self, outputs):
         """Copies the output data on to this nodes output values.
 
@@ -353,3 +350,129 @@ class BaseNode(object):
             attr = self.attribute(name)
             if attr is not None:
                 attr.setValue(value)
+
+
+class Compound(BaseNode):
+    """The Compound class encapsulates a set of child nodes, which can include other compounds.
+    We provide methods to query the children nodes of the current compound.
+    """
+
+    def __init__(self, name, application):
+        """
+        :param name: The name that this node will have, if the name already exist a number we be appended.
+        :type name: str
+        """
+        super(Compound, self).__init__(name, application=application)
+        self.children = []
+
+    def setSelected(self, selected):
+        """Overridden to select/de-select all children if this compound gets the selection changed
+
+        :param selected: selection value True or False
+        :type selected: bool
+        """
+        self.selected = selected
+        for child in self.children:
+            child.setSelected(selected)
+
+    @staticmethod
+    def isCompound():
+        return True
+
+    def __len__(self):
+        """returns the number of child nodes for this compound
+
+        :return: int
+        """
+        return len(self.children)
+
+    def __iter__(self):
+        """Returns a generator of the child nodes
+
+        :return: generator
+        """
+        return iter(self.children)
+
+    def __add__(self, other):
+        """Adds the nodes from one compound to this one
+
+        :param other: Compound
+        """
+        if isinstance(other, Compound):
+            for child in other:
+                self.addChild(child)
+
+    def __sub__(self, other):
+        if isinstance(other, Compound):
+            for child in other:
+                if child in self.children:
+                    self.children.remove(child)
+
+    def __contains__(self, item):
+        return item in self.children
+
+    def mutate(self):
+        """Special method that allows this node to generate(mutate) other nodes as child nodes this can also contain
+        other compounds
+        """
+        pass
+
+    def child(self, name):
+        for child in self:
+            if child.name == name:
+                return child
+            elif child.isCompound():
+                return child.child(name)
+
+    def addChild(self, child):
+        if child not in self.children:
+            self.children.append(child)
+            parent = child.parent
+            if parent and parent.isCompound():
+                parent.removeChild(child)
+            child.parent = self
+            return True
+        return False
+
+    def removeChild(self, child):
+        if isinstance(child, str):
+            child = self.child(child)
+        if child.isLocked or child.isInternal:
+            return False
+        if child in self:
+            child.disconnectAll()
+            self.application.events.emitCallback(self.application.events.kNodeRemoved,
+                                                 node=child)
+            self.children.remove(child)
+            return True
+        return False
+
+    def clear(self):
+        for child in self.children:
+            self.removeChild(child)
+        self.children = []
+
+    def remove(self):
+        if self.isLocked or self.isInternal:
+            return False
+        par = self.parent
+        if par is not None:
+            self.clear()
+            par.removeChild(self)
+        return True
+
+    def hasChild(self, name):
+        for i in self:
+            if i.name == name:
+                return i
+
+    def hasChildren(self):
+        return len(self.children) > 0
+
+    def topologicalOrder(self):
+        return service.topologicalOrder(self.children)
+
+    def serialize(self):
+        data = super(Compound, self).serialize()
+        data["children"] = [i.serialize() for i in self.children]
+        return data
