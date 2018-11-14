@@ -20,7 +20,7 @@ class AttributeDefinition(object):
         self.isInput = kwargs.get("isInput", False)
         self.isOutput = kwargs.get("isOutput", False)
 
-        doc += "\nType: {}".format(str(type))
+        doc += "\nType: {}".format(str(type_))
 
         self.__doc__ = doc
         self.validateDefault()
@@ -59,7 +59,15 @@ class AttributeDefinition(object):
             self.default = list()
 
     def serialize(self):
-        return self.__dict__
+        return dict(name=self.name,
+                    type=self.type.Type if isinstance(self.type.Type, basestring) else self.type.Type.__name__,
+                    default=self.default,
+                    isArray=self.isArray,
+                    isCompound=self.isCompound,
+                    required=self.required,
+                    affectedBy=[i.name for i in self.affectedBy],
+                    isInput=self.isInput,
+                    isOutput=self.isOutput)
 
     def deserialize(self, data):
         for name, value in iter(data.items()):
@@ -68,8 +76,6 @@ class AttributeDefinition(object):
 
 
 class Attribute(object):
-    """
-    """
     type_ = "generic"
 
     def __init__(self, definition, node=None):
@@ -229,12 +235,10 @@ class Attribute(object):
         data = {"name": self.fullName()
                 }
         definition = self.definition.serialize()
-        value = self.value()
-        if definition:
-            data["definition"] = definition
+        data["value"] = self.value()
+        data["definition"] = definition
         if self.node:
             data["parent"] = self.node.fullName()
-        data["value"] = value
         if self.upstream is not None:
             data["upstream"] = self.upstream.fullName()
         return data

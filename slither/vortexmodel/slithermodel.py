@@ -217,6 +217,7 @@ class SlitherUIObject(graphicsdatamodel.ObjectModel):
     def setText(self, value):
         self.slitherNode.name = value
         return self.slitherNode.name
+
     def secondaryText(self):
         return self.slitherNode.type()
 
@@ -286,7 +287,7 @@ class SlitherUIObject(graphicsdatamodel.ObjectModel):
         parentWidget = QtWidgets.QWidget(parent)
         layout = QtWidgets.QFormLayout(parent=parentWidget)
         parentWidget.setLayout(layout)
-        for i in self.attributes(True, False):
+        for i in self.attributes(True, False, attributeVisLevel=self.ATTRIBUTE_VIS_LEVEL_TWO):
             if not i.isInput():
                 continue
             Type = i.internalAttr.type().Type

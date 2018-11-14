@@ -1,7 +1,9 @@
+import os
 import uuid
 
 from .registry import NodeRegistry
 from .registry import DataTypeRegistry
+from zoo.libs.utils import filesystem
 from slither.core import executor
 from blinker import signal
 import logging
@@ -49,8 +51,27 @@ class Application(object):
         # should emit event
         return self._root
 
+    def save(self, filePath, node=None):
+        node = node or self.root
+        data = node.serialize()
+        import pprint
+        pprint.pprint(data)
+        filesystem.saveJson(data, filePath)
+        return os.path.exists(filePath)
+
     #:note:: probably shouldn't be doing this crap here
     def createNode(self, name, type_, parent=None):
+        """Creates the specified node from the registry
+
+        :param name: The name of the node
+        :type name: str
+        :param type_: The node class the create
+        :type type_: str
+        :param parent: The parent node, default to None which will parent to the applications root compound
+        :type parent: :class:`node.BaseNode`
+        :return:
+        :rtype: :class:`node.BaseNode`
+        """
         exists = self.root.child(name)
         if exists:
             newName = name

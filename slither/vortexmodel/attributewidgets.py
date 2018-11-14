@@ -82,7 +82,7 @@ class NumericAttributeWidget(QtWidgets.QFrame):
         self.valueSpinBox.setSingleStep(1)
         self.valueSpinBox.valueChanged.connect(self.setValue)
         self.slider.valueChanged.connect(self.setValue)
-        self.valueSpinBox.valueChanged.connect(self.valueChanged.emit)
+        # self.valueSpinBox.valueChanged.connect(self.valueChanged.emit)
         layout.addWidget(self.slider)
         layout.addWidget(self.valueSpinBox)
         self.setStyleSheet("""
@@ -115,5 +115,5 @@ class NumericAttributeWidget(QtWidgets.QFrame):
         if self.slider.value() != value:
             self.slider.setValue(value)
         ref = self.model()
-        if ref is not None:
+        if ref is not None and ref.value() != value:
             ref.setValue(value)

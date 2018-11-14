@@ -333,7 +333,6 @@ class BaseNode(object):
         data = {"name": self.name,
                 "parent": self.parent.fullName() if self.parent else None,
                 "attributes": [i.serialize() for i in self.attributes],
-                "progress": self.progress,
                 "isCompound": self.isCompound()
                 }
         return data

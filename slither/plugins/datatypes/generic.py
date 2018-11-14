@@ -34,6 +34,9 @@ class IntType(types.DataType):
     def __add__(self, other):
         return self.__class__(self._value + other.value())
 
+    def __neg__(self, other):
+        return self.__class__(self._value - other.value())
+
     def __int__(self):
         return int(self._value)
 
@@ -108,8 +111,12 @@ class DictType(types.DataType):
 class FileType(types.DataType):
     Type = "file"
 
+    def __init__(self, value=None):
+        super(FileType, self).__init__(value)
+        self._value = ""
 
-class DirectoryType(types.DataType):
+
+class DirectoryType(FileType):
     Type = "directory"
 
 
