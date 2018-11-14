@@ -4,6 +4,7 @@ Qt model for the vortex ui which bind slithers core engine and vortex GUI.
 FYI: Currently this is being prototyped so it pulls and pushes directly to the core without an undo.
 
 """
+import uuid
 import logging
 import pprint
 from functools import partial
@@ -55,48 +56,12 @@ class Application(application.UIApplication):
         self._apiApplication.events.addCallback(self._apiApplication.events.kSelectedChanged,
                                                 self.onSelectionChangedEvent)
         self._apiApplication.events.addCallback(self._apiApplication.events.kNodeRemoved, self.onNodeRemoved)
-        # self._apiApplication.events.addCallback(self._apiApplication.events.kConnectionAdded, self.onConnectionAdded)
-        # self._apiApplication.events.addCallback(self._apiApplication.events.kConnectionRemoved, self.onConnectionRemoved)
-
-    def onConnectionAdded(self, sender, source, destination, sourceNode, destinationNode):
-        sNode = None
-        destNode = None
-        for child in self.currentModel.children():
-            if child.slitherNode == sourceNode:
-                source = child
-            elif child.slitherNode == destinationNode:
-                destination = child
-            if sNode and destNode:
-                break
-
-        if sNode and destination:
-            sourceAttr = sNode.attribute(source.name)
-            destinationAttr = destNode.attribute(destination.name)
-            sourceAttr.createConnection(destinationAttr)
-            self.onConnectionAddedRequested.emit(sourceAttr, destinationAttr)
 
     def onNodeRemoved(self, event, node):
         for child in self.currentModel.children():
             if child.slitherNode == node:
                 self.onNodeDeleteRequested.emit(child)
                 return True
-
-    def onConnectionRemoved(self, sender, source, destination, sourceNode, destinationNode):
-        sNode = None
-        destNode = None
-        for child in self.currentModel.children():
-            if child.slitherNode == sourceNode:
-                source = child
-            elif child.slitherNode == destinationNode:
-                destination = child
-            if sNode and destNode:
-                break
-
-        if sNode and destination:
-            sourceAttr = sNode.attribute(source.name)
-            destinationAttr = destNode.attribute(destination.name)
-            sourceAttr.deleteConnection(destinationAttr)
-            self.onConnectionDeleteRequested.emit(sourceAttr, destinationAttr)
 
     def uiNodeForCore(self, event, node):
         """Called by the core api to added node to current model
@@ -136,7 +101,6 @@ class Application(application.UIApplication):
     def createContextMenu(self, objectModel):
         if isinstance(objectModel, SlitherUIObject) and objectModel.isCompound():
             menu = QtWidgets.QMenu()
-            import uuid
             # note: this is temp, should run through a dialog
             menu.addAction("Create Attribute", partial(objectModel.createAttribute, str(uuid.uuid4()), str, "output"))
             return menu
@@ -254,13 +218,15 @@ class SlitherUIObject(graphicsdatamodel.ObjectModel):
     def createAttribute(self, name, Type, IOType="output"):
         if not self.canCreateAttributes():
             return
+
         # temp, should be constants
-        if IOType == "output":
-            attrDef = api.OutputDefinition(Type)
-        else:
-            attrDef = api.InputDefinition(Type)
-        attrDef.name = name
-        self.slitherNode.createAttribute(attrDef)
+
+        # if IOType == "output":
+        #     attrDef = api.OutputDefinition(Type)
+        # else:
+        #     attrDef = api.InputDefinition(Type)
+        # attrDef.name = name
+        # self.slitherNode.createAttribute(attrDef)
 
     def deleteAttribute(self, attribute):
         pass

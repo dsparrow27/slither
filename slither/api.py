@@ -15,6 +15,11 @@ os.environ[NODE_LIB_ENV] = os.path.join(pluginBase, "nodes")
 os.environ[TYPE_LIB_ENV] = os.path.join(pluginBase, "datatypes")
 
 from slither.core import application as _application
+from slither.core.attribute import (AttributeDefinition, Attribute, CompoundAttribute, ArrayAttribute)
+from slither.core.node import BaseNode
+from slither.core.compound import Compound
+from slither.core.executor import (StandardExecutor, Parallel)
+from slither.core.types import DataType
 
 currentInstance = None
 instances = []
@@ -28,4 +33,6 @@ def newInstance(current=True):
     if current:
         currentInstance = app
     return app
+
+
 currentInstance = newInstance()
