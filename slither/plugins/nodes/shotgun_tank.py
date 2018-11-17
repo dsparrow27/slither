@@ -10,7 +10,7 @@ import pprint
 logger = logging.getLogger(__name__)
 
 
-class InitTankEngine(node.BaseNode):
+class DestroyTankEngine(node.BaseNode):
     category = "shotgun"
     documentation = "Destroys the shotgun toolkit engine by calling destroy_engine on the instance"
     engine = attribute.AttributeDefinition(isOutput=True, type_="sgtkengine", array=False, default=None)
