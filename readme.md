@@ -29,6 +29,8 @@ Graph mutation
 
 # DEPENDENCIES
 [Blinker](https://github.com/jek/blinker)
+[ffmpeg-python](https://github.com/kkroening/ffmpeg-python)
+[ffmpeg](https://www.ffmpeg.org/)
 
 # EXAMPLES
 
