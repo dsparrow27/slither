@@ -11,8 +11,7 @@ from functools import partial
 from slither import api
 from slither.core import executor
 from qt import QtGui, QtWidgets
-from vortex.ui.graphics import graphicsdatamodel
-from vortex.ui import application
+from vortex.ui import application, graphicsdatamodel
 import attributewidgets
 
 logger = logging.getLogger(__name__)
@@ -195,7 +194,7 @@ class SlitherUIObject(graphicsdatamodel.ObjectModel):
         # display only connected
         elif attributeVisLevel == self.ATTRIBUTE_VIS_LEVEL_ONE:
             for attr in self.slitherNode.iterAttributes():
-                if inputs and attr.isInput() and attr.hasUpstream():
+                if inputs and attr.isInput():
                     attrs.append(AttributeModel(attr, self))
                     continue
                 if outputs and attr.isOutput():
