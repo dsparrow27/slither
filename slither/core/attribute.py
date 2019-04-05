@@ -1,3 +1,4 @@
+import copy
 import logging
 
 from slither.core import errors
@@ -24,16 +25,6 @@ class AttributeDefinition(object):
 
         self.__doc__ = doc
         self.validateDefault()
-        self._validateType()
-
-    def _validateType(self):
-        """Validate's the dataType and converts it if necessary.
-        """
-        from slither.core import registry
-        Type = registry.DataTypeRegistry().loadPlugin(str(self.type), value=self.default)
-        if Type is None:
-            raise TypeError("The request type -> %s is incorrect" % self.type)
-        self.type = Type
 
     def __eq__(self, other):
         if not isinstance(other, AttributeDefinition):
@@ -60,7 +51,7 @@ class AttributeDefinition(object):
 
     def serialize(self):
         return dict(name=self.name,
-                    type=self.type.Type if isinstance(self.type.Type, basestring) else self.type.Type.__name__,
+                    type=self.type.Type,
                     default=self.default,
                     isArray=self.isArray,
                     isCompound=self.isCompound,
@@ -125,10 +116,6 @@ class Attribute(object):
 
     def setName(self, name):
         self.definition.setName(name)
-        if self.node is not None:
-            self.node.events.emitCallback(self.node.events.kAttributeNameChanged,
-                                          node=self.node, attribute=self,
-                                          name=name)
 
     def fullName(self):
         if self.parent is not None:
@@ -160,12 +147,8 @@ class Attribute(object):
         return self._value.value()
 
     def setValue(self, value):
-        success = self._value.setValue(value)
-        if success and self.node is not None:
-            self.node.events.emitCallback(self.node.events.kAttributeValueChanged,
-                                          node=self.node,
-                                          attribute=self,
-                                          value=value)
+        self._value.setValue(value)
+        self.node.setDirty(state=True, propagate=True)
 
     def isInput(self):
         """Returns True if this attribute is an output attribute"""
@@ -211,24 +194,12 @@ class Attribute(object):
         self.upstream = attribute
         logger.debug("Connected Attributes, upstream: {}, downstream: {}".format(self.upstream.fullName(),
                                                                                  self.fullName()))
-        if self.node is not None:
-            self.node.events.emitCallback(self.node.events.kAddConnection,
-                                          source=attribute,
-                                          destination=self,
-                                          sourceNode=attribute.node,
-                                          destinationNode=self.node)
 
     def connectDownstream(self, attribute):
         attribute.connectUpstream(self)
 
     def disconnect(self):
         if self.hasUpstream():
-            if self.node is not None:
-                self.node.events.emitCallback(self.node.events.kRemoveConnection,
-                                              source=self.upstream,
-                                              destination=self,
-                                              sourceNode=self.upstream.node,
-                                              destinationNode=self.node)
             self.upstream = None
 
     def serialize(self):
@@ -311,12 +282,6 @@ class ArrayAttribute(Attribute):
     def __setitem__(self, key, value):
         self.elements[key] = value
 
-    def __add__(self, other):
-        if isinstance(other, Attribute):
-            self.setValue(self.elements + [other])
-        else:
-            self.setValue(self.elements + [other])
-
     def __iter__(self):
         return iter(self.elements)
 
@@ -327,11 +292,6 @@ class ArrayAttribute(Attribute):
         """override
         :return:
         """
-        if self.upstream is not None:
-            value = self.upstream.value()
-            if not isinstance(value, list):
-                return [value]
-            return value
         return [element.value() for element in self.elements]
 
     def element(self, index):
@@ -339,16 +299,37 @@ class ArrayAttribute(Attribute):
             return self.elements[index]
 
     def append(self, value):
+        newElement = self._createElement()
+        newElement.setValue(value)
+        self.elements.insert(0, newElement)
         self.elements.append(value)
         return self
 
     def remove(self, index):
         if index in range(len(self)):
+            element = self.elements[index]
+            element.disconnect()
             self.elements.remove(index)
+
+    def _createElement(self):
+        data = copy.deepcopy(self.definition)
+        data.name += "[{}]".format(len(self) + 1)
+        data.isArray = False
+        return Attribute(data, node=self.node)
 
     def insert(self, value, index):
         self.elements.insert(index, value)
+        newElement = self._createElement()
+        newElement.setValue(value)
+        self.elements.insert(0, newElement)
 
     def pop(self, index):
         if index in range(len(self)):
-            return self.elements.pop(index)
+            element = self.elements.pop(index)
+            element.disconnect()
+            return element
+
+    def clear(self):
+        for i in self.elements:
+            i.disconnect()
+        self.elements = []

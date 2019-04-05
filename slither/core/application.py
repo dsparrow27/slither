@@ -1,11 +1,8 @@
 import os
-import uuid
-
-from .registry import NodeRegistry
-from .registry import DataTypeRegistry
 from zoo.libs.utils import filesystem
-from slither.core import executor
-from blinker import signal
+from slither.core import executor, node, types
+from zoo.libs.plugin import pluginmanager
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -14,28 +11,25 @@ logger = logging.getLogger(__name__)
 class Application(object):
     PARALLELEXECUTOR = 0
     STANDARDEXECUTOR = 1
+    NODE_LIB_ENV = "SLITHER_NODE_LIB"
+    TYPE_LIB_ENV = "SLITHER_TYPE_LIB"
 
     def __init__(self):
-        self._nodeRegistry = NodeRegistry()
-        self._typeRegistry = DataTypeRegistry()
-        self._events = ApplicationEvents()
+        self.nodeRegistry = pluginmanager.PluginManager(node.BaseNode, variableName="type")
+        self.typeRegistry = pluginmanager.PluginManager(types.DataType, variableName="Type")
+        self.nodeRegistry.registerPaths(os.environ[Application.TYPE_LIB_ENV].split(os.pathsep))
+        self.typeRegistry.registerPaths(os.environ[Application.NODE_LIB_ENV].split(os.pathsep))
+        # add the compound base node
+        self.nodeRegistry.registerPlugin(node.Compound)
+
         self._root = None
         self.globals = {}
 
     def __repr__(self):
         return "<{}>".format(self.__class__.__name__)
 
-    @property
-    def events(self):
-        return self._events
-
-    @property
-    def nodeRegistry(self):
-        return self._nodeRegistry
-
-    @property
-    def typeRegistry(self):
-        return self._typeRegistry
+    def shutdown(self):
+        pass
 
     def dataType(self, typeName):
         return self.typeRegistry.loadPlugin(typeName)
@@ -44,52 +38,17 @@ class Application(object):
     def root(self):
         if self._root is not None:
             return self._root
-        self._root = self._nodeRegistry.loadPlugin("Compound", name="Root System", application=self)
+        self._root = self.nodeRegistry.loadPlugin("Compound", name="Root System", application=self)
         # mark the root as internal and locked so it can't be deleted.
         self._root.isLocked = True
         self._root.isInternal = True
-        # should emit event
         return self._root
 
     def save(self, filePath, node=None):
         node = node or self.root
         data = node.serialize()
-        import pprint
-        pprint.pprint(data)
         filesystem.saveJson(data, filePath)
         return os.path.exists(filePath)
-
-    #:note:: probably shouldn't be doing this crap here
-    def createNode(self, name, type_, parent=None):
-        """Creates the specified node from the registry
-
-        :param name: The name of the node
-        :type name: str
-        :param type_: The node class the create
-        :type type_: str
-        :param parent: The parent node, default to None which will parent to the applications root compound
-        :type parent: :class:`node.BaseNode`
-        :return:
-        :rtype: :class:`node.BaseNode`
-        """
-        exists = self.root.child(name)
-        if exists:
-            newName = name
-            counter = 1
-            while self.root.child(newName):
-                newName = name + str(counter)
-                counter += 1
-            name = newName
-        newNode = self._nodeRegistry.loadPlugin(type_, name=name, application=self)
-        if newNode is not None:
-            if parent is None:
-                self.root.addChild(newNode)
-            elif parent.isCompound():
-                parent.addChild(newNode)
-            # should emit a event
-            self.events.emitCallback(self.events.kNodeCreated, node=newNode)
-            return newNode
-        # :todo error out
 
     def execute(self, node, executorType):
         if executorType == Application.PARALLELEXECUTOR:
@@ -102,52 +61,4 @@ class Application(object):
             exe = executor.StandardExecutor()
             exe.execute(node)
             return True
-        return False
-
-
-class ApplicationEvents(object):
-    kNodeCreated = 0
-    kNodeRemoved = 1
-    kSelectedChanged = 2
-
-    def __init__(self):
-        # {callbackType: {"event": Signal,
-        # "ids": {id: func}
-        #               }
-        # }
-        self.callbacks = {}
-
-    def emitCallback(self, callbackType, **kwargs):
-        existing = self.callbacks.get(callbackType)
-        if existing is None:
-            return
-        ids = existing["ids"]
-        if not ids:
-            return
-        existing["event"].send(self, **kwargs)
-
-    def addCallback(self, callbackType, func):
-        existingCallback = self.callbacks.get(callbackType)
-
-        # we have existing callback for the type so just connect to it
-        callbackId = uuid.uuid4()
-        if existingCallback is not None:
-            existingCallback["event"].connect(func)
-            existingCallback["ids"].update({callbackId: func})
-        else:
-            # no existing callback so create One
-            event = signal(callbackType)
-            event.connect(func, sender=self)
-            self.callbacks[callbackType] = {"event": event,
-                                            "ids": {callbackId: func}}
-        return callbackId
-
-    def removeCallback(self, callbackId):
-        for eventInfo in self.callbacks.values():
-            ids = eventInfo["ids"]
-            func = ids.get(callbackId)
-            if func is not None:
-                eventInfo["event"].disconnect(func)
-                del ids[callbackId]
-                return True
         return False

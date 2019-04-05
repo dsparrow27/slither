@@ -5,17 +5,14 @@ import pprint
 import unittest
 
 from slither import api
-from slither.core import attribute
-from slither.core import compound
-from slither.plugins.nodes.math.basic import sum
 
 
-class TestSubCompound(compound.Compound):
-    input = attribute.AttributeDefinition(isInput=True, type_=float, default=0)
-    output = attribute.AttributeDefinition(isOutput=True, type_=float, default=0)
+class TestSubCompound(api.Compound):
+    input = api.AttributeDefinition(isInput=True, type_=float, default=0)
+    output = api.AttributeDefinition(isOutput=True, type_=float, default=0)
 
     def mutate(self):
-        fourthNode = sum.Sum("fourthNodeSub", application=self.application)
+        fourthNode = self.createNode("fourthNodeSub", "Sum")
         fourthNode.inputB = 20
         self.addChild(fourthNode)
         # connection between two attributes
@@ -24,18 +21,18 @@ class TestSubCompound(compound.Compound):
         # self.output = fourthNode.output
 
 
-class TestCompound(compound.Compound):
+class TestCompound(api.Compound):
     """Root compound node which contains other nodes, compounds do not expand until executed via the executor class
     """
-    input = attribute.AttributeDefinition(isInput=True, type_=float, default=0)
-    output = attribute.AttributeDefinition(isOutput=True, type_=float, default=0)
-    execution = attribute.AttributeDefinition(isOutput=True, type_=float, default=0)
+    input = api.AttributeDefinition(isInput=True, type_=float, default=0)
+    output = api.AttributeDefinition(isOutput=True, type_=float, default=0)
+    execution = api.AttributeDefinition(isOutput=True, type_=float, default=0)
 
     def mutate(self):
-        firstNode = sum.Sum("firstNode", application=self.application)
+        firstNode = self.createNode("firstNode", "Sum")
         firstNode.inputA = 20
         firstNode.inputB = 10
-        secondNode = sum.Sum("secondNode", application=self.application)
+        secondNode = self.createNode("secondNode", "Sum")
         secondNode.inputB = 10
         thirdNodeComp = TestSubCompound("thirdNodeComp", application=self.application)
         # add the nodes as children

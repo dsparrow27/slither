@@ -64,6 +64,8 @@ class Parallel(Executor):
                 node = nodes.keys()[index]
                 # copy the output data from the process back into the main process output data
                 node.copyOutputData(recvData)
+                node.setDirty(False, False)
+                node.progress = 100
                 del nodes[node]
                 for dependent, dependents in nodes.items():
                     if node in dependents:
@@ -80,18 +82,14 @@ class Parallel(Executor):
 
     @classmethod
     def startProcess(cls, node, parentConnection):
-        node.progress = 0
-        try:
-            if node.isCompound():
-                cls.execute(node)
-            node.execute()
-            outputs = node.outputs()
-            data = {}
-            for output in outputs:
-                data[output.name()] = output.value()
-            parentConnection.send(data)
-        finally:
-            node.progress = 100
+        if node.isCompound():
+            cls.execute(node)
+        node.execute()
+        outputs = node.outputs()
+        data = {}
+        for output in outputs:
+            data[output.name()] = output.value()
+        parentConnection.send(data)
 
 
 class StandardExecutor(Executor):
@@ -110,11 +108,14 @@ class StandardExecutor(Executor):
         nodes = self._dependents(node)
         for n, dependents in nodes.items():
             for d in dependents:
+                if d.progress == 100:
+                    continue
                 if len(dependents) == 1 and dependents[0] == n.parent:
                     nodes[n] = list()
                     continue
                 self.execute(d)
-            self.execute(n)
+            if n.progress == 100:
+                self.execute(n)
 
     def execute(self, node):
         node.progress = 0
@@ -124,7 +125,7 @@ class StandardExecutor(Executor):
                 node.execute()
             else:
                 node.execute()
+            node.setDirty(False, False)
         finally:
             node.progress = 100
-        self.visited.add(node)
         return True

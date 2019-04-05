@@ -1,68 +1,10 @@
-import uuid
-from blinker import signal
+import copy
+
 from slither.core import attribute
 import logging
 from slither.core import service
 
 logger = logging.getLogger(__name__)
-
-
-class NodeEvents(object):
-    kAddAttribute = 0
-    kAttributeNameChanged = 1
-    kAttributeValueChanged = 2
-    kNodeNameChanged = 3
-    kRemoveAttribute = 4
-    kAddConnection = 5
-    kRemoveConnection = 6
-    kValueChanged = 7
-    kProgressUpdated = 8
-    kParentChanged = 9
-
-    def __init__(self):
-        # {callbackType: {"event": Signal,
-        # "ids": {id: func}
-        #               }
-        # }
-        self.callbacks = {}
-
-    def emitCallback(self, callbackType, **kwargs):
-        existing = self.callbacks.get(callbackType)
-        if existing is None:
-            return
-        ids = existing["ids"]
-        if not ids:
-            return
-        kwargs["eventType"] = callbackType
-        ev = existing["event"]
-        if bool(ev.receivers):
-            ev.send(self, **kwargs)
-
-    def addCallback(self, callbackType, func):
-        existingCallback = self.callbacks.get(callbackType)
-
-        # we have existing callback for the type so just connect to it
-        callbackId = uuid.uuid4()
-        if existingCallback is not None:
-            existingCallback["event"].connect(func)
-            existingCallback["ids"].update({callbackId: func})
-        else:
-            # no existing callback so create One
-            event = signal(callbackType)
-            event.connect(func, sender=self)
-            self.callbacks[callbackType] = {"event": event,
-                                            "ids": {callbackId: func}}
-        return callbackId
-
-    def removeCallback(self, callbackId):
-        for eventInfo in self.callbacks.values():
-            ids = eventInfo["ids"]
-            func = ids.get(callbackId)
-            if func is not None:
-                eventInfo["event"].disconnect(func)
-                del ids[callbackId]
-                return True
-        return False
 
 
 class NodeMeta(type):
@@ -83,13 +25,13 @@ class NodeMeta(type):
 
 class BaseNode(object):
     __metaclass__ = NodeMeta
+    Type = ""
     category = ""
     tags = set()
     documentation = ""
 
     def __init__(self, name, application):
         self.application = application
-        self.events = NodeEvents()
         self.name = name
         self.attributes = []
         self.metadata = {}
@@ -98,18 +40,19 @@ class BaseNode(object):
         self._selected = False
         self._parent = None
         self._progress = 0
+        self.dirty = False
         attrDef = attribute.AttributeDefinition(isInput=True,
                                                 isOutput=True,
-                                                type_=list,
+                                                type_="list",
                                                 default=list(),
                                                 required=False, array=True,
                                                 doc="Node Level dependencies")
-        attrDef.name = "Dependencies"
+        attrDef.name = "dependencies"
         self.createAttribute(attrDef)
 
         for name, attrDef in iter(self.__class__.__dict__.items()):
             if isinstance(attrDef, attribute.AttributeDefinition):
-                self.createAttribute(attrDef)
+                self.createAttribute(copy.deepcopy(attrDef))
 
     @property
     def selected(self):
@@ -119,8 +62,14 @@ class BaseNode(object):
     def selected(self, value):
         if self._selected != value:
             self._selected = value
-            self.application.events.emitCallback(self.application.events.kSelectedChanged,
-                                                 node=self, state=value)
+
+    def process(self):
+        try:
+            self.execute()
+        except Exception:
+            logger.error("Unknown Error Occurred during node execution: {}".format(self.name),
+                         extra=self.serialize(),
+                         exc_info=True)
 
     def execute(self):
         pass
@@ -132,7 +81,6 @@ class BaseNode(object):
     @progress.setter
     def progress(self, value):
         self._progress = value
-        self.events.emitCallback(NodeEvents.kProgressUpdated, node=self, progress=value)
 
     @staticmethod
     def isCompound():
@@ -141,6 +89,14 @@ class BaseNode(object):
         :rtype: bool
         """
         return False
+
+    def setDirty(self, state, propagate=True):
+        if self.dirty == state:
+            return
+        self.dirty = state
+        if propagate:
+            for i in self.downStreamNodes():
+                i.setDirty(state)
 
     def __repr__(self):
         return "{0}({1})".format(self.__class__.__name__, self.name)
@@ -185,7 +141,6 @@ class BaseNode(object):
     def parent(self, node):
         if self._parent != node:
             self._parent = node
-            self.events.emitCallback(NodeEvents.kParentChanged, node=self, parent=node)
 
     def type(self):
         """Returns the type of this node
@@ -201,7 +156,6 @@ class BaseNode(object):
         """
         if self.name != name:
             self.name = name
-            self.events.emitCallback(NodeEvents.kNodeNameChanged, node=self, name=self)
 
         return self.name
 
@@ -221,7 +175,6 @@ class BaseNode(object):
     def addAttribute(self, attribute):
         if attribute not in self.attributes:
             self.attributes.append(attribute)
-            self.events.emitCallback(NodeEvents.kAddAttribute, node=self, attribute=attribute)
             return True
         return False
 
@@ -231,6 +184,9 @@ class BaseNode(object):
             raise ValueError("Name -> {} already exists".format(attributeDefinition.name))
         logger.debug("Creating Attribute: {} on node: {}".format(attributeDefinition.name,
                                                                  self.name))
+        Type = self.DataTypeRegistry().loadPlugin(str(attributeDefinition.type),
+                                                  value=attributeDefinition.default)
+        attributeDefinition.type = type
         if attributeDefinition.isArray:
             newAttribute = attribute.ArrayAttribute(attributeDefinition, node=self)
         elif attributeDefinition.isCompound:
@@ -248,7 +204,6 @@ class BaseNode(object):
         for i in range(len(self.attributes)):
             attr = self.attributes[i]
             if attr.name() == name:
-                self.events.emitCallback(NodeEvents.kRemoveAttribute, node=self, attribute=attr)
                 del self.attributes[i]
                 return True
         return False
@@ -331,6 +286,7 @@ class BaseNode(object):
 
     def serialize(self):
         data = {"name": self.name,
+                "type": self.type(),
                 "parent": self.parent.fullName() if self.parent else None,
                 "attributes": [i.serialize() for i in self.attributes],
                 "isCompound": self.isCompound()
@@ -440,11 +396,25 @@ class Compound(BaseNode):
             return False
         if child in self:
             child.disconnectAll()
-            self.application.events.emitCallback(self.application.events.kNodeRemoved,
-                                                 node=child)
             self.children.remove(child)
             return True
         return False
+
+    def createChild(self, name, type_):
+        exists = self.child(name)
+        if exists:
+            newName = name
+            counter = 1
+            while self.child(newName):
+                newName = name + str(counter)
+                counter += 1
+            name = newName
+        newNode = self.application.nodeRegistry.loadPlugin(type_, name=name,
+                                                           application=self.application)
+        if newNode is not None:
+            self.addChild(newNode)
+            return newNode
+        # :todo error out
 
     def clear(self):
         for child in self.children:
