@@ -184,9 +184,9 @@ class BaseNode(object):
             raise ValueError("Name -> {} already exists".format(attributeDefinition.name))
         logger.debug("Creating Attribute: {} on node: {}".format(attributeDefinition.name,
                                                                  self.name))
-        Type = self.DataTypeRegistry().loadPlugin(str(attributeDefinition.type),
-                                                  value=attributeDefinition.default)
-        attributeDefinition.type = type
+        Type = self.application.typeRegistry.loadPlugin(str(attributeDefinition.type),
+                                                        value=attributeDefinition.default)
+        attributeDefinition.type = Type
         if attributeDefinition.isArray:
             newAttribute = attribute.ArrayAttribute(attributeDefinition, node=self)
         elif attributeDefinition.isCompound:
@@ -251,10 +251,11 @@ class BaseNode(object):
                 return True
         return False
 
-    def upstreamNodes(self):
+    def upstreamNodes(self, includeDirty=True):
         nodes = []
         for input_ in self.iterInputs():
-            if input_.hasUpstream():
+            upstream = input_.upstream
+            if upstream is not None and (includeDirty and upstream.node.isDirty()):
                 nodes.append(input_.upstream.node)
         return nodes
 
@@ -311,6 +312,7 @@ class Compound(BaseNode):
     """The Compound class encapsulates a set of child nodes, which can include other compounds.
     We provide methods to query the children nodes of the current compound.
     """
+    Type = "Compound"
 
     def __init__(self, name, application):
         """

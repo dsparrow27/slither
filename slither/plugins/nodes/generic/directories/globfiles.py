@@ -10,7 +10,7 @@ class Glob(node.BaseNode):
     category = "directories"
     documentation = "returns a list of files in a directory"
     directory = attribute.AttributeDefinition(isInput=True, type_="directory", default="", required=True)
-    pattern = attribute.AttributeDefinition(isInput=True, type="str", default="*", required=True)
+    pattern = attribute.AttributeDefinition(isInput=True, type_="str", default="*", required=True)
     output = attribute.AttributeDefinition(isOutput=True, type_="file", array=True, default="")
 
     def execute(self):

@@ -25,14 +25,14 @@ class InitTankEngine(node.BaseNode):
     category = "shotgun"
     documentation = "Initializes a shotgun tank instance using the supplied environment"
 
-    modulePath = attribute.AttributeDefinition(isInput=True, type="str", array=False, default="")
-    apiScript = attribute.AttributeDefinition(isInput=True, type="str", array=False, default="")
-    context = attribute.AttributeDefinition(isInput=True, type="dict", array=False, default=dict())
-    apiKey = attribute.AttributeDefinition(isInput=True, type="str", default="")
-    host = attribute.AttributeDefinition(isInput=True, type="str", default="")
-    configUri = attribute.AttributeDefinition(isInput=True, type="str", default="")
-    plugins = attribute.AttributeDefinition(isInput=True, type="str", default="")
-    engine_name = attribute.AttributeDefinition(isInput=True, type="str", default="")
+    modulePath = attribute.AttributeDefinition(isInput=True, type_="str", array=False, default="")
+    apiScript = attribute.AttributeDefinition(isInput=True, type_="str", array=False, default="")
+    context = attribute.AttributeDefinition(isInput=True, type_="dict", array=False, default=dict())
+    apiKey = attribute.AttributeDefinition(isInput=True, type_="str", default="")
+    host = attribute.AttributeDefinition(isInput=True, type_="str", default="")
+    configUri = attribute.AttributeDefinition(isInput=True, type_="str", default="")
+    plugins = attribute.AttributeDefinition(isInput=True, type_="str", default="")
+    engine_name = attribute.AttributeDefinition(isInput=True, type_="str", default="")
     engine = attribute.AttributeDefinition(isOutput=True, type_="sgtkengine", array=False, default=None)
 
     def execute(self):
@@ -76,16 +76,16 @@ class ShotgunTankPublish(node.BaseNode):
     category = "shotgun"
     documentation = "Publishes the file to shotgun using tank.util.register_publish"
     engine = attribute.AttributeDefinition(isOutput=True, type_="sgtkengine", array=False, default=None)
-    context = attribute.AttributeDefinition(isInput=True, type="dict", default=dict())
-    comment = attribute.AttributeDefinition(isInput=True, type="str", default="")
-    path = attribute.AttributeDefinition(isInput=True, type="str", default="")
-    name = attribute.AttributeDefinition(isInput=True, type="str", default="")
-    versionNumber = attribute.AttributeDefinition(isInput=True, type="int", default=1)
-    thumbnailPath = attribute.AttributeDefinition(isInput=True, type="str", default="")
-    publishedFileType = attribute.AttributeDefinition(isInput=True, type="str", default="")
-    dependencyPaths = attribute.AttributeDefinition(isInput=True, type="list", default=list())
-    sg_fields = attribute.AttributeDefinition(isInput=True, type="dict", array=False, default=dict())
-    dry_run = attribute.AttributeDefinition(isInput=True, type="bool", default=False)
+    context = attribute.AttributeDefinition(isInput=True, type_="dict", default=dict())
+    comment = attribute.AttributeDefinition(isInput=True, type_="str", default="")
+    path = attribute.AttributeDefinition(isInput=True, type_="str", default="")
+    name = attribute.AttributeDefinition(isInput=True, type_="str", default="")
+    versionNumber = attribute.AttributeDefinition(isInput=True, type_="int", default=1)
+    thumbnailPath = attribute.AttributeDefinition(isInput=True, type_="str", default="")
+    publishedFileType = attribute.AttributeDefinition(isInput=True, type_="str", default="")
+    dependencyPaths = attribute.AttributeDefinition(isInput=True, type_="list", default=list())
+    sg_fields = attribute.AttributeDefinition(isInput=True, type_="dict", array=False, default=dict())
+    dry_run = attribute.AttributeDefinition(isInput=True, type_="bool", default=False)
 
     def execute(self):
         engine = self.engine.value()

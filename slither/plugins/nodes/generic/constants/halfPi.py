@@ -8,7 +8,7 @@ class HalfPiNode(node.BaseNode):
     Type = "HalfPiNode"
     category = "constant"
     documentation = "HalfPiNode"
-    output = attribute.AttributeDefinition(isOutput=True, type="bool", default=True)
+    output = attribute.AttributeDefinition(isOutput=True, type_="bool", default=True)
 
     def execute(self):
         self.output.setValue(math.pi * 0.5)

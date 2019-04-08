@@ -6,8 +6,8 @@ class Dictionary(node.BaseNode):
     Type = "Dictionary"
     category = "constant"
     documentation = "Dictionary"
-    input = attribute.AttributeDefinition(isOutput=False, type="dict", default=dict())
-    output = attribute.AttributeDefinition(isOutput=True, type="dict", default=dict())
+    input = attribute.AttributeDefinition(isOutput=False, type_="dict", default=dict())
+    output = attribute.AttributeDefinition(isOutput=True, type_="dict", default=dict())
 
     def execute(self):
         self.output.setValue(dict(self.input.value()))

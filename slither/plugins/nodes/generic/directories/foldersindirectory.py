@@ -10,7 +10,7 @@ class FolderInDirectory(node.BaseNode):
     documentation = "returns a list of folders in a directory, if recursive is True(default is False) then all " \
                     "subfolders will be returned as well"
     directory = attribute.AttributeDefinition(isInput=True, type_="directory", default="")
-    recursive = attribute.AttributeDefinition(isInput=True, type="bool", default=False)
+    recursive = attribute.AttributeDefinition(isInput=True, type_="bool", default=False)
     output = attribute.AttributeDefinition(isOutput=True, type_="directory", array=True, default=[])
 
     def execute(self):

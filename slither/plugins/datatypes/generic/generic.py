@@ -15,6 +15,9 @@ class FloatType(types.DataType):
     def __add__(self, other):
         return self.__class__(self._value + other.value())
 
+    def __neg__(self, other):
+        return self.__class__(self._value - other.value())
+
     def __float__(self):
         return float(self._value)
 

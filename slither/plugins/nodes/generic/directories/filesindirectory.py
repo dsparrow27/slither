@@ -10,7 +10,7 @@ class FilesInDirectory(node.BaseNode):
     category = "directories"
     documentation = "returns a list of files in a directory"
     directory = attribute.AttributeDefinition(isInput=True, type_="directory", default="")
-    recursive = attribute.AttributeDefinition(isInput=True, type="bool", default=False)
+    recursive = attribute.AttributeDefinition(isInput=True, type_="bool", default=False)
     output = attribute.AttributeDefinition(isOutput=True, type_="file", array=True, default=[])
 
     def execute(self):

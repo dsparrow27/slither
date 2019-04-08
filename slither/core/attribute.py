@@ -294,6 +294,20 @@ class ArrayAttribute(Attribute):
         """
         return [element.value() for element in self.elements]
 
+    def setValue(self, value):
+        valueLen = len(value)
+        elementLen = len(self.elements)
+        if valueLen < elementLen:
+            for index in range(elementLen - valueLen):
+                self.append(self.append(value[elementLen + index]))
+            return
+        elif valueLen > elementLen:
+            for element in self.elements[valueLen:]:
+                element.disconnect()
+            self.elements = self.elements[:valueLen]
+        for index, val in enumerate(value):
+            self.elements[index].setValue(val)
+
     def element(self, index):
         if index in range(len(self)):
             return self.elements[index]
@@ -301,8 +315,7 @@ class ArrayAttribute(Attribute):
     def append(self, value):
         newElement = self._createElement()
         newElement.setValue(value)
-        self.elements.insert(0, newElement)
-        self.elements.append(value)
+        self.elements.append(newElement)
         return self
 
     def remove(self, index):
@@ -321,7 +334,7 @@ class ArrayAttribute(Attribute):
         self.elements.insert(index, value)
         newElement = self._createElement()
         newElement.setValue(value)
-        self.elements.insert(0, newElement)
+        self.elements.insert(index, newElement)
 
     def pop(self, index):
         if index in range(len(self)):

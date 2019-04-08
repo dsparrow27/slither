@@ -30,7 +30,7 @@ def nodeBreadthFirstSearch(node):
 
     while stack:
         current = stack.pop(0)
-        upstreams = current.up0streamNodes()
+        upstreams = current.upstreamNodes(includeDirty=False)
         visited.append(current)
         stack.extend(upstreams)
 

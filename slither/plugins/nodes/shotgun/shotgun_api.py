@@ -6,9 +6,9 @@ class ShotgunConnection(node.BaseNode):
     Type = "ShotgunConnection"
     category = "shotgun"
     documentation = "Creates and returns a shotgun connection instance"
-    apiScript = attribute.AttributeDefinition(isInput=True, type="str", array=False, default="")
-    apiKey = attribute.AttributeDefinition(isInput=True, type="str", default="")
-    host = attribute.AttributeDefinition(isInput=True, type="str", default="")
+    apiScript = attribute.AttributeDefinition(isInput=True, type_="str", array=False, default="")
+    apiKey = attribute.AttributeDefinition(isInput=True, type_="str", default="")
+    host = attribute.AttributeDefinition(isInput=True, type_="str", default="")
     output = attribute.AttributeDefinition(isOutput=True, type_="shotgun", array=False, default=None)
 
     def execute(self):
@@ -27,10 +27,10 @@ class ShotgunFind(node.BaseNode):
     category = "shotgun"
     documentation = "Calls 'find' method on the shotgun instance and returns the result as an attribute array"
     shotgunConnection = attribute.AttributeDefinition(isInput=True, type_="shotgun", array=False, default=None)
-    entityType = attribute.AttributeDefinition(isInput=True, type="str", array=False, default="")
-    filters = attribute.AttributeDefinition(isInput=True, type="list", array=True, default=list())
-    fields = attribute.AttributeDefinition(isInput=True, type="list", array=True, default=list())
-    output = attribute.AttributeDefinition(isOutput=True, type="list", array=True, default=list())
+    entityType = attribute.AttributeDefinition(isInput=True, type_="str", array=False, default="")
+    filters = attribute.AttributeDefinition(isInput=True, type_="list", array=True, default=list())
+    fields = attribute.AttributeDefinition(isInput=True, type_="list", array=True, default=list())
+    output = attribute.AttributeDefinition(isOutput=True, type_="list", array=True, default=list())
 
     def execute(self):
         self.output = self.shotgunConnection.value().find(self.entityType.value(),
@@ -43,10 +43,10 @@ class ShotgunFindOne(node.BaseNode):
     category = "shotgun"
     documentation = "Calls 'find_one' method on the shotgun instance and returns the result as an attribute dict"
     shotgunConnection = attribute.AttributeDefinition(isInput=True, type_="shotgun", array=False, default=None)
-    entityType = attribute.AttributeDefinition(isInput=True, type="str", array=False, default="")
-    filters = attribute.AttributeDefinition(isInput=True, type="list", array=True, default=list())
-    fields = attribute.AttributeDefinition(isInput=True, type="list", array=True, default=list())
-    output = attribute.AttributeDefinition(isOutput=True, type="dict", array=False, default=dict())
+    entityType = attribute.AttributeDefinition(isInput=True, type_="str", array=False, default="")
+    filters = attribute.AttributeDefinition(isInput=True, type_="list", array=True, default=list())
+    fields = attribute.AttributeDefinition(isInput=True, type_="list", array=True, default=list())
+    output = attribute.AttributeDefinition(isOutput=True, type_="dict", array=False, default=dict())
 
     def execute(self):
         self.output = self.shotgunConnection.value().find_one(self.entityType.value(),

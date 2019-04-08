@@ -8,7 +8,7 @@ class OrderDict(node.BaseNode):
     Type = "OrderDict"
     category = "constant"
     documentation = "OrderedDict"
-    output = attribute.AttributeDefinition(isOutput=True, type="dict", default=OrderedDict())
+    output = attribute.AttributeDefinition(isOutput=True, type_="dict", default=OrderedDict())
 
     def execute(self):
         self.output.setValue(OrderedDict(self.value.value()))

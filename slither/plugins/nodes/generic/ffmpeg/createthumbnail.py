@@ -9,7 +9,7 @@ class ConvertToVideo(node.BaseNode):
     category = "ffmpeg"
     documentation = "Convert's an image sequence to a video"
     input = attribute.AttributeDefinition(isInput=True, type_="directory", default="", required=True)
-    frame = attribute.AttributeDefinition(isInput=True, type="int", default=0, required=True)
+    frame = attribute.AttributeDefinition(isInput=True, type_="int", default=0, required=True)
     outputPath = attribute.AttributeDefinition(isInput=True, type_="file", default="", required=True)
     output = attribute.AttributeDefinition(isOutput=True, type_="file", array=True, default="")
 

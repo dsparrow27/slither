@@ -15,10 +15,10 @@ class Application(object):
     TYPE_LIB_ENV = "SLITHER_TYPE_LIB"
 
     def __init__(self):
-        self.nodeRegistry = pluginmanager.PluginManager(node.BaseNode, variableName="type")
+        self.nodeRegistry = pluginmanager.PluginManager(node.BaseNode, variableName="Type")
         self.typeRegistry = pluginmanager.PluginManager(types.DataType, variableName="Type")
-        self.nodeRegistry.registerPaths(os.environ[Application.TYPE_LIB_ENV].split(os.pathsep))
-        self.typeRegistry.registerPaths(os.environ[Application.NODE_LIB_ENV].split(os.pathsep))
+        self.nodeRegistry.registerPaths(os.environ[Application.NODE_LIB_ENV].split(os.pathsep))
+        self.typeRegistry.registerPaths(os.environ[Application.TYPE_LIB_ENV].split(os.pathsep))
         # add the compound base node
         self.nodeRegistry.registerPlugin(node.Compound)
 
@@ -39,6 +39,7 @@ class Application(object):
         if self._root is not None:
             return self._root
         self._root = self.nodeRegistry.loadPlugin("Compound", name="Root System", application=self)
+
         # mark the root as internal and locked so it can't be deleted.
         self._root.isLocked = True
         self._root.isInternal = True
