@@ -32,7 +32,7 @@ class FloatType(types.DataType):
 
 
 class IntType(types.DataType):
-    Type = "int"
+    Type = "kInt"
 
     def __add__(self, other):
         return self.__class__(self._value + other.value())
@@ -54,7 +54,7 @@ class IntType(types.DataType):
 
 
 class StringType(types.DataType):
-    Type = "str"
+    Type = "kString"
 
     def __str__(self):
         return str(self._value)
@@ -86,7 +86,7 @@ class BooleanType(types.DataType):
 
 
 class DictType(types.DataType):
-    Type = "dict"
+    Type = "kDict"
 
     def __init__(self, value):
         super(DictType, self).__init__(value)
@@ -112,7 +112,7 @@ class DictType(types.DataType):
 
 
 class FileType(types.DataType):
-    Type = "file"
+    Type = "kFile"
 
     def __init__(self, value=None):
         super(FileType, self).__init__(value)
@@ -120,11 +120,11 @@ class FileType(types.DataType):
 
 
 class DirectoryType(FileType):
-    Type = "directory"
+    Type = "kDirectory"
 
 
 class ListType(types.DataType):
-    Type = "list"
+    Type = "kList"
 
     def __iter__(self):
         return iter(self._value)

@@ -1,13 +1,12 @@
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class Dictionary(node.BaseNode):
+class Dictionary(api.ComputeNode):
     Type = "Dictionary"
     category = "constant"
     documentation = "Dictionary"
-    input = attribute.AttributeDefinition(isOutput=False, type_="dict", default=dict())
-    output = attribute.AttributeDefinition(isOutput=True, type_="dict", default=dict())
+    input = api.AttributeDefinition(isOutput=False, type_=api.types.kDict, default=dict())
+    output = api.AttributeDefinition(isOutput=True, type_=api.types.kDict, default=dict())
 
     def execute(self):
         self.output.setValue(dict(self.input.value()))

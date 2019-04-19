@@ -1,13 +1,12 @@
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class Integer(node.BaseNode):
+class Integer(api.ComputeNode):
     Type = "Integer"
     category = "constant"
     documentation = "integer"
-    value = attribute.AttributeDefinition(isInput=True, type_="int", default=0)
-    output = attribute.AttributeDefinition(isOutput=True, type_="int", default=0)
+    value = api.AttributeDefinition(isInput=True, type_=api.types.kInt, default=0)
+    output = api.AttributeDefinition(isOutput=True, type_=api.types.kInt, default=0)
 
     def execute(self):
         self.output.setValue(int(self.input.value()))

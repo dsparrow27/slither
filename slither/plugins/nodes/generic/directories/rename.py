@@ -1,16 +1,15 @@
 import math
 import os
 
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class Rename(node.BaseNode):
+class Rename(api.ComputeNode):
     Type = "Rename"
     category = "directories"
     documentation = "Rename"
-    file = attribute.AttributeDefinition(isInput=True, type_="file", default="")
-    name = attribute.AttributeDefinition(isInput=True, type_="str", default="")
+    file = api.AttributeDefinition(isInput=True, type_=api.types.kFile, default="")
+    name = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
 
     def execute(self):
         self.output.setValue(math.pi)

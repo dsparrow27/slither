@@ -1,8 +1,9 @@
 import copy
+import logging
 
 from slither.core import attribute
-import logging
 from slither.core import service
+from slither.core import types
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,6 @@ class NodeMeta(type):
 
 
 class BaseNode(object):
-    __metaclass__ = NodeMeta
     Type = ""
     category = ""
     tags = set()
@@ -33,26 +33,16 @@ class BaseNode(object):
     def __init__(self, name, application):
         self.application = application
         self.name = name
-        self.attributes = []
+
         self.metadata = {}
         self.isLocked = False
         self.isInternal = False
         self._selected = False
         self._parent = None
-        self._progress = 0
-        self.dirty = False
-        attrDef = attribute.AttributeDefinition(isInput=True,
-                                                isOutput=True,
-                                                type_="list",
-                                                default=list(),
-                                                required=False, array=True,
-                                                doc="Node Level dependencies")
-        attrDef.name = "dependencies"
-        self.createAttribute(attrDef)
+        self.initialize()
 
-        for name, attrDef in iter(self.__class__.__dict__.items()):
-            if isinstance(attrDef, attribute.AttributeDefinition):
-                self.createAttribute(copy.deepcopy(attrDef))
+    def initialize(self):
+        pass
 
     @property
     def selected(self):
@@ -63,25 +53,6 @@ class BaseNode(object):
         if self._selected != value:
             self._selected = value
 
-    def process(self):
-        try:
-            self.execute()
-        except Exception:
-            logger.error("Unknown Error Occurred during node execution: {}".format(self.name),
-                         extra=self.serialize(),
-                         exc_info=True)
-
-    def execute(self):
-        pass
-
-    @property
-    def progress(self):
-        return self._progress
-
-    @progress.setter
-    def progress(self, value):
-        self._progress = value
-
     @staticmethod
     def isCompound():
         """StaticMethod, Returns whether or not this node is a compound.
@@ -89,14 +60,6 @@ class BaseNode(object):
         :rtype: bool
         """
         return False
-
-    def setDirty(self, state, propagate=True):
-        if self.dirty == state:
-            return
-        self.dirty = state
-        if propagate:
-            for i in self.downStreamNodes():
-                i.setDirty(state)
 
     def __repr__(self):
         return "{0}({1})".format(self.__class__.__name__, self.name)
@@ -110,29 +73,6 @@ class BaseNode(object):
     def __ne__(self, other):
         return hash(self) != hash(other)
 
-    def __setattr__(self, name, value):
-        if hasattr(self, "attributes"):
-            attr = self.attribute(name)
-            if attr is not None:
-                isAttr = isinstance(attr, attribute.Attribute)
-                if isAttr and isinstance(value, attribute.Attribute):
-                    attr.connectUpstream(value)
-                else:
-                    attr.setValue(value)
-                return
-        super(BaseNode, self).__setattr__(name, value)
-
-    def __getattr__(self, name):
-        """Returns the attribute on the current node if it exists.
-        :param name: The name of the attribute
-        :type name: str
-        :rtype: Attribute
-        """
-        attr = self.attribute(name)
-        if attr is not None:
-            return attr
-        return super(BaseNode, self).__getattribute__(name)
-
     @property
     def parent(self):
         return self._parent
@@ -142,11 +82,30 @@ class BaseNode(object):
         if self._parent != node:
             self._parent = node
 
+    def depth(self):
+        index = 0
+        if self.parent:
+            index += self.parent.depth + 1
+        return index
+
+    def siblings(self):
+        """Finds and returns all the siblings nodes under the node parent
+
+        :return:
+        :rtype: list(Basenode instance)
+        """
+        nodes = []
+        if self.parent:
+            for i in self.parent:
+                if i != self:
+                    nodes.append(i)
+        return nodes
+
     def type(self):
         """Returns the type of this node
         :rtype: string
         """
-        return self.__class__.__name__
+        return self.Type
 
     def setName(self, name):
         """Sets the name of the node if the name already exists in the graph then a number will be append
@@ -167,6 +126,59 @@ class BaseNode(object):
             return "|".join([self.parent.fullName(), self.name])
         return self.name
 
+    def serialize(self):
+        data = {"name": self.name,
+                "parent": self.parent.fullName() if self.parent else None,
+                "isCompound": self.isCompound(),
+                "type": self.Type
+                }
+        return data
+
+    def deserialize(self, data):
+        pass
+
+
+class DependencyNode(BaseNode):
+    __metaclass__ = NodeMeta
+
+    def __init__(self, name, application):
+        super(DependencyNode, self).__init__(name, application)
+        self.attributes = []
+        attrDef = attribute.AttributeDefinition(isInput=True,
+                                                isOutput=True,
+                                                type_=types.list,
+                                                default=list(),
+                                                required=False, array=True,
+                                                doc="Node Level dependencies")
+        attrDef.name = "Dependencies"
+        self.createAttribute(attrDef)
+
+        for name, attrDef in iter(self.__class__.__dict__.items()):
+            if isinstance(attrDef, attribute.AttributeDefinition):
+                self.createAttribute(copy.deepcopy(attrDef))
+
+    def __setattr__(self, name, value):
+        attr = self.attribute(name)
+        if attr is not None:
+            isAttr = isinstance(attr, attribute.Attribute)
+            if isAttr and isinstance(value, attribute.Attribute):
+                attr.connectUpstream(value)
+            else:
+                attr.setValue(value)
+            return
+        super(BaseNode, self).__setattr__(name, value)
+
+    def __getattr__(self, name):
+        """Returns the attribute on the current node if it exists.
+        :param name: The name of the attribute
+        :type name: str
+        :rtype: Attribute
+        """
+        attr = self.attribute(name)
+        if attr is not None:
+            return attr
+        return super(BaseNode, self).__getattribute__(name)
+
     def attribute(self, name):
         for attr in self.iterAttributes():
             if attr.name() == name:
@@ -184,9 +196,6 @@ class BaseNode(object):
             raise ValueError("Name -> {} already exists".format(attributeDefinition.name))
         logger.debug("Creating Attribute: {} on node: {}".format(attributeDefinition.name,
                                                                  self.name))
-        Type = self.application.typeRegistry.loadPlugin(str(attributeDefinition.type),
-                                                        value=attributeDefinition.default)
-        attributeDefinition.type = Type
         if attributeDefinition.isArray:
             newAttribute = attribute.ArrayAttribute(attributeDefinition, node=self)
         elif attributeDefinition.isCompound:
@@ -223,12 +232,6 @@ class BaseNode(object):
     def outputs(self):
         return list(self.iterOutputs())
 
-    def depth(self):
-        index = 0
-        if self.parent:
-            index += self.parent.depth + 1
-        return index
-
     def iterInputs(self):
         for i in self.attributes:
             if i.isInput():
@@ -251,11 +254,10 @@ class BaseNode(object):
                 return True
         return False
 
-    def upstreamNodes(self, includeDirty=True):
+    def upstreamNodes(self):
         nodes = []
         for input_ in self.iterInputs():
-            upstream = input_.upstream
-            if upstream is not None and (includeDirty and upstream.node.isDirty()):
+            if input_.hasUpstream():
                 nodes.append(input_.upstream.node)
         return nodes
 
@@ -268,31 +270,9 @@ class BaseNode(object):
                     nodes.append(i)
         return nodes
 
-    def siblings(self):
-        """Finds and returns all the siblings nodes under the node parent
-
-        :return:
-        :rtype: list(Basenode instance)
-        """
-        nodes = []
-        if self.parent:
-            for i in self.parent:
-                if i != self:
-                    nodes.append(i)
-        return nodes
-
     def disconnectAll(self):
         for attr in self.iterAttributes():
             attr.disconnect()
-
-    def serialize(self):
-        data = {"name": self.name,
-                "type": self.type(),
-                "parent": self.parent.fullName() if self.parent else None,
-                "attributes": [i.serialize() for i in self.attributes],
-                "isCompound": self.isCompound()
-                }
-        return data
 
     def copyOutputData(self, outputs):
         """Copies the output data on to this nodes output values.
@@ -307,8 +287,75 @@ class BaseNode(object):
             if attr is not None:
                 attr.setValue(value)
 
+    def serialize(self):
+        data = super(DependencyNode, self).serialize()
+        data["attributes"] = [i.serialize() for i in self.attributes],
+        return data
 
-class Compound(BaseNode):
+    def deserialize(self, data):
+        super(DependencyNode, self).deserialize(data)
+        for attr in data["attributes"]:
+            currentAttr = self.attribute(attr["name"].split("|")[-1])
+            if currentAttr is not None:
+                currentAttr.deserialize(attr)
+
+
+class Comment(BaseNode):
+    Type = "comment"
+
+
+class Pin(DependencyNode):
+    Type = "pin"
+
+
+class ComputeNode(DependencyNode):
+    """Node which has a computation operation
+    """
+
+    def __init__(self, name, application):
+        super(ComputeNode, self).__init__(name, application)
+        self._progress = 0
+        self._dirty = False
+
+    def process(self):
+        try:
+            self.validate()
+            self.progress = 0
+            self.execute()
+            self.progress = 100
+        except Exception:
+            self.progress = 0
+            raise
+
+    def validate(self):
+        return True
+
+    def execute(self):
+        pass
+
+    @property
+    def progress(self):
+        return self._progress
+
+    @progress.setter
+    def progress(self, value):
+        self._progress = value
+
+    def dirty(self):
+        return self._dirty
+
+    def setDirty(self, state, propagate=True):
+        if self._dirty == state:
+            return
+        self._dirty = state
+        # if we setting to a dirty state and we need to propagate
+        # then loop the downstream nodes and set their state
+        if state and propagate:
+            for dependent in self.downStreamNodes():
+                dependent.setDirty(state, propagate)
+
+
+class Compound(ComputeNode):
     """The Compound class encapsulates a set of child nodes, which can include other compounds.
     We provide methods to query the children nodes of the current compound.
     """
@@ -321,16 +368,6 @@ class Compound(BaseNode):
         """
         super(Compound, self).__init__(name, application=application)
         self.children = []
-
-    def setSelected(self, selected):
-        """Overridden to select/de-select all children if this compound gets the selection changed
-
-        :param selected: selection value True or False
-        :type selected: bool
-        """
-        self.selected = selected
-        for child in self.children:
-            child.setSelected(selected)
 
     @staticmethod
     def isCompound():
@@ -391,6 +428,21 @@ class Compound(BaseNode):
             return True
         return False
 
+    def createNode(self, name, type_):
+        exists = self.child(name)
+        if exists:
+            newName = name
+            counter = 1
+            while self.child(newName):
+                newName = name + str(counter)
+                counter += 1
+            name = newName
+        newNode = self.application.nodeRegistry.loadPlugin(type_, name=name, application=self)
+        if newNode is not None:
+            self.addChild(newNode)
+            # should emit a event
+            return newNode
+
     def removeChild(self, child):
         if isinstance(child, str):
             child = self.child(child)
@@ -401,22 +453,6 @@ class Compound(BaseNode):
             self.children.remove(child)
             return True
         return False
-
-    def createChild(self, name, type_):
-        exists = self.child(name)
-        if exists:
-            newName = name
-            counter = 1
-            while self.child(newName):
-                newName = name + str(counter)
-                counter += 1
-            name = newName
-        newNode = self.application.nodeRegistry.loadPlugin(type_, name=name,
-                                                           application=self.application)
-        if newNode is not None:
-            self.addChild(newNode)
-            return newNode
-        # :todo error out
 
     def clear(self):
         for child in self.children:
@@ -447,3 +483,11 @@ class Compound(BaseNode):
         data = super(Compound, self).serialize()
         data["children"] = [i.serialize() for i in self.children]
         return data
+
+    def deserialize(self, data):
+        super(Compound, self).deserialize(data)
+        for child in data.get("children", []):
+            newNode = self.createNode(child["name"], type_=child["type"])
+            if newNode is None:
+                raise ValueError("Failed to create node: {}".format(child["name"]))
+            newNode.deserialize(child)

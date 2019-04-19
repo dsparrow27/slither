@@ -1,12 +1,11 @@
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class GreaterThanNode(node.BaseNode):
-    Type = "GreaterThanNode"
-    value1 = attribute.AttributeDefinition("float", isInput=True)
-    value2 = attribute.AttributeDefinition("float", isInput=True)
-    result = attribute.AttributeDefinition("bool", isOutput=True)
+class GreaterThanNode(api.ComputeNode):
+    Type = "greaterThanNode"
+    value1 = api.AttributeDefinition(type_=api.types.kFloat, isInput=True)
+    value2 = api.AttributeDefinition(type_=api.types.kFloat, isInput=True)
+    result = api.AttributeDefinition(type_=api.types.kBool, isOutput=True)
 
     def execute(self):
         result = self.value1.value() > self.value2.value()

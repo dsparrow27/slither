@@ -1,15 +1,14 @@
 import math
 
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class Cos(node.BaseNode):
+class Cos(api.ComputeNode):
     Type = "Cos"
     category = "math"
     documentation = "cos"
-    input = attribute.AttributeDefinition(isInput=True, type_="float", default=0)
-    output = attribute.AttributeDefinition(isOutput=True, type_="float", default=0)
+    input = api.AttributeDefinition(isInput=True, type_="kFloat", default=0)
+    output = api.AttributeDefinition(isOutput=True, type_="kFloat", default=0)
 
     def execute(self):
         self.output.setValue(math.cos(self.input.value()))

@@ -1,17 +1,16 @@
 import glob
 import os
 
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class Glob(node.BaseNode):
+class Glob(api.ComputeNode):
     Type = "Glob"
     category = "directories"
     documentation = "returns a list of files in a directory"
-    directory = attribute.AttributeDefinition(isInput=True, type_="directory", default="", required=True)
-    pattern = attribute.AttributeDefinition(isInput=True, type_="str", default="*", required=True)
-    output = attribute.AttributeDefinition(isOutput=True, type_="file", array=True, default="")
+    directory = api.AttributeDefinition(isInput=True, type_="kDirectory", default="", required=True)
+    pattern = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="*", required=True)
+    output = api.AttributeDefinition(isOutput=True, type_=api.types.kFile, array=True, default="")
 
     def execute(self):
         directory = os.path.normpath(self.directory.value())

@@ -9,6 +9,14 @@ class DataType(object):
     def __init__(self, value=None):
         self._value = value
 
+    @property
+    def typeName(self):
+        if self.Type is None:
+            return None
+        elif isinstance(self.Type, basestring):
+            return self.Type
+        return self.Type.__name__
+
     def __eq__(self, other):
         return self.Type == other.Type and self._value == other.value
 

@@ -1,16 +1,15 @@
 import re
 
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class Regex(node.BaseNode):
+class Regex(api.ComputeNode):
     Type = "Regex"
     category = "string"
     documentation = "Returns a list of items the have the characters"
-    strings = attribute.AttributeDefinition(isInput=True, type_="str", array=True, default=[])
-    searchString = attribute.AttributeDefinition(isInput=True, type_="str", default="")
-    output = attribute.AttributeDefinition(isOutput=True, type_="str", array=True, default=[])
+    strings = api.AttributeDefinition(isInput=True, type_=api.types.kString, array=True, default=[])
+    searchString = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
+    output = api.AttributeDefinition(isOutput=True, type_=api.types.kString, array=True, default=[])
 
     def execute(self):
         self.output.setValue([char for char in self.strings.value() if re.search(self.searchString.value(), char)])

@@ -1,14 +1,13 @@
 import math
 
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class HalfPiNode(node.BaseNode):
+class HalfPiNode(api.ComputeNode):
     Type = "HalfPiNode"
     category = "constant"
     documentation = "HalfPiNode"
-    output = attribute.AttributeDefinition(isOutput=True, type_="bool", default=True)
+    output = api.AttributeDefinition(isOutput=True, type_=api.types.kBoolean, default=True)
 
     def execute(self):
         self.output.setValue(math.pi * 0.5)

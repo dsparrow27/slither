@@ -1,11 +1,13 @@
-from slither.core import types
+from maya.api import OpenMaya as om2
+
+from slither import api
 
 
-class MObjectHandle(types.DataType):
-    Type = "MObjectHandle"
+class MObjectHandle(api.DataType):
+    Type = "kMObjectHandle"
 
     def value(self):
         return self._value
 
     def setValue(self, value):
-        self._value = value
+        self._value = om2.MObjectHandle(value)

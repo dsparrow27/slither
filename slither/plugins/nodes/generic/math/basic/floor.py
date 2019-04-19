@@ -1,15 +1,14 @@
 import math
 
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class Floor(node.BaseNode):
+class Floor(api.ComputeNode):
     Type = "Floor"
     category = "math"
     documentation = "The floor of the input value"
-    input = attribute.AttributeDefinition(isInput=True, type_="float", default=0, doc="The value to floor")
-    output = attribute.AttributeDefinition(isOutput=True, type_="float", default=0, doc="The result of the floor")
+    input = api.AttributeDefinition(isInput=True, type_="kFloat", default=0, doc="The value to floor")
+    output = api.AttributeDefinition(isOutput=True, type_="kFloat", default=0, doc="The result of the floor")
 
     def execute(self):
         self.output.setValue(math.floor(self.input.value()))

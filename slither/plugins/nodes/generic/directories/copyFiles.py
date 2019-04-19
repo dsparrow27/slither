@@ -1,17 +1,16 @@
 import os
 import shutil
 
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class CopyFilesToNode(node.BaseNode):
+class CopyFilesToNode(api.ComputeNode):
     """Copy a list of files to a directory and returns the new file paths
     """
     Type = "CopyFilesToNode"
-    source = attribute.AttributeDefinition(isInput=True, type_="file", isArray=True)
-    destinationFolder = attribute.AttributeDefinition(isInput=True, type_="directory")
-    result = attribute.AttributeDefinition(isOutput=True, type_="file", isArray=True)
+    source = api.AttributeDefinition(isInput=True, type_=api.types.kFile, isArray=True)
+    destinationFolder = api.AttributeDefinition(isInput=True, type_="kDirectory")
+    result = api.AttributeDefinition(isOutput=True, type_=api.types.kFile, isArray=True)
 
     def execute(self):
         source = self.source.value()

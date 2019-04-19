@@ -1,13 +1,12 @@
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class StringNode(node.BaseNode):
+class StringNode(api.ComputeNode):
     Type = "StringNode"
     category = "constant"
     documentation = "String constant"
-    value = attribute.AttributeDefinition(isInput=True, type_="str", default="")
-    output = attribute.AttributeDefinition(isOutput=True, type_="str", default="")
+    value = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
+    output = api.AttributeDefinition(isOutput=True, type_=api.types.kString, default="")
 
     def execute(self):
         self.output.setValue(str(self.input.value()))

@@ -1,7 +1,7 @@
-import unittest
 import os
 import tempfile
-from slither.core import registry
+import unittest
+
 from slither.core import executor
 
 

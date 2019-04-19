@@ -3,37 +3,36 @@ import os
 import pprint
 import sys
 
-from slither.core import attribute
-from slither.core import node
+from slither.core import api
 
 logger = logging.getLogger(__name__)
 
 
-class DestroyTankEngine(node.BaseNode):
+class DestroyTankEngine(api.ComputeNode):
     Type = "DestroyTankEngine"
     category = "shotgun"
     documentation = "Destroys the shotgun toolkit engine by calling destroy_engine on the instance"
-    engine = attribute.AttributeDefinition(isOutput=True, type_="sgtkengine", array=False, default=None)
+    engine = api.AttributeDefinition(isOutput=True, type_="ksgtkEngine", array=False, default=None)
 
     def execute(self):
         if self.engine is not None:
             self.engine.destroy_engine()
 
 
-class InitTankEngine(node.BaseNode):
+class InitTankEngine(api.ComputeNode):
     Type = "InitTankEngine"
     category = "shotgun"
     documentation = "Initializes a shotgun tank instance using the supplied environment"
 
-    modulePath = attribute.AttributeDefinition(isInput=True, type_="str", array=False, default="")
-    apiScript = attribute.AttributeDefinition(isInput=True, type_="str", array=False, default="")
-    context = attribute.AttributeDefinition(isInput=True, type_="dict", array=False, default=dict())
-    apiKey = attribute.AttributeDefinition(isInput=True, type_="str", default="")
-    host = attribute.AttributeDefinition(isInput=True, type_="str", default="")
-    configUri = attribute.AttributeDefinition(isInput=True, type_="str", default="")
-    plugins = attribute.AttributeDefinition(isInput=True, type_="str", default="")
-    engine_name = attribute.AttributeDefinition(isInput=True, type_="str", default="")
-    engine = attribute.AttributeDefinition(isOutput=True, type_="sgtkengine", array=False, default=None)
+    modulePath = api.AttributeDefinition(isInput=True, type_=api.types.kString, array=False, default="")
+    apiScript = api.AttributeDefinition(isInput=True, type_=api.types.kString, array=False, default="")
+    context = api.AttributeDefinition(isInput=True, type_=api.types.kDict, array=False, default=dict())
+    apiKey = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
+    host = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
+    configUri = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
+    plugins = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
+    engine_name = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
+    engine = api.AttributeDefinition(isOutput=True, type_="ksgtkEngine", array=False, default=None)
 
     def execute(self):
         context = self.context.value()
@@ -71,21 +70,21 @@ class InitTankEngine(node.BaseNode):
         self.engine = engine
 
 
-class ShotgunTankPublish(node.BaseNode):
+class ShotgunTankPublish(api.ComputeNode):
     Type = "ShotgunTankPublish"
     category = "shotgun"
     documentation = "Publishes the file to shotgun using tank.util.register_publish"
-    engine = attribute.AttributeDefinition(isOutput=True, type_="sgtkengine", array=False, default=None)
-    context = attribute.AttributeDefinition(isInput=True, type_="dict", default=dict())
-    comment = attribute.AttributeDefinition(isInput=True, type_="str", default="")
-    path = attribute.AttributeDefinition(isInput=True, type_="str", default="")
-    name = attribute.AttributeDefinition(isInput=True, type_="str", default="")
-    versionNumber = attribute.AttributeDefinition(isInput=True, type_="int", default=1)
-    thumbnailPath = attribute.AttributeDefinition(isInput=True, type_="str", default="")
-    publishedFileType = attribute.AttributeDefinition(isInput=True, type_="str", default="")
-    dependencyPaths = attribute.AttributeDefinition(isInput=True, type_="list", default=list())
-    sg_fields = attribute.AttributeDefinition(isInput=True, type_="dict", array=False, default=dict())
-    dry_run = attribute.AttributeDefinition(isInput=True, type_="bool", default=False)
+    engine = api.AttributeDefinition(isOutput=True, type_=api.types.ksgtkEngine, array=False, default=None)
+    context = api.AttributeDefinition(isInput=True, type_=api.types.kDict, default=dict())
+    comment = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
+    path = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
+    name = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
+    versionNumber = api.AttributeDefinition(isInput=True, type_=api.types.kInt, default=1)
+    thumbnailPath = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
+    publishedFileType = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
+    dependencyPaths = api.AttributeDefinition(isInput=True, type_=api.types.kList, default=list())
+    sg_fields = api.AttributeDefinition(isInput=True, type_=api.types.kDict, array=False, default=dict())
+    dry_run = api.AttributeDefinition(isInput=True, type_=api.types.kBoolean, default=False)
 
     def execute(self):
         engine = self.engine.value()

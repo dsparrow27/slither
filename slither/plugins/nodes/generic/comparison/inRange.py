@@ -1,12 +1,11 @@
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class InRangeNode(node.BaseNode):
+class InRangeNode(api.ComputeNode):
     Type = "InRangeNode"
-    value1 = attribute.AttributeDefinition("float", isInput=True)
-    value2 = attribute.AttributeDefinition("float", isInput=True)
-    result = attribute.AttributeDefinition("bool", isOutput=True)
+    value1 = api.AttributeDefinition("kFloat", isInput=True)
+    value2 = api.AttributeDefinition("kFloat", isInput=True)
+    result = api.AttributeDefinition(api.types.kBoolean, isOutput=True)
 
     def execute(self):
         result = self.value1.value() in range(self.value2.value())

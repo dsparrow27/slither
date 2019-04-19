@@ -1,17 +1,16 @@
 import glob
 import os
 
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class FilesInDirectory(node.BaseNode):
+class FilesInDirectory(api.ComputeNode):
     Type = "FilesInDirectory"
     category = "directories"
     documentation = "returns a list of files in a directory"
-    directory = attribute.AttributeDefinition(isInput=True, type_="directory", default="")
-    recursive = attribute.AttributeDefinition(isInput=True, type_="bool", default=False)
-    output = attribute.AttributeDefinition(isOutput=True, type_="file", array=True, default=[])
+    directory = api.AttributeDefinition(isInput=True, type_="kDirectory", default="")
+    recursive = api.AttributeDefinition(isInput=True, type_=api.types.kBoolean, default=False)
+    output = api.AttributeDefinition(isOutput=True, type_=api.types.kFile, array=True, default=[])
 
     def execute(self):
         directory = os.path.normpath(self.directory.value())

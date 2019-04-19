@@ -1,4 +1,3 @@
-import copy
 import logging
 
 from slither.core import errors
@@ -11,7 +10,7 @@ class AttributeDefinition(object):
     """
 
     def __init__(self, type_=None, default=None, array=False, compound=False, doc="", **kwargs):
-        self.name = ""
+        self.name = kwargs.get("name", "")
         self.type = type_
         self.default = default
         self.isArray = array
@@ -25,6 +24,12 @@ class AttributeDefinition(object):
 
         self.__doc__ = doc
         self.validateDefault()
+        self._validateType()
+
+    def _validateType(self):
+        """Validate's the dataType and converts it if necessary.
+        """
+        self.type = self.type(self.default)
 
     def __eq__(self, other):
         if not isinstance(other, AttributeDefinition):
@@ -51,18 +56,19 @@ class AttributeDefinition(object):
 
     def serialize(self):
         return dict(name=self.name,
-                    type=self.type.Type,
+                    type=self.type.typeName,
                     default=self.default,
                     isArray=self.isArray,
                     isCompound=self.isCompound,
                     required=self.required,
                     affectedBy=[i.name for i in self.affectedBy],
                     isInput=self.isInput,
-                    isOutput=self.isOutput)
+                    isOutput=self.isOutput,
+                    value=self.type.value())
 
     def deserialize(self, data):
         for name, value in iter(data.items()):
-            if value != self.__getattribute__(name):
+            if name in ("type", "affectedBy") and value != self.__getattribute__(name):
                 self.__setattr__(name, value)
 
 
@@ -147,8 +153,7 @@ class Attribute(object):
         return self._value.value()
 
     def setValue(self, value):
-        self._value.setValue(value)
-        self.node.setDirty(state=True, propagate=True)
+        return self._value.setValue(value)
 
     def isInput(self):
         """Returns True if this attribute is an output attribute"""
@@ -216,7 +221,8 @@ class Attribute(object):
 
     def deserialize(self, data):
         if self.definition:
-            self.definition.deserialize(data["attributeDefinition"])
+            self.definition.deserialize(data["definition"])
+            self.setValue(data.get("value"))
 
 
 class CompoundAttribute(Attribute):
@@ -280,7 +286,7 @@ class ArrayAttribute(Attribute):
             return self.elements[item]
 
     def __setitem__(self, key, value):
-        self.elements[key] = value
+        self.elements[key].setValue(value)
 
     def __iter__(self):
         return iter(self.elements)
@@ -288,61 +294,49 @@ class ArrayAttribute(Attribute):
     def __len__(self):
         return len(self.elements)
 
+    def clear(self):
+        for element in self.elements:
+            element.disconnect()
+        self.elements = []
+
     def value(self):
         """override
         :return:
         """
+        if self.upstream is not None:
+            value = self.upstream.value()
+            if not isinstance(value, list):
+                return [value]
+            return value
         return [element.value() for element in self.elements]
 
     def setValue(self, value):
-        valueLen = len(value)
-        elementLen = len(self.elements)
-        if valueLen < elementLen:
-            for index in range(elementLen - valueLen):
-                self.append(self.append(value[elementLen + index]))
-            return
-        elif valueLen > elementLen:
-            for element in self.elements[valueLen:]:
-                element.disconnect()
-            self.elements = self.elements[:valueLen]
-        for index, val in enumerate(value):
-            self.elements[index].setValue(val)
+        self.clear()
+        for i in value:
+            self.append(i)
 
     def element(self, index):
         if index in range(len(self)):
             return self.elements[index]
 
     def append(self, value):
-        newElement = self._createElement()
-        newElement.setValue(value)
-        self.elements.append(newElement)
+        data = self.definition.serialize()
+        data["array"] = data
+        data["name"] = self.name() + "[{}]".format(len(self) + 1)
+        definition = AttributeDefinition(**data)
+        attr = Attribute(definition, node=self)
+        attr.setValue(value)
+        self.elements.append(attr)
         return self
 
     def remove(self, index):
-        if index in range(len(self)):
-            element = self.elements[index]
-            element.disconnect()
-            self.elements.remove(index)
-
-    def _createElement(self):
-        data = copy.deepcopy(self.definition)
-        data.name += "[{}]".format(len(self) + 1)
-        data.isArray = False
-        return Attribute(data, node=self.node)
+        self.pop(index)
 
     def insert(self, value, index):
         self.elements.insert(index, value)
-        newElement = self._createElement()
-        newElement.setValue(value)
-        self.elements.insert(index, newElement)
 
     def pop(self, index):
         if index in range(len(self)):
-            element = self.elements.pop(index)
-            element.disconnect()
-            return element
-
-    def clear(self):
-        for i in self.elements:
-            i.disconnect()
-        self.elements = []
+            attr = self.elements.pop(index)
+            attr.disconnect()
+            return attr

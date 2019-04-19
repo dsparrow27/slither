@@ -1,14 +1,13 @@
 from collections import OrderedDict
 
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class OrderDict(node.BaseNode):
+class OrderDict(api.ComputeNode):
     Type = "OrderDict"
     category = "constant"
     documentation = "OrderedDict"
-    output = attribute.AttributeDefinition(isOutput=True, type_="dict", default=OrderedDict())
+    output = api.AttributeDefinition(isOutput=True, type_=api.types.kDict, default=OrderedDict())
 
     def execute(self):
         self.output.setValue(OrderedDict(self.value.value()))

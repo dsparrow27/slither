@@ -1,0 +1,3 @@
+[submodule "thirdparty/zoocore"]
+	path = thirdparty/zoocore
+	url = https://github.com/dsparrow27/zoocore.git

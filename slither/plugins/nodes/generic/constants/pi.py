@@ -1,14 +1,13 @@
 import math
 
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class Pi(node.BaseNode):
+class Pi(api.ComputeNode):
     Type = "Pi"
     category = "constant"
     documentation = "Pi"
-    output = attribute.AttributeDefinition(isOutput=True, type_="bool", default=True)
+    output = api.AttributeDefinition(isOutput=True, type_=api.types.kBoolean, default=True)
 
     def execute(self):
         self.output.setValue(math.pi)

@@ -1,15 +1,14 @@
 import math
 
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class Sin(node.BaseNode):
+class Sin(api.ComputeNode):
     Type = "Sin"
     category = "math"
     documentation = "sin"
-    input = attribute.AttributeDefinition(isInput=True, type_="float", default=0)
-    output = attribute.AttributeDefinition(isOutput=True, type_="float", default=0)
+    input = api.AttributeDefinition(isInput=True, type_="kFloat", default=0)
+    output = api.AttributeDefinition(isOutput=True, type_="kFloat", default=0)
 
     def execute(self):
         self.output.setValue(math.sin(self.input.value()))

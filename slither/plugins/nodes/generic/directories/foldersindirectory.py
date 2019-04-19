@@ -1,17 +1,16 @@
 import os
 
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class FolderInDirectory(node.BaseNode):
+class FolderInDirectory(api.ComputeNode):
     Type = "FolderInDirectory"
     category = "directories"
     documentation = "returns a list of folders in a directory, if recursive is True(default is False) then all " \
                     "subfolders will be returned as well"
-    directory = attribute.AttributeDefinition(isInput=True, type_="directory", default="")
-    recursive = attribute.AttributeDefinition(isInput=True, type_="bool", default=False)
-    output = attribute.AttributeDefinition(isOutput=True, type_="directory", array=True, default=[])
+    directory = api.AttributeDefinition(isInput=True, type_="kDirectory", default="")
+    recursive = api.AttributeDefinition(isInput=True, type_=api.types.kBoolean, default=False)
+    output = api.AttributeDefinition(isOutput=True, type_="kDirectory", array=True, default=[])
 
     def execute(self):
         directory = os.path.normpath(self.directory.value())

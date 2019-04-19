@@ -1,7 +1,8 @@
 import os
-
-from qt import QtWidgets, QtCore
 import weakref
+
+# noinspection PyUnresolvedReferences,PyUnresolvedReferences
+from qt import QtWidgets, QtCore
 
 
 class AttributeItemWidget(QtWidgets.QFrame):
@@ -34,7 +35,7 @@ class PathWidget(QtWidgets.QFrame):
         self.edit = QtWidgets.QLineEdit(parent=self)
         self.layout = QtWidgets.QHBoxLayout()
         self.layout.setSpacing(0)
-        self.layout.setContentsMargins(0,0,0,0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.layout)
         self.layout.addWidget(self.edit)
         self.browserBtn = QtWidgets.QPushButton("...", parent=self)

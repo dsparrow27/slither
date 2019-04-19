@@ -1,15 +1,14 @@
 import os
 
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class PathExists(node.BaseNode):
+class PathExists(api.ComputeNode):
     Type = "PathExists"
     category = "directories"
     documentation = "Checks if file path exists(os.path.exists)"
-    file = attribute.AttributeDefinition(isInput=True, type_="file", default="")
-    output = attribute.AttributeDefinition(isInput=False, isOutput=True, type_="bool", default=False)
+    file = api.AttributeDefinition(isInput=True, type_=api.types.kFile, default="")
+    output = api.AttributeDefinition(isInput=False, isOutput=True, type_=api.types.kBoolean, default=False)
 
     def execute(self):
         self.output.setValue(os.path.exists(self.file.value()))

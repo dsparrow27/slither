@@ -7,5 +7,3 @@ fileDir.directory.setValue("~\Documents")
 fileDir.recursive.setValue(True)
 application.execute(root, application)
 fileDir.output.value()
-
-

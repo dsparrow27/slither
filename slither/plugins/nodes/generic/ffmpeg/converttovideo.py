@@ -2,19 +2,18 @@ import os
 
 import ffmpeg
 
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class ConvertToVideo(node.BaseNode):
+class ConvertToVideo(api.ComputeNode):
     Type = "ConvertToVideo"
     category = "ffmpeg"
     documentation = "convert's an image sequence to a video"
-    directory = attribute.AttributeDefinition(isInput=True, type_="directory", default="", required=True)
-    pattern = attribute.AttributeDefinition(isInput=True, type_="str", default="%03d", required=True)
-    framerate = attribute.AttributeDefinition(isInput=True, type_="int", default=25, required=True)
-    outputPath = attribute.AttributeDefinition(isInput=True, type_="file", default="", required=True)
-    output = attribute.AttributeDefinition(isOutput=True, type_="file", array=True, default="")
+    directory = api.AttributeDefinition(isInput=True, type_="kDirectory", default="", required=True)
+    pattern = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="%03d", required=True)
+    framerate = api.AttributeDefinition(isInput=True, type_=api.types.kInt, default=25, required=True)
+    outputPath = api.AttributeDefinition(isInput=True, type_=api.types.kFile, default="", required=True)
+    output = api.AttributeDefinition(isOutput=True, type_=api.types.kFile, array=True, default="")
 
     def execute(self):
         directory = os.path.normpath(self.directory.value())

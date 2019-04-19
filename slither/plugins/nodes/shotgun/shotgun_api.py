@@ -1,15 +1,14 @@
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class ShotgunConnection(node.BaseNode):
-    Type = "ShotgunConnection"
+class ShotgunConnection(api.ComputeNode):
+    Type = "shotgunConnection"
     category = "shotgun"
     documentation = "Creates and returns a shotgun connection instance"
-    apiScript = attribute.AttributeDefinition(isInput=True, type_="str", array=False, default="")
-    apiKey = attribute.AttributeDefinition(isInput=True, type_="str", default="")
-    host = attribute.AttributeDefinition(isInput=True, type_="str", default="")
-    output = attribute.AttributeDefinition(isOutput=True, type_="shotgun", array=False, default=None)
+    apiScript = api.AttributeDefinition(isInput=True, type_=api.types.kString, array=False, default="")
+    apiKey = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
+    host = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
+    output = api.AttributeDefinition(isOutput=True, type_=api.types.kShotgun, array=False, default=None)
 
     def execute(self):
         import shotgun_api3
@@ -22,15 +21,15 @@ class ShotgunConnection(node.BaseNode):
         self.output.setValue(apihandle)
 
 
-class ShotgunFind(node.BaseNode):
-    Type = "ShotgunFind"
+class ShotgunFind(api.ComputeNode):
+    type = "shotgunFind"
     category = "shotgun"
     documentation = "Calls 'find' method on the shotgun instance and returns the result as an attribute array"
-    shotgunConnection = attribute.AttributeDefinition(isInput=True, type_="shotgun", array=False, default=None)
-    entityType = attribute.AttributeDefinition(isInput=True, type_="str", array=False, default="")
-    filters = attribute.AttributeDefinition(isInput=True, type_="list", array=True, default=list())
-    fields = attribute.AttributeDefinition(isInput=True, type_="list", array=True, default=list())
-    output = attribute.AttributeDefinition(isOutput=True, type_="list", array=True, default=list())
+    shotgunConnection = api.AttributeDefinition(isInput=True, type_="shotgun", array=False, default=None)
+    entityType = api.AttributeDefinition(isInput=True, type_=api.types.kString, array=False, default="")
+    filters = api.AttributeDefinition(isInput=True, type_=api.types.kList, array=True, default=list())
+    fields = api.AttributeDefinition(isInput=True, type_=api.types.kList, array=True, default=list())
+    output = api.AttributeDefinition(isOutput=True, type_=api.types.kList, array=True, default=list())
 
     def execute(self):
         self.output = self.shotgunConnection.value().find(self.entityType.value(),
@@ -38,15 +37,15 @@ class ShotgunFind(node.BaseNode):
                                                           list(self.fields.value()))
 
 
-class ShotgunFindOne(node.BaseNode):
-    Type = "ShotgunFindOne"
+class ShotgunFindOne(api.ComputeNode):
+    Type = "shotgunFindOne"
     category = "shotgun"
     documentation = "Calls 'find_one' method on the shotgun instance and returns the result as an attribute dict"
-    shotgunConnection = attribute.AttributeDefinition(isInput=True, type_="shotgun", array=False, default=None)
-    entityType = attribute.AttributeDefinition(isInput=True, type_="str", array=False, default="")
-    filters = attribute.AttributeDefinition(isInput=True, type_="list", array=True, default=list())
-    fields = attribute.AttributeDefinition(isInput=True, type_="list", array=True, default=list())
-    output = attribute.AttributeDefinition(isOutput=True, type_="dict", array=False, default=dict())
+    shotgunConnection = api.AttributeDefinition(isInput=True, type_=api.types.kShotgun, array=False, default=None)
+    entityType = api.AttributeDefinition(isInput=True, type_=api.types.kString, array=False, default="")
+    filters = api.AttributeDefinition(isInput=True, type_=api.types.kList, array=True, default=list())
+    fields = api.AttributeDefinition(isInput=True, type_=api.types.kList, array=True, default=list())
+    output = api.AttributeDefinition(isOutput=True, type_=api.types.kDict, array=False, default=dict())
 
     def execute(self):
         self.output = self.shotgunConnection.value().find_one(self.entityType.value(),

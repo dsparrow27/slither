@@ -1,13 +1,12 @@
-from slither.core import attribute
-from slither.core import node
+from slither import api
 
 
-class IfNode(node.BaseNode):
-    Type = "IfNode"
-    ifTrue = attribute.AttributeDefinition("float", isInput=True)
-    ifFalse = attribute.AttributeDefinition("float", isInput=True)
-    condition = attribute.AttributeDefinition("float", isInput=True)
-    result = attribute.AttributeDefinition("bool", isOutput=True)
+class IfNode(api.ComputeNode):
+    Type = "ifNode"
+    ifTrue = api.AttributeDefinition(type_="kFloat", isInput=True)
+    ifFalse = api.AttributeDefinition(type_="kFloat", isInput=True)
+    condition = api.AttributeDefinition(type_="kFloat", isInput=True)
+    result = api.AttributeDefinition(type_=api.types.kBoolean, isOutput=True)
 
     def execute(self):
         if self.conditionPlug_.value:

@@ -1,14 +1,13 @@
-from slither.core import attribute
-from slither.core import node
+from slither.core import api
 
 
-class SplitString(node.BaseNode):
+class SplitString(api.ComputeNode):
     Type = "SplitString"
     category = "string"
     documentation = "splits a string by a delimiter"
-    string = attribute.AttributeDefinition(isInput=True, type_="str", default="")
-    delimiter = attribute.AttributeDefinition(isInput=True, type_="str", default=",")
-    output = attribute.AttributeDefinition(isOutput=True, type_="str", array=True, default="")
+    string = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
+    delimiter = api.AttributeDefinition(isInput=True, type_=api.types.kString, default=",")
+    output = api.AttributeDefinition(isOutput=True, type_=api.types.kString, array=True, default="")
 
     def execute(self):
         self.output.setValue(self.input.value().split(self.delimiter.value()))

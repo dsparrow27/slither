@@ -4,15 +4,16 @@ Qt model for the vortex ui which bind slithers core engine and vortex GUI.
 FYI: Currently this is being prototyped so it pulls and pushes directly to the core without an undo.
 
 """
-import uuid
 import logging
 import pprint
+import uuid
 from functools import partial
+
+import attributewidgets
+from qt import QtGui, QtWidgets
 from slither import api
 from slither.core import executor
-from qt import QtGui, QtWidgets
 from vortex.ui import application, graphicsdatamodel
-import attributewidgets
 
 logger = logging.getLogger(__name__)
 

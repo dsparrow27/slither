@@ -1,6 +1,6 @@
 Crude implementation of a parallel execution engine in python but without dirty propagation , meant to be used via commandline. Currently we lock up maya when we use the gui due to maya thinking we want a separate shell which boots mayapy separately, will need to rework this to be single process when running in the GUI but works fine via commandline, yet to be tested over a farm system.
 
-:note:: This Repo is still WIP
+:note: This Repo is still WIP
 
 # TODO
 1. unittest

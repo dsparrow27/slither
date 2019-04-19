@@ -2,7 +2,7 @@ from slither.core import types
 
 
 class ShotgunType(types.DataType):
-    Type = "shotgun"
+    Type = "kShotgun"
 
     def value(self):
         return self._value
@@ -12,7 +12,7 @@ class ShotgunType(types.DataType):
 
 
 class SgtkEngineType(types.DataType):
-    Type = "sgtkengine"
+    Type = "ksgtkEngine"
 
     def value(self):
         return self._value
