@@ -33,10 +33,10 @@ class MayaFBXImport(api.BaseNode):
     category = "maya"
     documentation = "import the supplied fbx file"
     sceneFile = api.AttributeDefinition(isInput=True, type_=api.types.kFile, default="")
-    constraints = api.AttributeDefinition(isInput=True, type_=api.types.kBoolean, default="false")
-    skeletonDefinitions = api.AttributeDefinition(isInput=True, type_=api.types.kBoolean, default="false")
-    lights = api.AttributeDefinition(isInput=True, type_=api.types.kBoolean, default="false")
-    cameras = api.AttributeDefinition(isInput=True, type_=api.types.kBoolean, default="false")
+    constraints = api.AttributeDefinition(isInput=True, type_=api.types.kBool, default="false")
+    skeletonDefinitions = api.AttributeDefinition(isInput=True, type_=api.types.kBool, default="false")
+    lights = api.AttributeDefinition(isInput=True, type_=api.types.kBool, default="false")
+    cameras = api.AttributeDefinition(isInput=True, type_=api.types.kBool, default="false")
 
     def execute(self):
         from maya import mel

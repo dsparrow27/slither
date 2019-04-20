@@ -49,6 +49,7 @@ class ExportAlembicCamera(api.ComputeNode):
 
 
 class ExportFBXCamera(api.ComputeNode):
+    Type = "exportFBXCamera"
     category = "maya"
     documentation = ""
     path = api.AttributeDefinition(isInput=True, type_=api.types.kFile, array=False, default="")

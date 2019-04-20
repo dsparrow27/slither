@@ -33,16 +33,11 @@ class BaseNode(object):
     def __init__(self, name, application):
         self.application = application
         self.name = name
-
         self.metadata = {}
         self.isLocked = False
         self.isInternal = False
         self._selected = False
         self._parent = None
-        self.initialize()
-
-    def initialize(self):
-        pass
 
     @property
     def selected(self):
@@ -142,11 +137,11 @@ class DependencyNode(BaseNode):
     __metaclass__ = NodeMeta
 
     def __init__(self, name, application):
-        super(DependencyNode, self).__init__(name, application)
         self.attributes = []
+        super(DependencyNode, self).__init__(name, application)
         attrDef = attribute.AttributeDefinition(isInput=True,
                                                 isOutput=True,
-                                                type_=types.list,
+                                                type_=types.kList,
                                                 default=list(),
                                                 required=False, array=True,
                                                 doc="Node Level dependencies")
@@ -157,19 +152,9 @@ class DependencyNode(BaseNode):
             if isinstance(attrDef, attribute.AttributeDefinition):
                 self.createAttribute(copy.deepcopy(attrDef))
 
-    def __setattr__(self, name, value):
-        attr = self.attribute(name)
-        if attr is not None:
-            isAttr = isinstance(attr, attribute.Attribute)
-            if isAttr and isinstance(value, attribute.Attribute):
-                attr.connectUpstream(value)
-            else:
-                attr.setValue(value)
-            return
-        super(BaseNode, self).__setattr__(name, value)
-
     def __getattr__(self, name):
         """Returns the attribute on the current node if it exists.
+
         :param name: The name of the attribute
         :type name: str
         :rtype: Attribute
@@ -177,7 +162,7 @@ class DependencyNode(BaseNode):
         attr = self.attribute(name)
         if attr is not None:
             return attr
-        return super(BaseNode, self).__getattribute__(name)
+        return super(DependencyNode, self).__getattribute__(name)
 
     def attribute(self, name):
         for attr in self.iterAttributes():
@@ -205,7 +190,7 @@ class DependencyNode(BaseNode):
 
         name = newAttribute.name()
         className = "_{}".format(name) if not name.startswith("_") else name
-        super(BaseNode, self).__setattr__(className, attributeDefinition)
+        super(DependencyNode, self).__setattr__(className, attributeDefinition)
         self.addAttribute(newAttribute)
         return newAttribute
 
@@ -257,8 +242,9 @@ class DependencyNode(BaseNode):
     def upstreamNodes(self):
         nodes = []
         for input_ in self.iterInputs():
-            if input_.hasUpstream():
-                nodes.append(input_.upstream.node)
+            upstream = input_.upstream
+            if upstream is not None:
+                nodes.append(upstream.node)
         return nodes
 
     def downStreamNodes(self):
@@ -319,6 +305,7 @@ class ComputeNode(DependencyNode):
 
     def process(self):
         try:
+            print "executing", self.fullName()
             self.validate()
             self.progress = 0
             self.execute()
@@ -359,7 +346,7 @@ class Compound(ComputeNode):
     """The Compound class encapsulates a set of child nodes, which can include other compounds.
     We provide methods to query the children nodes of the current compound.
     """
-    Type = "Compound"
+    Type = "compound"
 
     def __init__(self, name, application):
         """
@@ -437,19 +424,19 @@ class Compound(ComputeNode):
                 newName = name + str(counter)
                 counter += 1
             name = newName
-        newNode = self.application.nodeRegistry.loadPlugin(type_, name=name, application=self)
+        newNode = self.application.nodeRegistry.loadPlugin(type_, name=name, application=self.application)
         if newNode is not None:
             self.addChild(newNode)
             # should emit a event
             return newNode
 
     def removeChild(self, child):
-        if isinstance(child, str):
-            child = self.child(child)
         if child.isLocked or child.isInternal:
             return False
+
         if child in self:
-            child.disconnectAll()
+            if isinstance(child, DependencyNode):
+                child.disconnectAll()
             self.children.remove(child)
             return True
         return False

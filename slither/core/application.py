@@ -1,11 +1,10 @@
-import logging
 import os
 
 from slither.core import executor, node, types
 from zoo.libs.plugin import pluginmanager
-from zoo.libs.utils import filesystem
+from zoo.libs.utils import filesystem, zlogging
 
-logger = logging.getLogger(__name__)
+logger = zlogging.getLogger(__name__)
 
 
 class Application(object):
@@ -23,6 +22,7 @@ class Application(object):
     def initialize(self):
         self.typeRegistry.registerPaths(os.environ[self.TYPE_LIB_ENV].split(os.pathsep))
         types.__dict__.update(self.typeRegistry.plugins.items())
+
         self.nodeRegistry.registerPaths(os.environ[self.NODE_LIB_ENV].split(os.pathsep))
         # add the compound base node
         self.nodeRegistry.registerPlugin(node.Compound)

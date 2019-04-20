@@ -29,7 +29,7 @@ class AttributeDefinition(object):
     def _validateType(self):
         """Validate's the dataType and converts it if necessary.
         """
-        self.type = self.type(self.default)
+        self.type = self.type(self.default, self.default)
 
     def __eq__(self, other):
         if not isinstance(other, AttributeDefinition):

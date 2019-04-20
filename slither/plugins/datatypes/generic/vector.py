@@ -6,7 +6,7 @@ from slither.core import types
 class Vector(types.DataType):
     """Basic Vector Object
     """
-    Type = "vector2D"
+    Type = "kVector2D"
 
     def __init__(self, vec):
         """
@@ -141,7 +141,7 @@ class Vector(types.DataType):
 
 
 class Vector3D(Vector):
-    Type = "vector3D"
+    Type = "kVector3D"
 
     def __init__(self, vec=None):
         super(Vector3D, self).__init__(vec)

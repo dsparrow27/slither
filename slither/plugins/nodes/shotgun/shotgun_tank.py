@@ -84,7 +84,7 @@ class ShotgunTankPublish(api.ComputeNode):
     publishedFileType = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
     dependencyPaths = api.AttributeDefinition(isInput=True, type_=api.types.kList, default=list())
     sg_fields = api.AttributeDefinition(isInput=True, type_=api.types.kDict, array=False, default=dict())
-    dry_run = api.AttributeDefinition(isInput=True, type_=api.types.kBoolean, default=False)
+    dry_run = api.AttributeDefinition(isInput=True, type_=api.types.kBool, default=False)
 
     def execute(self):
         engine = self.engine.value()

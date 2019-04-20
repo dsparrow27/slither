@@ -1,4 +1,4 @@
-from slither.core import api
+from slither import api
 
 
 class SplitString(api.ComputeNode):

@@ -10,7 +10,13 @@ def isIteratable(obj):
 
 
 class FloatType(types.DataType):
-    Type = "float"
+    Type = "kFloat"
+
+    def __init__(self, value=None, default=None):
+        super(FloatType, self).__init__(
+            0.0 if value is None else value,
+            0.0 if default is None else default
+        )
 
     def __add__(self, other):
         return self.__class__(self._value + other.value())
@@ -34,6 +40,12 @@ class FloatType(types.DataType):
 class IntType(types.DataType):
     Type = "kInt"
 
+    def __init__(self, value=None, default=None):
+        super(IntType, self).__init__(
+            0 if value is None else value,
+            0 if default is None else default
+        )
+
     def __add__(self, other):
         return self.__class__(self._value + other.value())
 
@@ -56,6 +68,12 @@ class IntType(types.DataType):
 class StringType(types.DataType):
     Type = "kString"
 
+    def __init__(self, value=None, default=None):
+        super(StringType, self).__init__(
+            "" if value is None else value,
+            "" if default is None else default
+        )
+
     def __str__(self):
         return str(self._value)
 
@@ -70,7 +88,13 @@ class StringType(types.DataType):
 
 
 class BooleanType(types.DataType):
-    Type = "bool"
+    Type = "kBool"
+
+    def __init__(self, value=None, default=None):
+        super(BooleanType, self).__init__(
+            False if value is None else value,
+            False if default is None else default
+        )
 
     def __nonzero__(self):
         return bool(self._value)
@@ -88,9 +112,11 @@ class BooleanType(types.DataType):
 class DictType(types.DataType):
     Type = "kDict"
 
-    def __init__(self, value):
-        super(DictType, self).__init__(value)
-        self._value = dict()
+    def __init__(self, value=None, default=None):
+        super(DictType, self).__init__(
+            {} if value is None else value,
+            {} if default is None else default
+        )
 
     def __setattr__(self, key, value):
         if hasattr(self, "_value") and key in self._value:
@@ -111,20 +137,22 @@ class DictType(types.DataType):
         return False
 
 
-class FileType(types.DataType):
+class FileType(StringType):
     Type = "kFile"
 
-    def __init__(self, value=None):
-        super(FileType, self).__init__(value)
-        self._value = ""
 
-
-class DirectoryType(FileType):
+class DirectoryType(StringType):
     Type = "kDirectory"
 
 
 class ListType(types.DataType):
     Type = "kList"
+
+    def __init__(self, value=None, default=None):
+        super(ListType, self).__init__(
+            [] if value is None else value,
+            [] if default is None else default
+        )
 
     def __iter__(self):
         return iter(self._value)
@@ -148,4 +176,4 @@ class ListType(types.DataType):
 
 
 class MultiType(types.DataType):
-    Type = "multi"
+    Type = "kMulti"

@@ -3,9 +3,9 @@ from slither import api
 
 class GreaterThanOrEqualToNode(api.ComputeNode):
     Type = "greaterThanOrEqualToNode"
-    value1 = api.AttributeDefinition(type_="kFloat", isInput=True)
-    value2 = api.AttributeDefinition(type_="kFloat", isInput=True)
-    result = api.AttributeDefinition(type_=api.types.kBoolean, isOutput=True)
+    value1 = api.AttributeDefinition(type_=api.types.kFloat, isInput=True)
+    value2 = api.AttributeDefinition(type_=api.types.kFloat, isInput=True)
+    result = api.AttributeDefinition(type_=api.types.kBool, isOutput=True)
 
     def execute(self):
         result = self.value1Plug_ >= self.value2Plug_

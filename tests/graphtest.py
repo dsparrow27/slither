@@ -1,109 +1,48 @@
 """A simple test for nested compound networks
 """
-import contextlib
 import pprint
 import unittest
 
 from slither import api
 
 
-class TestSubCompound(api.Compound):
-    input = api.AttributeDefinition(isInput=True, type_=float, default=0)
-    output = api.AttributeDefinition(isOutput=True, type_=float, default=0)
-
-    def mutate(self):
-        fourthNode = self.createNode("fourthNodeSub", "Sum")
-        fourthNode.inputB = 20
-        self.addChild(fourthNode)
-        # connection between two attributes
-        fourthNode.inputA = self.input
-        # #todo compound output attributes need to support multiple connections
-        # self.output = fourthNode.output
+def createInputAttrDef(name, type_):
+    return api.AttributeDefinition(name=name, isInput=True,
+                                   type_=type_)
 
 
-class TestCompound(api.Compound):
-    """Root compound node which contains other nodes, compounds do not expand until executed via the executor class
-    """
-    input = api.AttributeDefinition(isInput=True, type_=float, default=0)
-    output = api.AttributeDefinition(isOutput=True, type_=float, default=0)
-    execution = api.AttributeDefinition(isOutput=True, type_=float, default=0)
-
-    def mutate(self):
-        firstNode = self.createNode("firstNode", "Sum")
-        firstNode.inputA = 20
-        firstNode.inputB = 10
-        secondNode = self.createNode("secondNode", "Sum")
-        secondNode.inputB = 10
-        thirdNodeComp = TestSubCompound("thirdNodeComp", application=self.application)
-        # add the nodes as children
-        self.addChild(secondNode)
-        self.addChild(thirdNodeComp)
-        self.addChild(firstNode)
-        self.execution = thirdNodeComp.output
-        thirdNodeComp.input = secondNode.output
-        secondNode.inputA = firstNode.output
-
-
-def run():
-    app = api.currentInstance
-    app.root.addChild(TestCompound("subChild", application=app))
-    app.execute(app.root, executorType=app.PARALLELEXECUTOR)
-    return app
+def createOutputAttrDef(name, type_):
+    return api.AttributeDefinition(name=name,
+                                   isOutput=True,
+                                   type_=type_)
 
 
 class TestGraphStandardExecutor(unittest.TestCase):
-    @staticmethod
-    @contextlib.contextmanager
-    def executeGraphContext(app, executeType):
-        try:
-            app.root.addChild(TestCompound("subChild", application=app))
-            app.execute(app.root, executorType=executeType)
-            yield
-        finally:
-            app.root.clear()
-
     def setUp(self):
-        self.app = api.currentInstance
+        self.app = api.application.Application()
+        self.app.initialize()
         self.executeType = self.app.STANDARDEXECUTOR
 
-    def test_graphExecutesWithoutFail(self):
-        with TestGraphStandardExecutor.executeGraphContext(self.app, self.executeType):
-            pprint.pprint(self.app.root.serialize())
+    def test_compoundConnections(self):
+        comp = self.app.root.createNode("testCompound", "compound")
+        comp.createAttribute(createInputAttrDef(name="testInput",
+                                                type_=api.types.kFloat))
+        comp.createAttribute(createOutputAttrDef(name="testOutput",
+                                                 type_=api.types.kFloat))
+        subChild = comp.createNode("subsubChild", "Sum")
 
-    def test_childCounts(self):
-        with TestGraphStandardExecutor.executeGraphContext(self.app, self.executeType):
-            self.assertEquals(len(self.app.root), 1)
-            self.assertEquals(len(self.app.root.child("subChild")), 3)
-            self.assertEquals(len(self.app.root.child("subChild").child("thirdNodeComp")), 1)
-
-    def test_nodesProgress(self):
-        def checkChildren(node):
-            if node.isCompound():
-                for c in iter(node):
-                    checkChildren(c)
-            self.assertEquals(node.progress, 100, msg="Failed progress state: {}".format(node))
-
-        with TestGraphStandardExecutor.executeGraphContext(self.app, self.executeType):
-            checkChildren(self.app.root)
-
-    def test_ProgressSignal(self):
-        def onProgressChanged(event, **kwargs):
-            self.assertIsInstance(event, self.app.root.events.__class__)
-            self.assertIsInstance(kwargs["progress"], int)
-
-        try:
-            self.app.root.addChild(TestCompound("subChild", application=self.app))
-            self.app.root.child("subChild").events.addCallback(self.app.root.events.kProgressUpdated, onProgressChanged)
-            self.app.execute(self.app.root, executorType=self.executeType)
-        finally:
-            self.app.root.clear()
-
-
-class TestParallelExecutor(TestGraphStandardExecutor):
-
-    def setUp(self):
-        self.app = api.currentInstance
-        self.executeType = self.app.PARALLELEXECUTOR
+        subChild.inputA.connectUpstream(comp.testInput)
+        comp.testOutput.connectUpstream(subChild.output)
+        self.app.root.createAttribute(createOutputAttrDef("execution", api.types.kFloat))
+        self.app.root.execution.connectUpstream(comp.testOutput)
+        comp.testInput.setValue(10)
+        subChild.inputB.setValue(30)
+        self.app.execute(self.app.root, self.executeType)
+        # pprint.pprint(self.app.root.serialize())
+        self.assertEquals(subChild.inputA.upstream, comp.testInput)
+        self.assertEquals(subChild.output.value(), 20)
+        self.assertEquals(comp.testOutput.value(), 30)
+        self.assertEquals(self.app.root.execution.value(), 20)
 
 
 if __name__ == "__main__":

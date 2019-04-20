@@ -6,8 +6,9 @@ logger = logging.getLogger(__name__)
 class DataType(object):
     Type = None
 
-    def __init__(self, value=None):
+    def __init__(self, value=None, default=None):
         self._value = value
+        self.default = default
 
     @property
     def typeName(self):

@@ -5,7 +5,7 @@ from slither.plugins.datatypes.generic import vector
 
 
 class Quaternion(types.DataType):
-    Type = "Quaternion"
+    Type = "kQuaternion"
 
     def __init__(self, quat):
         """

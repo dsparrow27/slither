@@ -8,9 +8,9 @@ class FolderInDirectory(api.ComputeNode):
     category = "directories"
     documentation = "returns a list of folders in a directory, if recursive is True(default is False) then all " \
                     "subfolders will be returned as well"
-    directory = api.AttributeDefinition(isInput=True, type_="kDirectory", default="")
-    recursive = api.AttributeDefinition(isInput=True, type_=api.types.kBoolean, default=False)
-    output = api.AttributeDefinition(isOutput=True, type_="kDirectory", array=True, default=[])
+    directory = api.AttributeDefinition(isInput=True, type_=api.types.kDirectory, default="")
+    recursive = api.AttributeDefinition(isInput=True, type_=api.types.kBool, default=False)
+    output = api.AttributeDefinition(isOutput=True, type_=api.types.kDirectory, array=True, default=[])
 
     def execute(self):
         directory = os.path.normpath(self.directory.value())

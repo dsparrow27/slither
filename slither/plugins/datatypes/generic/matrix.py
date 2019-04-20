@@ -2,7 +2,7 @@ from slither.core import types
 
 
 class Matrix4(types.DataType):
-    Type = "matrix4"
+    Type = "kMatrix4"
 
     def __init__(self, matrix):
         super(Matrix4, self).__init__(matrix)

@@ -9,7 +9,7 @@ class CopyFilesToNode(api.ComputeNode):
     """
     Type = "CopyFilesToNode"
     source = api.AttributeDefinition(isInput=True, type_=api.types.kFile, isArray=True)
-    destinationFolder = api.AttributeDefinition(isInput=True, type_="kDirectory")
+    destinationFolder = api.AttributeDefinition(isInput=True, type_=api.types.kDirectory)
     result = api.AttributeDefinition(isOutput=True, type_=api.types.kFile, isArray=True)
 
     def execute(self):

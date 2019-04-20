@@ -8,7 +8,7 @@ class PathExists(api.ComputeNode):
     category = "directories"
     documentation = "Checks if file path exists(os.path.exists)"
     file = api.AttributeDefinition(isInput=True, type_=api.types.kFile, default="")
-    output = api.AttributeDefinition(isInput=False, isOutput=True, type_=api.types.kBoolean, default=False)
+    output = api.AttributeDefinition(isInput=False, isOutput=True, type_=api.types.kBool, default=False)
 
     def execute(self):
         self.output.setValue(os.path.exists(self.file.value()))

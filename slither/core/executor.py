@@ -112,6 +112,8 @@ class StandardExecutor(Executor):
                     nodes[n] = list()
                     continue
                 d.process()
+            if n.isCompound():
+                self.startProcess(n)
             n.process()
 
     def execute(self, node):
