@@ -11,6 +11,6 @@ class Rename(api.ComputeNode):
     file = api.AttributeDefinition(isInput=True, type_=api.types.kFile, default="")
     name = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
 
-    def execute(self):
+    def execute(self, context):
         self.output.setValue(math.pi)
         os.rename(self.file.value(), self.name.value())

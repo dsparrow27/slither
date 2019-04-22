@@ -10,15 +10,15 @@ class ShotgunConnection(api.ComputeNode):
     host = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
     output = api.AttributeDefinition(isOutput=True, type_=api.types.kShotgun, array=False, default=None)
 
-    def execute(self):
+    def execute(self, context):
         import shotgun_api3
         apihandle = shotgun_api3.Shotgun(
-            self.host.value(),
-            script_name=self.apiScript.value(),
-            api_key=self.apiKey.value(),
+            context.host.value(),
+            script_name=context.apiScript.value(),
+            api_key=context.apiKey.value(),
             connect=False
         )
-        self.output.setValue(apihandle)
+        context.output.setValue(apihandle)
 
 
 class ShotgunFind(api.ComputeNode):
@@ -31,10 +31,10 @@ class ShotgunFind(api.ComputeNode):
     fields = api.AttributeDefinition(isInput=True, type_=api.types.kList, array=True, default=list())
     output = api.AttributeDefinition(isOutput=True, type_=api.types.kList, array=True, default=list())
 
-    def execute(self):
-        self.output = self.shotgunConnection.value().find(self.entityType.value(),
-                                                          list(self.filters.value()),
-                                                          list(self.fields.value()))
+    def execute(self, context):
+        context.output = context.shotgunConnection.value().find(context.entityType.value(),
+                                                          list(context.filters.value()),
+                                                          list(context.fields.value()))
 
 
 class ShotgunFindOne(api.ComputeNode):
@@ -47,7 +47,7 @@ class ShotgunFindOne(api.ComputeNode):
     fields = api.AttributeDefinition(isInput=True, type_=api.types.kList, array=True, default=list())
     output = api.AttributeDefinition(isOutput=True, type_=api.types.kDict, array=False, default=dict())
 
-    def execute(self):
-        self.output = self.shotgunConnection.value().find_one(self.entityType.value(),
-                                                              list(self.filters.value()),
-                                                              list(self.fields.value()))
+    def execute(self, context):
+        context.output = context.shotgunConnection.value().find_one(context.entityType.value(),
+                                                              context.filters.value(),
+                                                              context.fields.value())

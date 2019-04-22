@@ -86,9 +86,7 @@ class Attribute(object):
         # parent attribute
         self.parent = None
         self.upstream = None
-        self._value = None
-        if definition:
-            self._value = self.definition.type
+        self._value = self.definition.type
 
     @property
     def isElement(self):
@@ -148,8 +146,6 @@ class Attribute(object):
         return self.definition.type
 
     def value(self):
-        if self.upstream is not None:
-            return self.upstream.value()
         return self._value.value()
 
     def setValue(self, value):

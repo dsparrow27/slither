@@ -14,7 +14,7 @@ class DestroyTankEngine(api.ComputeNode):
     documentation = "Destroys the shotgun toolkit engine by calling destroy_engine on the instance"
     engine = api.AttributeDefinition(isOutput=True, type_="ksgtkEngine", array=False, default=None)
 
-    def execute(self):
+    def execute(self, context):
         if self.engine is not None:
             self.engine.destroy_engine()
 
@@ -34,7 +34,7 @@ class InitTankEngine(api.ComputeNode):
     engine_name = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
     engine = api.AttributeDefinition(isOutput=True, type_="ksgtkEngine", array=False, default=None)
 
-    def execute(self):
+    def execute(self, context):
         context = self.context.value()
         if not context or not any(i in context.keys() for i in ("SHOTGUN_ENTITY_ID", "SHOTGUN_ENTITY_TYPE")):
             raise ValueError("Incorrect argument context values, must have only:{}, supplied: {}".format(
@@ -86,7 +86,7 @@ class ShotgunTankPublish(api.ComputeNode):
     sg_fields = api.AttributeDefinition(isInput=True, type_=api.types.kDict, array=False, default=dict())
     dry_run = api.AttributeDefinition(isInput=True, type_=api.types.kBool, default=False)
 
-    def execute(self):
+    def execute(self, context):
         engine = self.engine.value()
         if engine is None:
             raise ValueError("No toolkit engine supplied!")

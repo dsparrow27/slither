@@ -14,7 +14,7 @@ class SubStringNode(api.ComputeNode):
     replace = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
     output = api.AttributeDefinition(isOutput=True, type_=api.types.kString, array=True, default=[])
 
-    def execute(self):
+    def execute(self, context):
         result = [re.sub(self.self.search.value(), self.replace.value(), char) for char in
                   self.valuePlug_.value()]
         self.output.setValue(result)

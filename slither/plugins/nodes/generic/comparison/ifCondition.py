@@ -8,7 +8,7 @@ class IfNode(api.ComputeNode):
     condition = api.AttributeDefinition(type_=api.types.kFloat, isInput=True)
     result = api.AttributeDefinition(type_=api.types.kBool, isOutput=True)
 
-    def execute(self):
+    def execute(self, context):
         if self.conditionPlug_.value:
             result = self.ifTruePlug_.value
         else:

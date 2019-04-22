@@ -8,5 +8,5 @@ class Scalar(api.ComputeNode):
     value = api.AttributeDefinition(isInput=True, type_=api.types.kFloat, default=0.0)
     output = api.AttributeDefinition(isOutput=True, type_=api.types.kFloat, default=0.0)
 
-    def execute(self):
+    def execute(self, context):
         self.output.setValue(float(self.input.value()))

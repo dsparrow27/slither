@@ -8,6 +8,37 @@ from slither.core import types
 logger = logging.getLogger(__name__)
 
 
+class Context(dict):
+
+    def __getattribute__(self, item):
+        try:
+            return self["inputs"][item]
+        except KeyError:
+            try:
+                return self["outputs"][item]
+            except KeyError:
+                return super(Context, self).__getattribute__(item)
+
+    def __setattr__(self, key, value):
+        try:
+            self["inputs"][key] = value
+        except KeyError:
+            try:
+                self["outputs"][key] = value
+            except KeyError:
+                pass
+
+    @classmethod
+    def fromNode(cls, node):
+        attrData = {}
+        for attr in node.attributes:
+            if attr.isInput():
+                attrData.setdefault("inputs", {})[attr.name()] = copy.deepcopy(attr.type())
+            else:
+                attrData.setdefault("outputs", {})[attr.name()] = copy.deepcopy(attr.type())
+        return cls(**attrData)
+
+
 class NodeMeta(type):
     @staticmethod
     def __new__(cls, className, bases, classDict):
@@ -303,21 +334,21 @@ class ComputeNode(DependencyNode):
         self._progress = 0
         self._dirty = False
 
-    def process(self):
+    def process(self, context):
         try:
             print "executing", self.fullName()
-            self.validate()
             self.progress = 0
-            self.execute()
+            self.validate(context)
+            self.execute(context)
             self.progress = 100
         except Exception:
             self.progress = 0
             raise
 
-    def validate(self):
+    def validate(self, context):
         return True
 
-    def execute(self):
+    def execute(self, context):
         pass
 
     @property

@@ -11,5 +11,5 @@ class Regex(api.ComputeNode):
     searchString = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
     output = api.AttributeDefinition(isOutput=True, type_=api.types.kString, array=True, default=[])
 
-    def execute(self):
+    def execute(self, context):
         self.output.setValue([char for char in self.strings.value() if re.search(self.searchString.value(), char)])

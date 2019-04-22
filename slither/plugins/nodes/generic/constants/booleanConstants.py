@@ -8,5 +8,5 @@ class Boolean(api.ComputeNode):
     value = api.AttributeDefinition(type_=api.types.kBool, default=True, isInput=True)
     output = api.AttributeDefinition(type_=api.types.kBool, default=True, isOutput=True)
 
-    def execute(self):
+    def execute(self, context):
         self.output.setValue(bool(self.input.value()))

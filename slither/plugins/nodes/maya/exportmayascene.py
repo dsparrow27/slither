@@ -12,7 +12,7 @@ class ExportMayaScene(api.ComputeNode):
     force = api.AttributeDefinition(isInput=True, type_=api.types.kBool, array=False, default=False,
                                     required=False)
 
-    def execute(self):
+    def execute(self, context):
 
         from pw.libs.maya.utils import files
         outputPath = self.path.value()

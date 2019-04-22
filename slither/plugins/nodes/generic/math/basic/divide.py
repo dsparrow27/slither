@@ -9,7 +9,7 @@ class Divide(api.ComputeNode):
     inputB = api.AttributeDefinition(isInput=True, type_=api.types.kFloat, default=0)
     output = api.AttributeDefinition(isOutput=True, type_=api.types.kFloat, default=0)
 
-    def execute(self):
+    def execute(self, context):
         # @todo log
         try:
             self.output.setValue(self.inputA.value() / self.inputB.value())

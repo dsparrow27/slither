@@ -8,5 +8,5 @@ class StringNode(api.ComputeNode):
     value = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
     output = api.AttributeDefinition(isOutput=True, type_=api.types.kString, default="")
 
-    def execute(self):
+    def execute(self, context):
         self.output.setValue(str(self.input.value()))

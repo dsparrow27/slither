@@ -9,5 +9,5 @@ class OrderDict(api.ComputeNode):
     documentation = "OrderedDict"
     output = api.AttributeDefinition(isOutput=True, type_=api.types.kDict, default=OrderedDict())
 
-    def execute(self):
+    def execute(self, context):
         self.output.setValue(OrderedDict(self.value.value()))

@@ -29,7 +29,7 @@ class ExportAlembicCamera(api.ComputeNode):
         if os.path.exists(outputPath) and not self.force.value():
             raise OSError("Path already exists: {}".format(outputPath))
 
-    def execute(self):
+    def execute(self, context):
         from maya.api import OpenMaya as om2
 
 
@@ -74,7 +74,7 @@ class ExportFBXCamera(api.ComputeNode):
         if os.path.exists(outputPath) and not self.force.value():
             raise OSError("Path already exists: {}".format(outputPath))
 
-    def execute(self):
+    def execute(self, context):
         from maya.api import OpenMaya as om2
         from pw.libs.maya.utils import files
 

@@ -12,7 +12,7 @@ class CopyFilesToNode(api.ComputeNode):
     destinationFolder = api.AttributeDefinition(isInput=True, type_=api.types.kDirectory)
     result = api.AttributeDefinition(isOutput=True, type_=api.types.kFile, isArray=True)
 
-    def execute(self):
+    def execute(self, context):
         source = self.source.value()
         destination = self.destinationFolder.value()
         if not os.path.exists(destination) and not os.path.isdir(destination):

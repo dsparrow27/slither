@@ -9,5 +9,5 @@ class Sum(api.ComputeNode):
     inputB = api.AttributeDefinition(isInput=True, type_=api.types.kFloat, default=0.0)
     output = api.AttributeDefinition(isOutput=True, type_=api.types.kFloat, default=0.0)
 
-    def execute(self):
-        self.output.setValue(self.inputA.value() + self.inputB.value())
+    def execute(self, context):
+        context.output.setValue(context.inputA.value() + context.inputB.value())

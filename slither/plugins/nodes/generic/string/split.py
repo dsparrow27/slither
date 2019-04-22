@@ -9,5 +9,5 @@ class SplitString(api.ComputeNode):
     delimiter = api.AttributeDefinition(isInput=True, type_=api.types.kString, default=",")
     output = api.AttributeDefinition(isOutput=True, type_=api.types.kString, array=True, default="")
 
-    def execute(self):
+    def execute(self, context):
         self.output.setValue(self.input.value().split(self.delimiter.value()))

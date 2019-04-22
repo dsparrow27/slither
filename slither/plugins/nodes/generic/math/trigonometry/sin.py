@@ -10,5 +10,5 @@ class Sin(api.ComputeNode):
     input = api.AttributeDefinition(isInput=True, type_=api.types.kFloat, default=0)
     output = api.AttributeDefinition(isOutput=True, type_=api.types.kFloat, default=0)
 
-    def execute(self):
+    def execute(self, context):
         self.output.setValue(math.sin(self.input.value()))

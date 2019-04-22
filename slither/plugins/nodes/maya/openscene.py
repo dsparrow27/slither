@@ -8,7 +8,7 @@ class MayaSceneOpen(api.BaseNode):
     sceneFile = api.AttributeDefinition(isInput=True, type_=api.types.kFile, default="")
     force = api.AttributeDefinition(isInput=True, type_=api.types.kFile, default="")
 
-    def execute(self):
+    def execute(self, context):
         from maya import cmds
         path = self.sceneFile.value().replace("\\", "/")
         cmds.file(new=True, force=self.force.value())
@@ -21,7 +21,7 @@ class MayaSceneImport(api.BaseNode):
     documentation = "import the supplied maya file"
     sceneFile = api.AttributeDefinition(isInput=True, type_=api.types.kFile, default="")
 
-    def execute(self):
+    def execute(self, context):
         from maya import cmds
         scene = self.sceneFile.value()
 
@@ -38,7 +38,7 @@ class MayaFBXImport(api.BaseNode):
     lights = api.AttributeDefinition(isInput=True, type_=api.types.kBool, default="false")
     cameras = api.AttributeDefinition(isInput=True, type_=api.types.kBool, default="false")
 
-    def execute(self):
+    def execute(self, context):
         from maya import mel
         filepath = self.sceneFile.value().replace("/", "\\")
         mel.eval("FBXImportMode -v add;")
@@ -64,7 +64,7 @@ class MayaAbcImport(api.BaseNode):
     documentation = "import the supplied alembic file"
     filePath = api.AttributeDefinition(isInput=True, type_=api.types.kFile, default="")
 
-    def execute(self):
+    def execute(self, context):
         from maya import cmds
         filePath = self.filePath.value()
         cmds.AbcImport(filePath, mode="import")

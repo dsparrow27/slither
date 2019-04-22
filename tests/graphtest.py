@@ -40,9 +40,9 @@ class TestGraphStandardExecutor(unittest.TestCase):
         self.app.execute(self.app.root, self.executeType)
         # pprint.pprint(self.app.root.serialize())
         self.assertEquals(subChild.inputA.upstream, comp.testInput)
-        self.assertEquals(subChild.output.value(), 20)
+        self.assertEquals(subChild.output.value(), 30)
         self.assertEquals(comp.testOutput.value(), 30)
-        self.assertEquals(self.app.root.execution.value(), 20)
+        self.assertEquals(self.app.root.execution.value(), 30)
 
 
 if __name__ == "__main__":

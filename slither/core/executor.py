@@ -1,10 +1,15 @@
 import multiprocessing
+import pprint
 
 from slither.core import service
+from slither.core.node import Context
 
 
 class Executor(object):
     Type = "base"
+
+    def __init__(self, application):
+        self.application = application
 
 
 class Parallel(Executor):
@@ -80,8 +85,6 @@ class Parallel(Executor):
 
     @classmethod
     def startProcess(cls, node, parentConnection):
-        node.progress = 0
-
         if node.isCompound():
             cls.execute(node)
         node.process()
@@ -103,19 +106,38 @@ class StandardExecutor(Executor):
 
     def startProcess(self, node):
         nodes = self._dependents(node)
+        visited = set()
         for n, dependents in nodes.items():
+
             for d in dependents:
-                if d.progress == 100:
+                if d in visited:
                     dependents.remove(d)
                     continue
                 if len(dependents) == 1 and dependents[0] == n.parent:
                     nodes[n] = list()
                     continue
-                d.process()
-            if n.isCompound():
-                self.startProcess(n)
-            n.process()
+                self.processNode(d)
+                visited.add(d)
+            self.processNode(n)
+            visited.add(n)
+
+    def processNode(self, node):
+        if node.isCompound():
+            self.startProcess(node)
+        ctx = Context.fromNode(node)
+        ctx["variables"] = self.application.variables
+        node.process(ctx)
+        outputInfo = {k: Type.value() for k, Type in ctx["outputs"].items()}
+        # in the case where the node is a compound
+        # the outputs could be connected to child nodes
+        # so loop the outputs, find the upstream and add the connected value
+        if node.isCompound:
+            for output in node.outputs():
+                upstream = output.upstream
+                if upstream:
+                    outputInfo[output.name()] = upstream.value()
+        node.copyOutputData(outputInfo)
 
     def execute(self, node):
-        self.startProcess(node)
+        self.processNode(node)
         return True

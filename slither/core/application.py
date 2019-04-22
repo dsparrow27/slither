@@ -17,7 +17,7 @@ class Application(object):
         self.nodeRegistry = pluginmanager.PluginManager(node.BaseNode, variableName="Type")
         self.typeRegistry = pluginmanager.PluginManager(types.DataType, variableName="Type")
         self._root = None
-        self.globals = {}
+        self.variables = {}
 
     def initialize(self):
         self.typeRegistry.registerPaths(os.environ[self.TYPE_LIB_ENV].split(os.pathsep))
@@ -57,12 +57,12 @@ class Application(object):
     def execute(self, node, executorType):
         if executorType == Application.PARALLELEXECUTOR:
             logger.debug("Starting execution")
-            exe = executor.Parallel()
+            exe = executor.Parallel(self)
             exe.execute(node)
             logger.debug("finished")
             return True
         elif executorType == Application.STANDARDEXECUTOR:
-            exe = executor.StandardExecutor()
+            exe = executor.StandardExecutor(self)
             exe.execute(node)
             return True
         return False

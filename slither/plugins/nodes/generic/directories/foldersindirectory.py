@@ -12,7 +12,7 @@ class FolderInDirectory(api.ComputeNode):
     recursive = api.AttributeDefinition(isInput=True, type_=api.types.kBool, default=False)
     output = api.AttributeDefinition(isOutput=True, type_=api.types.kDirectory, array=True, default=[])
 
-    def execute(self):
+    def execute(self, context):
         directory = os.path.normpath(self.directory.value())
 
         if not self.recursive.value():

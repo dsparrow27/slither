@@ -12,6 +12,6 @@ class Glob(api.ComputeNode):
     pattern = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="*", required=True)
     output = api.AttributeDefinition(isOutput=True, type_=api.types.kFile, array=True, default="")
 
-    def execute(self):
+    def execute(self, context):
         directory = os.path.normpath(self.directory.value())
         self.output.setValue(glob.glob(os.path.join(directory, self.pattern.value())))

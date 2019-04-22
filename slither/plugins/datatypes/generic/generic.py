@@ -28,7 +28,7 @@ class FloatType(types.DataType):
         return float(self._value)
 
     def value(self):
-        return float(self)
+        return float(self._value)
 
     def setValue(self, value):
         if self.value() != value:
