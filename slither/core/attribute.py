@@ -206,18 +206,14 @@ class Attribute(object):
     def serialize(self):
         data = {"name": self.fullName()
                 }
-        definition = self.definition.serialize()
-        data["value"] = self.value()
-        data["definition"] = definition
-        if self.node:
-            data["parent"] = self.node.fullName()
+        data.update(self.definition.serialize())
         if self.upstream is not None:
             data["upstream"] = self.upstream.fullName()
         return data
 
     def deserialize(self, data):
         if self.definition:
-            self.definition.deserialize(data["definition"])
+            self.definition.deserialize(data)
             self.setValue(data.get("value"))
 
 
