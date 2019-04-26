@@ -16,9 +16,8 @@ class AttributeDefinition(object):
         self.isArray = array
         self.isCompound = compound
         self.required = kwargs.get("required", False)
-        self.affectedBy = []
-        self.isInput = kwargs.get("isInput", False)
-        self.isOutput = kwargs.get("isOutput", False)
+        self.isInput = kwargs.get("input", False)
+        self.isOutput = kwargs.get("output", False)
 
         doc += "\nType: {}".format(str(type_))
 
@@ -58,17 +57,16 @@ class AttributeDefinition(object):
         return dict(name=self.name,
                     type=self.type.typeName,
                     default=self.default,
-                    isArray=self.isArray,
-                    isCompound=self.isCompound,
+                    array=self.isArray,
+                    compound=self.isCompound,
                     required=self.required,
-                    affectedBy=[i.name for i in self.affectedBy],
-                    isInput=self.isInput,
-                    isOutput=self.isOutput,
+                    input=self.isInput,
+                    output=self.isOutput,
                     value=self.type.value())
 
     def deserialize(self, data):
         for name, value in iter(data.items()):
-            if name in ("type", "affectedBy") and value != self.__getattribute__(name):
+            if name in ("type", ) and value != self.__getattribute__(name):
                 self.__setattr__(name, value)
 
 
@@ -87,6 +85,7 @@ class Attribute(object):
         self.parent = None
         self.upstream = None
         self._value = self.definition.type
+        self.id = 0
 
     @property
     def isElement(self):
@@ -204,11 +203,11 @@ class Attribute(object):
             self.upstream = None
 
     def serialize(self):
-        data = {"name": self.fullName()
+        data = {"name": self.fullName(),
+                "id": self.id
                 }
         data.update(self.definition.serialize())
-        if self.upstream is not None:
-            data["upstream"] = self.upstream.fullName()
+
         return data
 
     def deserialize(self, data):

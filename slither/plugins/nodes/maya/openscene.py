@@ -5,8 +5,8 @@ class MayaSceneOpen(api.BaseNode):
     Type = "mayaSceneOpen"
     category = "maya"
     documentation = "Open the supplied maya file"
-    sceneFile = api.AttributeDefinition(isInput=True, type_=api.types.kFile, default="")
-    force = api.AttributeDefinition(isInput=True, type_=api.types.kFile, default="")
+    sceneFile = api.AttributeDefinition(input=True, type_=api.types.kFile, default="")
+    force = api.AttributeDefinition(input=True, type_=api.types.kFile, default="")
 
     def execute(self, context):
         from maya import cmds
@@ -19,7 +19,7 @@ class MayaSceneImport(api.BaseNode):
     Type = "mayaSceneImport"
     category = "maya"
     documentation = "import the supplied maya file"
-    sceneFile = api.AttributeDefinition(isInput=True, type_=api.types.kFile, default="")
+    sceneFile = api.AttributeDefinition(input=True, type_=api.types.kFile, default="")
 
     def execute(self, context):
         from maya import cmds
@@ -32,11 +32,11 @@ class MayaFBXImport(api.BaseNode):
     Type = "mayaFBXImport"
     category = "maya"
     documentation = "import the supplied fbx file"
-    sceneFile = api.AttributeDefinition(isInput=True, type_=api.types.kFile, default="")
-    constraints = api.AttributeDefinition(isInput=True, type_=api.types.kBool, default="false")
-    skeletonDefinitions = api.AttributeDefinition(isInput=True, type_=api.types.kBool, default="false")
-    lights = api.AttributeDefinition(isInput=True, type_=api.types.kBool, default="false")
-    cameras = api.AttributeDefinition(isInput=True, type_=api.types.kBool, default="false")
+    sceneFile = api.AttributeDefinition(input=True, type_=api.types.kFile, default="")
+    constraints = api.AttributeDefinition(input=True, type_=api.types.kBool, default="false")
+    skeletonDefinitions = api.AttributeDefinition(input=True, type_=api.types.kBool, default="false")
+    lights = api.AttributeDefinition(input=True, type_=api.types.kBool, default="false")
+    cameras = api.AttributeDefinition(input=True, type_=api.types.kBool, default="false")
 
     def execute(self, context):
         from maya import mel
@@ -62,7 +62,7 @@ class MayaAbcImport(api.BaseNode):
     Type = "mayaAlembicImport"
     category = "maya"
     documentation = "import the supplied alembic file"
-    filePath = api.AttributeDefinition(isInput=True, type_=api.types.kFile, default="")
+    filePath = api.AttributeDefinition(input=True, type_=api.types.kFile, default="")
 
     def execute(self, context):
         from maya import cmds

@@ -63,12 +63,14 @@ class BaseNode(object):
 
     def __init__(self, name, application):
         self.application = application
+        self.id = 0
         self.name = name
-        self.metadata = {}
         self.isLocked = False
         self.isInternal = False
         self._selected = False
         self._parent = None
+        self.properties = {}
+        self.nodeUI = {}
 
     @property
     def selected(self):
@@ -154,14 +156,21 @@ class BaseNode(object):
 
     def serialize(self):
         data = {"name": self.name,
-                "parent": self.parent.fullName() if self.parent else None,
-                "isCompound": self.isCompound(),
-                "type": self.Type
+                "type": self.Type,
+                "id": self.id,
+                "category": self.category,
+                "documentation": self.documentation,
+                "tags": self.tags,
+                "nodeUI": self.nodeUI,
+                "properties": self.properties
                 }
+        if self.parent is not None:
+            data["parent"] = self.parent.id
         return data
 
     def deserialize(self, data):
-        pass
+        self.name = data["name"]
+        self.id = data["id"]
 
 
 class DependencyNode(BaseNode):
@@ -170,8 +179,8 @@ class DependencyNode(BaseNode):
     def __init__(self, name, application):
         self.attributes = []
         super(DependencyNode, self).__init__(name, application)
-        attrDef = attribute.AttributeDefinition(isInput=True,
-                                                isOutput=True,
+        attrDef = attribute.AttributeDefinition(input=True,
+                                                output=True,
                                                 type_=types.kList,
                                                 default=list(),
                                                 required=False, array=True,
@@ -202,6 +211,8 @@ class DependencyNode(BaseNode):
 
     def addAttribute(self, attribute):
         if attribute not in self.attributes:
+            if self.attributes:
+                attribute.id = max(attr.id for attr in self.attributes) + 1
             self.attributes.append(attribute)
             return True
         return False
@@ -306,7 +317,18 @@ class DependencyNode(BaseNode):
 
     def serialize(self):
         data = super(DependencyNode, self).serialize()
-        data["attributes"] = [i.serialize() for i in self.attributes],
+        conn = []
+        attrs = []
+        for attr in self.attributes:
+            attrs.append(attr.serialize())
+            connection = attr.upstream
+            if connection:
+                conn.append({"source": connection.node.id,
+                             "destination": self.id,
+                             "input": attr.id,
+                             "output": connection.id})
+        data["attributes"] = attrs
+        data["connections"] = conn
         return data
 
     def deserialize(self, data):
@@ -319,6 +341,17 @@ class DependencyNode(BaseNode):
 
 class Comment(BaseNode):
     Type = "comment"
+    documentation = "A single node with a description"
+
+    def __init__(self, name, application):
+        super(Comment, self).__init__(name, application)
+        self.title = ""
+        self.comment = ""
+
+    def serialize(self):
+        data = super(Comment, self).serialize()
+        data["comment"] = self.comment
+        data["title"] = self.title
 
 
 class Pin(DependencyNode):
@@ -336,7 +369,7 @@ class ComputeNode(DependencyNode):
 
     def process(self, context):
         try:
-            print "executing", self.fullName()
+            print("executing", self.fullName())
             self.progress = 0
             self.validate(context)
             self.execute(context)
@@ -371,6 +404,48 @@ class ComputeNode(DependencyNode):
         if state and propagate:
             for dependent in self.downStreamNodes():
                 dependent.setDirty(state, propagate)
+
+
+class PythonNode(ComputeNode):
+
+    def __init__(self, name, application):
+        super(PythonNode, self).__init__(name, application)
+
+        attrDef = attribute.AttributeDefinition(name="script",
+                                                input=True,
+                                                output=True,
+                                                type_=types.kString,
+                                                default=list(),
+                                                required=True,
+                                                array=False,
+                                                doc="Executable python string")
+        self.createAttribute(attrDef)
+
+    def execute(self, context):
+        script = context.script
+        if not script:
+            raise ValueError("")
+        script = script.replace(u"\u2029", "\n")
+        evalCode = True
+        _locals = {"context": context}
+        try:
+            outputCode = compile(script, "<string>", "eval")
+        except SyntaxError:
+            evalCode = False
+            outputCode = compile(script, "<string>", "exec")
+        except Exception:
+            raise
+        # ok we've compiled the code now exec
+        if evalCode:
+            try:
+                eval(outputCode, globals(), _locals)
+            except Exception:
+                raise
+        else:
+            try:
+                exec (outputCode, globals(), _locals)
+            except Exception:
+                raise
 
 
 class Compound(ComputeNode):
@@ -457,7 +532,11 @@ class Compound(ComputeNode):
             name = newName
         newNode = self.application.nodeRegistry.loadPlugin(type_, name=name, application=self.application)
         if newNode is not None:
+            if self.children:
+                maxId = max(child.id for child in self.children) + 1
+                newNode.id = maxId
             self.addChild(newNode)
+
             # should emit a event
             return newNode
 
@@ -499,7 +578,13 @@ class Compound(ComputeNode):
 
     def serialize(self):
         data = super(Compound, self).serialize()
-        data["children"] = [i.serialize() for i in self.children]
+        for child in self.children:
+            childInfo = child.serialize()
+            childConnections = childInfo.get("connections")
+            if childConnections:
+                data.setdefault("childConnections", []).extend(childConnections)
+                del childInfo["connections"]
+            data.setdefault("children", []).append(childInfo)
         return data
 
     def deserialize(self, data):

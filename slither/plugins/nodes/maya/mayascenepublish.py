@@ -14,20 +14,20 @@ class MayaSceneSaveCompound(api.Compound):
 
     """
     Type = "mayaSceneSaveCompound"
-    context = api.AttributeDefinition(type_=api.types.kDict, isInput=True, array=False,
+    context = api.AttributeDefinition(type_=api.types.kDict, input=True, array=False,
                                       required=True)
-    template = api.AttributeDefinition(type_=api.types.kString, isInput=True, array=False,
+    template = api.AttributeDefinition(type_=api.types.kString, input=True, array=False,
                                        required=True)
-    publish = api.AttributeDefinition(type_=api.types.kBool, isInput=True, array=False,
+    publish = api.AttributeDefinition(type_=api.types.kBool, input=True, array=False,
                                       required=False,
                                       default=True)
-    publishedFileType = api.AttributeDefinition(type_=api.types.kString, isInput=True, array=False,
+    publishedFileType = api.AttributeDefinition(type_=api.types.kString, input=True, array=False,
                                                 required=True,
                                                 default=shotgunConstants.MA_FILE_TYPE)
-    publishDependencies = api.AttributeDefinition(type_=api.types.kFile, isInput=True, array=True,
+    publishDependencies = api.AttributeDefinition(type_=api.types.kFile, input=True, array=True,
                                                   required=False,
                                                   default=[])
-    fields = api.AttributeDefinition(type_=api.types.kDict, isInput=True, array=True,
+    fields = api.AttributeDefinition(type_=api.types.kDict, input=True, array=True,
                                      required=False,
                                      default=[])
 

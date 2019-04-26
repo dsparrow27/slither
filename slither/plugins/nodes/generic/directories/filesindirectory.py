@@ -8,9 +8,9 @@ class FilesInDirectory(api.ComputeNode):
     Type = "FilesInDirectory"
     category = "directories"
     documentation = "returns a list of files in a directory"
-    directory = api.AttributeDefinition(isInput=True, type_=api.types.kDirectory, default="")
-    recursive = api.AttributeDefinition(isInput=True, type_=api.types.kBool, default=False)
-    output = api.AttributeDefinition(isOutput=True, type_=api.types.kFile, array=True, default=[])
+    directory = api.AttributeDefinition(input=True, type_=api.types.kDirectory, default="")
+    recursive = api.AttributeDefinition(input=True, type_=api.types.kBool, default=False)
+    output = api.AttributeDefinition(output=True, type_=api.types.kFile, array=True, default=[])
 
     def execute(self, context):
         directory = os.path.normpath(self.directory.value())

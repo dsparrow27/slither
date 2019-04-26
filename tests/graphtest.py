@@ -7,13 +7,13 @@ from slither import api
 
 
 def createInputAttrDef(name, type_):
-    return api.AttributeDefinition(name=name, isInput=True,
+    return api.AttributeDefinition(name=name, input=True,
                                    type_=type_)
 
 
 def createOutputAttrDef(name, type_):
     return api.AttributeDefinition(name=name,
-                                   isOutput=True,
+                                   output=True,
                                    type_=type_)
 
 

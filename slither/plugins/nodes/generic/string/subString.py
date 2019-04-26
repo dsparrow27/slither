@@ -9,10 +9,10 @@ class SubStringNode(api.ComputeNode):
     Type = "SubStringNode"
     category = "string"
     documentation = __doc__
-    value = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="", array=True)
-    search = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
-    replace = api.AttributeDefinition(isInput=True, type_=api.types.kString, default="")
-    output = api.AttributeDefinition(isOutput=True, type_=api.types.kString, array=True, default=[])
+    value = api.AttributeDefinition(input=True, type_=api.types.kString, default="", array=True)
+    search = api.AttributeDefinition(input=True, type_=api.types.kString, default="")
+    replace = api.AttributeDefinition(input=True, type_=api.types.kString, default="")
+    output = api.AttributeDefinition(output=True, type_=api.types.kString, array=True, default=[])
 
     def execute(self, context):
         result = [re.sub(self.self.search.value(), self.replace.value(), char) for char in

@@ -7,18 +7,18 @@ class ExportAlembicCamera(api.ComputeNode):
     Type = "exportAlembicCamera"
     category = "maya"
     documentation = ""
-    path = api.AttributeDefinition(isInput=True, type_=api.types.kFile, array=False, default="")
-    camera = api.AttributeDefinition(isInput=True, type_=api.types.kMObjectHandle, array=False, default=None)
-    output = api.AttributeDefinition(isOutput=True, type_=api.types.kBool, array=False, default=False)
-    startFrame = api.AttributeDefinition(isInput=True, type_=api.types.kInt, array=False, default=0)
-    endFrame = api.AttributeDefinition(isInput=True, type_=api.types.kInt, array=False, default=0)
-    subFrames = api.AttributeDefinition(isInput=True, type_=api.types.kFloat, array=False, default=0)
-    cameraName = api.AttributeDefinition(isInput=True, type_=api.types.kString, array=False, default="NO_NAME",
+    path = api.AttributeDefinition(input=True, type_=api.types.kFile, array=False, default="")
+    camera = api.AttributeDefinition(input=True, type_=api.types.kMObjectHandle, array=False, default=None)
+    output = api.AttributeDefinition(output=True, type_=api.types.kBool, array=False, default=False)
+    startFrame = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0)
+    endFrame = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0)
+    subFrames = api.AttributeDefinition(input=True, type_=api.types.kFloat, array=False, default=0)
+    cameraName = api.AttributeDefinition(input=True, type_=api.types.kString, array=False, default="NO_NAME",
                                          required=True
                                          )
-    force = api.AttributeDefinition(isInput=True, type_=api.types.kBool, array=False, default=False,
+    force = api.AttributeDefinition(input=True, type_=api.types.kBool, array=False, default=False,
                                     required=False)
-    padding = api.AttributeDefinition(isInput=True, type_=api.types.kInt, array=False, default=0,
+    padding = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0,
                                       required=False)
 
     def validate(self):
@@ -52,18 +52,18 @@ class ExportFBXCamera(api.ComputeNode):
     Type = "exportFBXCamera"
     category = "maya"
     documentation = ""
-    path = api.AttributeDefinition(isInput=True, type_=api.types.kFile, array=False, default="")
-    camera = api.AttributeDefinition(isInput=True, type_=api.types.kMObjectHandle, array=False, default=None)
-    output = api.AttributeDefinition(isOutput=True, type_=api.types.kBool, array=False, default=False)
-    startFrame = api.AttributeDefinition(isInput=True, type_=api.types.kInt, array=False, default=0)
-    endFrame = api.AttributeDefinition(isInput=True, type_=api.types.kInt, array=False, default=0)
-    subFrames = api.AttributeDefinition(isInput=True, type_=api.types.kFloat, array=False, default=0)
-    cameraName = api.AttributeDefinition(isInput=True, type_=api.types.kString, array=False, default="NO_NAME",
+    path = api.AttributeDefinition(input=True, type_=api.types.kFile, array=False, default="")
+    camera = api.AttributeDefinition(input=True, type_=api.types.kMObjectHandle, array=False, default=None)
+    output = api.AttributeDefinition(output=True, type_=api.types.kBool, array=False, default=False)
+    startFrame = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0)
+    endFrame = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0)
+    subFrames = api.AttributeDefinition(input=True, type_=api.types.kFloat, array=False, default=0)
+    cameraName = api.AttributeDefinition(input=True, type_=api.types.kString, array=False, default="NO_NAME",
                                          required=True
                                          )
-    force = api.AttributeDefinition(isInput=True, type_=api.types.kBool, array=False, default=False,
+    force = api.AttributeDefinition(input=True, type_=api.types.kBool, array=False, default=False,
                                     required=False)
-    padding = api.AttributeDefinition(isInput=True, type_=api.types.kInt, array=False, default=0,
+    padding = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0,
                                       required=False)
 
     def validate(self):

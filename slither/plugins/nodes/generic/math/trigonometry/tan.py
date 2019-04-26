@@ -7,8 +7,8 @@ class Tan(api.ComputeNode):
     Type = "Tan"
     category = "math"
     documentation = "tan"
-    input = api.AttributeDefinition(isInput=True, type_=api.types.kFloat, default=0)
-    output = api.AttributeDefinition(isOutput=True, type_=api.types.kFloat, default=0)
+    input = api.AttributeDefinition(input=True, type_=api.types.kFloat, default=0)
+    output = api.AttributeDefinition(output=True, type_=api.types.kFloat, default=0)
 
     def execute(self, context):
         self.output.setValue(math.tan(self.input.value()))

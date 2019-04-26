@@ -8,9 +8,9 @@ class CopyFilesToNode(api.ComputeNode):
     """Copy a list of files to a directory and returns the new file paths
     """
     Type = "CopyFilesToNode"
-    source = api.AttributeDefinition(isInput=True, type_=api.types.kFile, isArray=True)
-    destinationFolder = api.AttributeDefinition(isInput=True, type_=api.types.kDirectory)
-    result = api.AttributeDefinition(isOutput=True, type_=api.types.kFile, isArray=True)
+    source = api.AttributeDefinition(input=True, type_=api.types.kFile, isArray=True)
+    destinationFolder = api.AttributeDefinition(input=True, type_=api.types.kDirectory)
+    result = api.AttributeDefinition(output=True, type_=api.types.kFile, isArray=True)
 
     def execute(self, context):
         source = self.source.value()

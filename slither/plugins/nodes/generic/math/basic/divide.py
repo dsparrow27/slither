@@ -5,9 +5,9 @@ class Divide(api.ComputeNode):
     Type = "Divide"
     category = "math"
     documentation = "Divides the input values together, raises ZooDivisionError if dividing by 0"
-    inputA = api.AttributeDefinition(isInput=True, type_=api.types.kFloat, default=0)
-    inputB = api.AttributeDefinition(isInput=True, type_=api.types.kFloat, default=0)
-    output = api.AttributeDefinition(isOutput=True, type_=api.types.kFloat, default=0)
+    inputA = api.AttributeDefinition(input=True, type_=api.types.kFloat, default=0)
+    inputB = api.AttributeDefinition(input=True, type_=api.types.kFloat, default=0)
+    output = api.AttributeDefinition(output=True, type_=api.types.kFloat, default=0)
 
     def execute(self, context):
         # @todo log
