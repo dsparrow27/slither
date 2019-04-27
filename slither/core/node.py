@@ -369,7 +369,6 @@ class ComputeNode(DependencyNode):
 
     def process(self, context):
         try:
-            print("executing", self.fullName())
             self.progress = 0
             self.validate(context)
             self.execute(context)
