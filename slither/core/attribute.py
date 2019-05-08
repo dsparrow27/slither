@@ -13,11 +13,12 @@ class AttributeDefinition(object):
         self.name = kwargs.get("name", "")
         self.type = type_
         self.default = default
-        self.isArray = array
-        self.isCompound = compound
+        self.array = array
+        self.compound = compound
         self.required = kwargs.get("required", False)
-        self.isInput = kwargs.get("input", False)
-        self.isOutput = kwargs.get("output", False)
+        self.input = kwargs.get("input", False)
+        self.output = kwargs.get("output", False)
+        self.internal = kwargs.get("internal", False)
 
         doc += "\nType: {}".format(str(type_))
 
@@ -35,7 +36,7 @@ class AttributeDefinition(object):
             return False
         if self.name != other.name or self.type != other.type:
             return False
-        if self.default != other.default or self.isArray != other.isArray:
+        if self.default != other.default or self.array != other.array:
             return False
         return True
 
@@ -44,29 +45,49 @@ class AttributeDefinition(object):
             self.name = name
 
     def documentation(self):
+        """Returns the documentation for this definition.
+
+        :rtype: str
+        """
         return self.__doc__
 
-    def match(self, definition):
-        self.__dict__ = definition.__dict__
-
     def validateDefault(self):
-        if self.isArray and not isinstance(self.default, list):
+        """Validates the default value for this definition ensuring the correct datatype.
+        """
+        if self.array and not isinstance(self.default, list):
             self.default = list()
 
-    def serialize(self):
+    def serialize(self, includeInternal=False):
+        """Returns A dict representing this definition.
+
+        :rtype: dict
+        """
+        attrValue = self.type.value()
+        attrDefault = self.default
+        if attrValue == attrDefault and (self.internal and not includeInternal):
+            return {}
         return dict(name=self.name,
-                    type=self.type.typeName,
-                    default=self.default,
-                    array=self.isArray,
-                    compound=self.isCompound,
+                    type_=self.type.typeName,
+                    default=attrDefault,
+                    array=self.array,
+                    compound=self.compound,
                     required=self.required,
-                    input=self.isInput,
-                    output=self.isOutput,
-                    value=self.type.value())
+                    input=self.input,
+                    output=self.output,
+                    value=attrValue,
+                    internal=self.internal)
 
     def deserialize(self, data):
+        """Deserialize's the provided data on this definition instance. The data must be
+        in the same form as serialize()
+
+        :param data: The data to apply to this instance
+        :type data: dict
+        """
         for name, value in iter(data.items()):
-            if name in ("type", ) and value != self.__getattribute__(name):
+            if name == "value":
+                self.type.setValue(value)
+            elif name not in ("type",) and hasattr(self, name) and value != self.__getattribute__(name):
                 self.__setattr__(name, value)
 
 
@@ -152,11 +173,11 @@ class Attribute(object):
 
     def isInput(self):
         """Returns True if this attribute is an output attribute"""
-        return self.definition.isInput
+        return self.definition.input
 
     def isOutput(self):
         """Returns True if this attribute is an input attribute"""
-        return self.definition.isOutput
+        return self.definition.output
 
     def hasUpstream(self):
         """Determines if the current attribute has a connection, an attribute can have only one connection if its an
@@ -188,26 +209,22 @@ class Attribute(object):
             return attribute.isConnectedTo(self)
         return True
 
-    def connectUpstream(self, attribute):
-        if self.upstream is not None:
-            raise errors.AttributeAlreadyConnected(self, attribute)
-        self.upstream = attribute
-        logger.debug("Connected Attributes, upstream: {}, downstream: {}".format(self.upstream.fullName(),
-                                                                                 self.fullName()))
-
-    def connectDownstream(self, attribute):
-        attribute.connectUpstream(self)
+    def connect(self, attr):
+        # inverted connection request, self is an output
+        if attr.isInput():
+            return self.node.createConnection(self, attr)
+        # self is an input
+        return self.node.createConnection(attr, self)
 
     def disconnect(self):
         if self.hasUpstream():
             self.upstream = None
 
     def serialize(self):
-        data = {"name": self.fullName(),
-                "id": self.id
-                }
-        data.update(self.definition.serialize())
 
+        data = self.definition.serialize()
+        if data:
+            data["id"] = self.id
         return data
 
     def deserialize(self, data):

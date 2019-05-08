@@ -30,28 +30,27 @@ class Context(dict):
 
     @classmethod
     def fromNode(cls, node):
-        attrData = {}
+        attrData = {"outputs": {}, "inputs": {}}
         for attr in node.attributes:
             if attr.isInput():
-                attrData.setdefault("inputs", {})[attr.name()] = copy.deepcopy(attr.type())
+                attrData["inputs"][attr.name()] = copy.deepcopy(attr.type())
             else:
-                attrData.setdefault("outputs", {})[attr.name()] = copy.deepcopy(attr.type())
+                attrData["outputs"][attr.name()] = copy.deepcopy(attr.type())
+        attrData["name"] = node.name
         return cls(**attrData)
 
 
 class NodeMeta(type):
     @staticmethod
     def __new__(cls, className, bases, classDict):
-        attrsToRename = []
         for name, attr in iter(classDict.items()):
             if isinstance(attr, attribute.AttributeDefinition):
                 attr.setName(name)
-                attrsToRename.append(attr)
-        for attr in attrsToRename:
-            name = attr.name
-            newName = "_%s" % name if not name.startswith("_") else name
-            old = classDict.pop(name)
-            classDict[newName] = old
+                attr.internal = True
+                newName = '_{}'.format(name) if not name.startswith("_") else name
+                old = classDict.pop(name)
+                classDict[newName] = old
+
         return super(NodeMeta, cls).__new__(cls, className, bases, classDict)
 
 
@@ -67,19 +66,9 @@ class BaseNode(object):
         self.name = name
         self.isLocked = False
         self.isInternal = False
-        self._selected = False
         self._parent = None
         self.properties = {}
         self.nodeUI = {}
-
-    @property
-    def selected(self):
-        return self._selected
-
-    @selected.setter
-    def selected(self, value):
-        if self._selected != value:
-            self._selected = value
 
     @staticmethod
     def isCompound():
@@ -169,8 +158,7 @@ class BaseNode(object):
         return data
 
     def deserialize(self, data):
-        self.name = data["name"]
-        self.id = data["id"]
+        return {}
 
 
 class DependencyNode(BaseNode):
@@ -184,7 +172,8 @@ class DependencyNode(BaseNode):
                                                 type_=types.kList,
                                                 default=list(),
                                                 required=False, array=True,
-                                                doc="Node Level dependencies")
+                                                doc="Node Level dependencies",
+                                                internal=True)
         attrDef.name = "Dependencies"
         self.createAttribute(attrDef)
 
@@ -204,9 +193,17 @@ class DependencyNode(BaseNode):
             return attr
         return super(DependencyNode, self).__getattribute__(name)
 
+    def createConnection(self, inputAttribute, destinationAttribute):
+        return self.application.createConnection(inputAttribute, destinationAttribute)
+
     def attribute(self, name):
         for attr in self.iterAttributes():
             if attr.name() == name:
+                return attr
+
+    def attributeById(self, attributeId):
+        for attr in self.iterAttributes():
+            if attr.id == attributeId:
                 return attr
 
     def addAttribute(self, attribute):
@@ -223,9 +220,9 @@ class DependencyNode(BaseNode):
             raise ValueError("Name -> {} already exists".format(attributeDefinition.name))
         logger.debug("Creating Attribute: {} on node: {}".format(attributeDefinition.name,
                                                                  self.name))
-        if attributeDefinition.isArray:
+        if attributeDefinition.array:
             newAttribute = attribute.ArrayAttribute(attributeDefinition, node=self)
-        elif attributeDefinition.isCompound:
+        elif attributeDefinition.compound:
             newAttribute = attribute.CompoundAttribute(attributeDefinition, node=self)
         else:
             newAttribute = attribute.Attribute(attributeDefinition, node=self)
@@ -317,18 +314,12 @@ class DependencyNode(BaseNode):
 
     def serialize(self):
         data = super(DependencyNode, self).serialize()
-        conn = []
         attrs = []
         for attr in self.attributes:
-            attrs.append(attr.serialize())
-            connection = attr.upstream
-            if connection:
-                conn.append({"source": connection.node.id,
-                             "destination": self.id,
-                             "input": attr.id,
-                             "output": connection.id})
+            attrInfo = attr.serialize()
+            if attrInfo:
+                attrs.append(attrInfo)
         data["attributes"] = attrs
-        data["connections"] = conn
         return data
 
     def deserialize(self, data):
@@ -337,6 +328,11 @@ class DependencyNode(BaseNode):
             currentAttr = self.attribute(attr["name"].split("|")[-1])
             if currentAttr is not None:
                 currentAttr.deserialize(attr)
+            else:
+                # temp solution
+                attr["type_"] = self.application.dataType(attr["type_"])
+                self.createAttribute(attributeDefinition=attribute.AttributeDefinition(**attr))
+        return {}
 
 
 class Comment(BaseNode):
@@ -521,34 +517,10 @@ class Compound(ComputeNode):
         return False
 
     def createNode(self, name, type_):
-        exists = self.child(name)
-        if exists:
-            newName = name
-            counter = 1
-            while self.child(newName):
-                newName = name + str(counter)
-                counter += 1
-            name = newName
-        newNode = self.application.nodeRegistry.loadPlugin(type_, name=name, application=self.application)
-        if newNode is not None:
-            if self.children:
-                maxId = max(child.id for child in self.children) + 1
-                newNode.id = maxId
-            self.addChild(newNode)
-
-            # should emit a event
-            return newNode
+        return self.application.createNode(name, type_, parent=self)
 
     def removeChild(self, child):
-        if child.isLocked or child.isInternal:
-            return False
-
-        if child in self:
-            if isinstance(child, DependencyNode):
-                child.disconnectAll()
-            self.children.remove(child)
-            return True
-        return False
+        return self.application.removeNode(child, parent=self)
 
     def clear(self):
         for child in self.children:
@@ -565,9 +537,7 @@ class Compound(ComputeNode):
         return True
 
     def hasChild(self, name):
-        for i in self:
-            if i.name == name:
-                return i
+        return any(i.name == name for i in self)
 
     def hasChildren(self):
         return len(self.children) > 0
@@ -579,17 +549,21 @@ class Compound(ComputeNode):
         data = super(Compound, self).serialize()
         for child in self.children:
             childInfo = child.serialize()
-            childConnections = childInfo.get("connections")
-            if childConnections:
-                data.setdefault("childConnections", []).extend(childConnections)
-                del childInfo["connections"]
-            data.setdefault("children", []).append(childInfo)
+            if childInfo:
+                data.setdefault("children", []).append(childInfo)
         return data
 
-    def deserialize(self, data):
+    def deserialize(self, data, includeChildren=True):
         super(Compound, self).deserialize(data)
+        newChildren = {}
+        if not includeChildren:
+            return newChildren
+
         for child in data.get("children", []):
             newNode = self.createNode(child["name"], type_=child["type"])
             if newNode is None:
                 raise ValueError("Failed to create node: {}".format(child["name"]))
-            newNode.deserialize(child)
+            for nId, n in newNode.deserialize(child).items():
+                newChildren[nId] = n
+            newChildren[child["id"]] = newNode
+        return newChildren

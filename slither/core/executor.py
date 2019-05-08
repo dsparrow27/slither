@@ -134,6 +134,7 @@ class StandardExecutor(Executor):
         if node.isCompound:
             for output in node.outputs():
                 upstream = output.upstream
+
                 if upstream:
                     outputInfo[output.name()] = upstream.value()
         node.copyOutputData(outputInfo)
