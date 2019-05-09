@@ -135,6 +135,12 @@ class Attribute(object):
         except TypeError:
             pass
 
+    def __eq__(self, other):
+        return self.node.id == other.node.id and self.id == other.id
+
+    def __ne__(self, other):
+        return self.node.id != other.node.id or self.id != other.id
+
     def name(self):
         return self.definition.name
 
@@ -208,6 +214,7 @@ class Attribute(object):
         elif self.isOutput():
             return attribute.isConnectedTo(self)
         return True
+
 
     def connect(self, attr):
         # inverted connection request, self is an output

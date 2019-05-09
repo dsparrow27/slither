@@ -11,6 +11,7 @@ set ABS_PATH=%CD%
 
 rem // Restore original directory
 popd
+
 set pluginBase=%ABS_PATH%\slither\plugins
 set nodeLib=%pluginBase%\nodes\generic
 

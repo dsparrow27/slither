@@ -208,10 +208,10 @@ class DependencyNode(BaseNode):
 
     def addAttribute(self, attribute):
         if attribute not in self.attributes:
-            if self.attributes:
-                attribute.id = max(attr.id for attr in self.attributes) + 1
+            attribute.id = 1 if not self.attributes else max(attr.id for attr in self.attributes) + 1
             self.attributes.append(attribute)
             return True
+        logger.warning("Couldn't create attribute: node-{}: attrbute-{}".format(self.node.name(), attribute.name()))
         return False
 
     def createAttribute(self, attributeDefinition):

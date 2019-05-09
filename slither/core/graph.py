@@ -4,6 +4,8 @@ from slither.core import executor, node, types, errors
 from zoo.libs.plugin import pluginmanager
 from zoo.libs.utils import filesystem, zlogging
 import logging
+
+
 logger = zlogging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
 
@@ -98,7 +100,6 @@ class Graph(object):
             newNodes[child["id"]] = newNode
         missingConnections = []
         missingNodes = []
-        print newNodes
         for connection in connections:
             sourceNode = newNodes.get(connection["source"])
             destinationNode = newNodes.get(connection["destination"])

@@ -56,7 +56,6 @@ class TestGraphStandardExecutor(unittest.TestCase):
         comp.createAttribute(createOutputAttrDef(name="testOutput",
                                                  type_=api.types.kFloat))
         subChild = comp.createNode("subsubChild", "Sum")
-
         subChild.inputA.connect(comp.testInput)
         comp.testOutput.connect(subChild.output)
         self.app.root.createAttribute(createOutputAttrDef("execution", api.types.kFloat))
@@ -68,7 +67,7 @@ class TestGraphStandardExecutor(unittest.TestCase):
         newApp = api.graph.Graph()
         newApp.initialize()
         newApp.load(serializeData)
-        # pprint.pprint(newApp.serialize())
+        pprint.pprint(newApp.serialize())
         self.assertEquals(len(newApp.root.children), len(self.app.root.children))
         self.assertTrue(newApp.root.child("testCompound"))
         subChildNew = newApp.root.child("testCompound")
