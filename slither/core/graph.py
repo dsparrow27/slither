@@ -1,10 +1,9 @@
+import logging
 import os
 
-from slither.core import executor, node, types, errors
+from slither.core import dispatcher, node, types, errors
 from zoo.libs.plugin import pluginmanager
 from zoo.libs.utils import filesystem, zlogging
-import logging
-
 
 logger = zlogging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
@@ -47,7 +46,7 @@ class Graph(object):
     def root(self):
         if self._root is not None:
             return self._root
-        self._root = self.nodeRegistry.loadPlugin("compound", name="Root", application=self)
+        self._root = self.nodeRegistry.loadPlugin("compound", name="Root", graph=self)
         self._root.id = self._generateNewNodeId()
         # mark the root as internal and locked so it can't be deleted.
         self._root.isLocked = True
@@ -68,12 +67,12 @@ class Graph(object):
     def execute(self, n, executorType):
         if executorType == Graph.PARALLELEXECUTOR:
             logger.debug("Starting execution")
-            exe = executor.Parallel(self)
+            exe = dispatcher.Parallel(self)
             exe.execute(n)
             logger.debug("finished")
             return True
         elif executorType == Graph.STANDARDEXECUTOR:
-            exe = executor.StandardExecutor(self)
+            exe = dispatcher.StandardExecutor(self)
             exe.execute(n)
             return True
         return False
@@ -106,8 +105,8 @@ class Graph(object):
             if sourceNode is None or destinationNode is None:
                 missingNodes.append(connection)
                 continue
-            sourceAttr = sourceNode.attributeById(connection["input"])
-            destAttr = destinationNode.attributeById(connection["output"])
+            sourceAttr = sourceNode.attributeById(connection["output"])
+            destAttr = destinationNode.attributeById(connection["input"])
             if sourceAttr is None or destAttr is None:
                 missingConnections.append(connection)
                 continue
@@ -134,9 +133,10 @@ class Graph(object):
     def createConnection(self, source, destination):
         if not source.canConnect(destination):
             raise errors.AttributeCompatiblityError(source, destination)
-        # inverted connection request, self is an output
         if destination.upstream is not None:
             raise errors.AttributeAlreadyConnected(source, destination)
+        logger.debug("Creating connection between: {}->{}".format(source.fullName(), destination.fullName()))
+        print("Creating connection between: {}->{}".format(source.fullName(), destination.fullName()))
         destination.upstream = source
         self.connections.append({"source": source.node.id, "destination": destination.node.id,
                                  "input": destination.id, "output": source.id})
@@ -151,7 +151,7 @@ class Graph(object):
                 newName = name + str(counter)
                 counter += 1
             name = newName
-        newNode = self.nodeRegistry.loadPlugin(type_, name=name, application=self)
+        newNode = self.nodeRegistry.loadPlugin(type_, name=name, graph=self)
         if newNode is not None:
             newNode.id = self._generateNewNodeId()
             parent.addChild(newNode)

@@ -215,13 +215,23 @@ class Attribute(object):
             return attribute.isConnectedTo(self)
         return True
 
-
     def connect(self, attr):
-        # inverted connection request, self is an output
-        if attr.isInput():
+        attrNode = attr.node
+        selfNode = self.node
+        parent = self.node.parent
+        if attrNode == parent:
+            if attr.isInput() and self.isInput():
+                return selfNode.createConnection(attr, self)
+            elif attr.isOutput() and self.isOutput():
+                return selfNode.createConnection(self, attr)
+            logger.error("Unsupported connection combination:\n\t{}->{}".format(self, attr))
+            raise errors.UnsupportedConnectionCombinationError(self, attr)
+        elif self.isInput() and attr.isOutput():
+            return self.node.createConnection(attr, self)
+        elif self.isOutput() and attr.isInput():
             return self.node.createConnection(self, attr)
-        # self is an input
-        return self.node.createConnection(attr, self)
+        logger.error("Unsupported connection combination:\n\t{}->{}".format(self, attr))
+        raise errors.UnsupportedConnectionCombinationError(self, attr)
 
     def disconnect(self):
         if self.hasUpstream():

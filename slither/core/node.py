@@ -60,8 +60,8 @@ class BaseNode(object):
     tags = set()
     documentation = ""
 
-    def __init__(self, name, application):
-        self.application = application
+    def __init__(self, name, graph):
+        self.graph = graph
         self.id = 0
         self.name = name
         self.isLocked = False
@@ -164,9 +164,9 @@ class BaseNode(object):
 class DependencyNode(BaseNode):
     __metaclass__ = NodeMeta
 
-    def __init__(self, name, application):
+    def __init__(self, name, graph):
         self.attributes = []
-        super(DependencyNode, self).__init__(name, application)
+        super(DependencyNode, self).__init__(name, graph)
         attrDef = attribute.AttributeDefinition(input=True,
                                                 output=True,
                                                 type_=types.kList,
@@ -194,7 +194,7 @@ class DependencyNode(BaseNode):
         return super(DependencyNode, self).__getattribute__(name)
 
     def createConnection(self, inputAttribute, destinationAttribute):
-        return self.application.createConnection(inputAttribute, destinationAttribute)
+        return self.graph.createConnection(inputAttribute, destinationAttribute)
 
     def attribute(self, name):
         for attr in self.iterAttributes():
@@ -330,7 +330,7 @@ class DependencyNode(BaseNode):
                 currentAttr.deserialize(attr)
             else:
                 # temp solution
-                attr["type_"] = self.application.dataType(attr["type_"])
+                attr["type_"] = self.graph.dataType(attr["type_"])
                 self.createAttribute(attributeDefinition=attribute.AttributeDefinition(**attr))
         return {}
 
@@ -339,8 +339,8 @@ class Comment(BaseNode):
     Type = "comment"
     documentation = "A single node with a description"
 
-    def __init__(self, name, application):
-        super(Comment, self).__init__(name, application)
+    def __init__(self, name, graph):
+        super(Comment, self).__init__(name, graph)
         self.title = ""
         self.comment = ""
 
@@ -358,8 +358,8 @@ class ComputeNode(DependencyNode):
     """Node which has a computation operation
     """
 
-    def __init__(self, name, application):
-        super(ComputeNode, self).__init__(name, application)
+    def __init__(self, name, graph):
+        super(ComputeNode, self).__init__(name, graph)
         self._progress = 0
         self._dirty = False
 
@@ -403,8 +403,8 @@ class ComputeNode(DependencyNode):
 
 class PythonNode(ComputeNode):
 
-    def __init__(self, name, application):
-        super(PythonNode, self).__init__(name, application)
+    def __init__(self, name, graph):
+        super(PythonNode, self).__init__(name, graph)
 
         attrDef = attribute.AttributeDefinition(name="script",
                                                 input=True,
@@ -449,12 +449,12 @@ class Compound(ComputeNode):
     """
     Type = "compound"
 
-    def __init__(self, name, application):
+    def __init__(self, name, graph):
         """
         :param name: The name that this node will have, if the name already exist a number we be appended.
         :type name: str
         """
-        super(Compound, self).__init__(name, application=application)
+        super(Compound, self).__init__(name, graph=graph)
         self.children = []
 
     @staticmethod
@@ -517,10 +517,10 @@ class Compound(ComputeNode):
         return False
 
     def createNode(self, name, type_):
-        return self.application.createNode(name, type_, parent=self)
+        return self.graph.createNode(name, type_, parent=self)
 
     def removeChild(self, child):
-        return self.application.removeNode(child, parent=self)
+        return self.graph.removeNode(child, parent=self)
 
     def clear(self):
         for child in self.children:
