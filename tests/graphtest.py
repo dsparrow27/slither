@@ -1,6 +1,5 @@
 """A simple test for nested compound networks
 """
-import pprint
 import unittest
 
 from slither import api
@@ -19,7 +18,7 @@ def createOutputAttrDef(name, type_):
 
 class TestGraphStandardExecutor(unittest.TestCase):
     def setUp(self):
-        self.graph = api.graph.Graph()
+        self.graph = api.Graph()
         self.graph.initialize()
         self.executeType = self.graph.STANDARDEXECUTOR
 
@@ -64,7 +63,7 @@ class TestGraphStandardExecutor(unittest.TestCase):
         subChild.inputB.setValue(30)
         self.graph.execute(self.graph.root, self.executeType)
         serializeData = self.graph.serialize()
-        newGraph = api.graph.Graph()
+        newGraph = api.Graph()
         newGraph.initialize()
         newGraph.load(serializeData)
         self.assertEquals(len(newGraph.root.children), len(self.graph.root.children))

@@ -1,3 +1,5 @@
+import os
+
 from slither.core import types
 
 
@@ -139,6 +141,9 @@ class DictType(types.DataType):
 
 class FileType(StringType):
     Type = "kFile"
+
+    def exists(self):
+        return os.path.exists(self._value)
 
 
 class DirectoryType(StringType):

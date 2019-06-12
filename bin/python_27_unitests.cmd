@@ -18,5 +18,6 @@ set nodeLib=%pluginBase%\nodes\generic
 set PYTHONPATH=%PYTHONPATH%;%ABS_PATH%;%ABS_PATH%\thirdparty\zoocore;%ABS_PATH%\thirdparty\zoocore\thirdparty
 set SLITHER_NODE_LIB=%nodeLib%
 set SLITHER_TYPE_LIB=%pluginBase%\datatypes\generic
+set DISPATCHER_LIB=%pluginBase%\dispatchers
 
 call python %ABS_PATH%/tests/graphtest.py

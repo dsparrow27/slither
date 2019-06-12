@@ -14,16 +14,19 @@ class Graph(object):
     STANDARDEXECUTOR = 1
     NODE_LIB_ENV = "SLITHER_NODE_LIB"
     TYPE_LIB_ENV = "SLITHER_TYPE_LIB"
+    DISPATCHER_LIB_ENV = "DISPATCHER_LIB"
 
     def __init__(self):
         self.nodeRegistry = pluginmanager.PluginManager(node.BaseNode, variableName="Type")
         self.typeRegistry = pluginmanager.PluginManager(types.DataType, variableName="Type")
+        self.dispatchers = pluginmanager.PluginManager(dispatcher.BaseDispatcher, variableName="Type")
         self._root = None
         self.variables = {}
         self.nodeIds = set()
         self.connections = []
 
     def initialize(self):
+        self.dispatchers.registerPaths(os.environ[self.DISPATCHER_LIB_ENV].split(os.pathsep))
         self.typeRegistry.registerPaths(os.environ[self.TYPE_LIB_ENV].split(os.pathsep))
         types.__dict__.update(self.typeRegistry.plugins.items())
 
@@ -65,20 +68,23 @@ class Graph(object):
         return data
 
     def execute(self, n, executorType):
+        logger.debug("Starting execution")
         if executorType == Graph.PARALLELEXECUTOR:
-            logger.debug("Starting execution")
-            exe = dispatcher.Parallel(self)
-            exe.execute(n)
-            logger.debug("finished")
-            return True
+            exe = self.dispatchers.getPlugin("Parallel")(self)
         elif executorType == Graph.STANDARDEXECUTOR:
-            exe = dispatcher.StandardExecutor(self)
+            exe = self.dispatchers.getPlugin("Serial")(self)
+        else:
+            raise NotImplementedError("No Dispatcher of type: {}".format(str(executorType)))
+        try:
             exe.execute(n)
-            return True
-        return False
+            logger.debug("Finished Executing graph")
+        except Exception:
+            logger.error("Failed to execute Graph",
+                         exc_info=True)
+            return False
+        return True
 
     def load(self, data):
-        """"""
         # data can be a fraction full graph or it maybe start from the graph root system
         newNodes = {}
         connections = data.get("connections", [])

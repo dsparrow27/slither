@@ -4,3 +4,5 @@ class BaseDispatcher(object):
     def __init__(self, graph):
         self.graph = graph
 
+    def execute(self, node):
+        raise NotImplementedError("Execute method isn't implemented")

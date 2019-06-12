@@ -1,4 +1,3 @@
-from slither.core import service
 from slither.core.node import Context
 from slither.core import dispatcher
 
@@ -10,7 +9,7 @@ class StandardExecutor(dispatcher.BaseDispatcher):
         if node.isCompound():
             node.mutate()
             return node.topologicalOrder()
-        return service.nodeBreadthFirstSearch(node)
+        return node.upstreamNodes()
 
     def startProcess(self, node):
         nodes = self._dependents(node)
