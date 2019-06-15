@@ -16,10 +16,10 @@ class ConvertToVideo(api.ComputeNode):
     output = api.AttributeDefinition(output=True, type_=api.types.kFile, array=True, default="")
 
     def execute(self, context):
-        directory = os.path.normpath(self.directory.value())
+        directory = os.path.normpath(context.directory.value())
         (
             ffmpeg
-                .input(os.path.join(directory, self.pattern.value()), framerate=self.framerate.value())
-                .output(self.outputPath.value())
+                .input(os.path.join(directory, context.pattern.value()), framerate=context.framerate.value())
+                .output(context.outputPath.value())
                 .run()
         )

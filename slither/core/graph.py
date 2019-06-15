@@ -1,5 +1,6 @@
 import logging
 import os
+import pprint
 
 from slither.core import dispatcher, node, types, errors
 from zoo.libs.plugin import pluginmanager
@@ -58,7 +59,11 @@ class Graph(object):
 
     def saveToFile(self, filePath, node=None):
         data = self.serialize(node)
-        filesystem.saveJson(data, filePath)
+        try:
+            filesystem.saveJson(data, filePath)
+        except TypeError:
+            pprint.pprint(data)
+            raise
         return os.path.exists(filePath)
 
     def serialize(self, node=None):
@@ -83,6 +88,9 @@ class Graph(object):
                          exc_info=True)
             return False
         return True
+
+    def loadFromFile(self, path):
+        self.load(filesystem.loadJson(path))
 
     def load(self, data):
         # data can be a fraction full graph or it maybe start from the graph root system

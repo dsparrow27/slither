@@ -1,5 +1,6 @@
 """A simple test for nested compound networks
 """
+import os
 import unittest
 
 from slither import api
@@ -79,7 +80,9 @@ class TestGraphStandardExecutor(unittest.TestCase):
         self.assertEquals(subChildNew.child("subsubChild").output.value(), 30)
         self.assertEquals(subChildNew.testOutput.value(), 30)
         self.assertEquals(newGraph.root.execution.value(), 30)
-
+        testGraph = api.Graph()
+        testGraph.initialize()
+        testGraph.loadFromFile(os.path.join(os.path.dirname(__file__), "data", "testGraph.json"))
 
 if __name__ == "__main__":
     unittest.main()

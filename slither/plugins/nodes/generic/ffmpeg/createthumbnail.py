@@ -15,7 +15,7 @@ class ConvertToVideo(api.ComputeNode):
     def execute(self, context):
         (
             ffmpeg
-                .input(self.input.value(), ss=1)
-                .output(self.outputPath.value(), vframes=1)
+                .input(context.input.value(), ss=1)
+                .output(context.outputPath.value(), vframes=1)
                 .run()
         )

@@ -13,12 +13,12 @@ class FilesInDirectory(api.ComputeNode):
     output = api.AttributeDefinition(output=True, type_=api.types.kFile, array=True, default=[])
 
     def execute(self, context):
-        directory = os.path.normpath(self.directory.value())
+        directory = os.path.normpath(context.directory.value())
 
-        if not self.recursive.value():
-            self.output.setValue([f for f in glob.glob(os.path.join(directory, "*")) if os.path.isfile(f)])
+        if not context.recursive.value():
+            context.output.setValue([f for f in glob.glob(os.path.join(directory, "*")) if os.path.isfile(f)])
             return
         outFiles = []
         for root, dirs, files in os.walk(directory):
             outFiles.extend([os.path.join(root, f) for f in files])
-        self.output.setValue(outFiles)
+        context.output.setValue(outFiles)

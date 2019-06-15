@@ -13,11 +13,11 @@ class LoadJson(api.ComputeNode):
     output = api.AttributeDefinition(output=True, type_=api.types.kDict, array=False, default=[])
 
     def execute(self, context):
-        filePath = self.path.value()
+        filePath = context.path.value()
         if not filePath.exists():
             raise ValueError("File Path doesn't exist!: {}".format(filePath))
         with open(filePath, "r") as f:
-            self.output.setValue(json.load(f))
+            context.output.setValue(json.load(f))
 
 
 class SaveJson(api.ComputeNode):
@@ -30,8 +30,8 @@ class SaveJson(api.ComputeNode):
                                    required=True)
 
     def execute(self, context):
-        filePath = self.path.value()
+        filePath = context.path.value()
         if not os.path.dirname(filePath.exists()):
             raise ValueError("File Path doesn't exist!: {}".format(filePath))
         with open(filePath, "w") as f:
-            json.dump(self.inputData.value(), f)
+            json.dump(context.inputData.value(), f)

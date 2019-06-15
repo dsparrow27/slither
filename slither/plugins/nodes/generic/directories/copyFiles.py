@@ -13,8 +13,8 @@ class CopyFilesToNode(api.ComputeNode):
     result = api.AttributeDefinition(output=True, type_=api.types.kFile, isArray=True)
 
     def execute(self, context):
-        source = self.source.value()
-        destination = self.destinationFolder.value()
+        source = context.source.value()
+        destination = context.destinationFolder.value()
         if not os.path.exists(destination) and not os.path.isdir(destination):
             os.mkdir(destination)
         resultingPaths = []
@@ -23,6 +23,6 @@ class CopyFilesToNode(api.ComputeNode):
             shutil.copy2(path, destination)
             result = os.path.join(destination, os.path.basename(source))
             resultingPaths.append(result)
-            self.progress = float(index) / float(count) * 100.0
+            context.progress = float(index) / float(count) * 100.0
 
-        self.result.setValue(resultingPaths)
+        context.result.setValue(resultingPaths)

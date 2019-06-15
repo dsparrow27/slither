@@ -13,5 +13,5 @@ class Glob(api.ComputeNode):
     output = api.AttributeDefinition(output=True, type_=api.types.kFile, array=True, default="")
 
     def execute(self, context):
-        directory = os.path.normpath(self.directory.value())
-        self.output.setValue(glob.glob(os.path.join(directory, self.pattern.value())))
+        directory = os.path.normpath(context.directory.value())
+        context.output.setValue(glob.glob(os.path.join(directory, context.pattern.value())))

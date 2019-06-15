@@ -11,4 +11,4 @@ class PathExists(api.ComputeNode):
     output = api.AttributeDefinition(input=False, output=True, type_=api.types.kBool, default=False)
 
     def execute(self, context):
-        self.output.setValue(os.path.exists(self.file.value()))
+        context.output.setValue(os.path.exists(context.file.value()))

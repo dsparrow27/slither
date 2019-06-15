@@ -57,7 +57,7 @@ class NodeMeta(type):
 class BaseNode(object):
     Type = ""
     category = ""
-    tags = set()
+    tags = []
     documentation = ""
 
     def __init__(self, name, graph):
@@ -402,6 +402,7 @@ class ComputeNode(DependencyNode):
 
 
 class PythonNode(ComputeNode):
+    Type = "python"
 
     def __init__(self, name, graph):
         super(PythonNode, self).__init__(name, graph)
