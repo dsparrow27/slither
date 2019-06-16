@@ -1,18 +1,24 @@
 import multiprocessing
+import time
 
 from slither.core import service
 from slither.core import dispatcher
+from slither.core.node import Context
 
 
 class Parallel(dispatcher.BaseDispatcher):
     Type = "Parallel"
 
-    @classmethod
-    def execute(cls, node):
-        """Executes a given node in parellel if the node is a compound then the children will be executed
+    def execute(self, node):
+        """Executes a given node in parallel if the node is a compound then the children will be executed
+
         :param node: Node instance, either a compound or a subclass of node
         :return: bool, True when finished executing nodes
         """
+        self._execute(node)
+    @classmethod
+    def _execute(cls, node):
+        start = time.clock()
         if node.isCompound():
             node.mutate()
             nodes = node.topologicalOrder()
@@ -24,6 +30,7 @@ class Parallel(dispatcher.BaseDispatcher):
         while nodes:
             cls.stopProcesses(nodes, processes, parentConnections, childConnections)
             cls.startProcesses(nodes, processes, parentConnections, childConnections)
+        cls.logger.debug("Total executing time: {}".format(time.clock() - start))
         return True
 
     @classmethod
@@ -60,7 +67,7 @@ class Parallel(dispatcher.BaseDispatcher):
                 recvData = childConnection.recv()
                 node = nodes.keys()[index]
                 # copy the output data from the process back into the main process output data
-                node.copyOutputData(recvData)
+                self.onNodeCompleted(node, recvData)
                 del nodes[node]
                 for dependent, dependents in nodes.items():
                     if node in dependents:
@@ -78,10 +85,7 @@ class Parallel(dispatcher.BaseDispatcher):
     @classmethod
     def startProcess(cls, node, parentConnection):
         if node.isCompound():
-            cls.execute(node)
-        node.process()
-        outputs = node.outputs()
-        data = {}
-        for output in outputs:
-            data[output.name()] = output.value()
-        parentConnection.send(data)
+            cls._execute(node)
+        ctx = Context.fromNode(node)
+        node.process(ctx)
+        parentConnection.send(ctx)

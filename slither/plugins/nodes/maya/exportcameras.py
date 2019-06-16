@@ -3,6 +3,7 @@ import os
 from slither import api
 from zoo.libs.maya.utils import files
 
+
 class ExportAlembicCamera(api.ComputeNode):
     Type = "exportAlembicCamera"
     category = "maya"
@@ -21,31 +22,30 @@ class ExportAlembicCamera(api.ComputeNode):
     padding = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0,
                                       required=False)
 
-    def validate(self):
-        camera = self.camera.value()
+    def validate(self, context):
+        camera = context.camera.value()
         if not camera.isValid() or not camera.isAlive():
             raise ValueError
-        outputPath = self.path.value()
-        if os.path.exists(outputPath) and not self.force.value():
+        outputPath = context.path.value()
+        if os.path.exists(outputPath) and not context.force.value():
             raise OSError("Path already exists: {}".format(outputPath))
 
     def execute(self, context):
         from maya.api import OpenMaya as om2
 
-
-        self.validate()
-        camera = self.camera.value()
-        outputPath = self.path.value()
+        self.validate(context)
+        camera = context.camera.value()
+        outputPath = context.path.value()
 
         cameraPath = om2.MDagPath.getAPathTo(camera.object())
 
-        startFrame = self.startFrame.value() - self.padding.value()
-        endFrame = self.endFrame.value() + self.padding.value()
+        startFrame = context.startFrame.value() - context.padding.value()
+        endFrame = context.endFrame.value() + context.padding.value()
         files.exportAbc(outputPath,
                         cameraPath.fullPathName(),
                         "{:d} {:d}".format(startFrame, endFrame),
-                        subframeValue=self.subFrames.value())
-        self.output.setValue(True)
+                        subframeValue=context.subFrames.value())
+        context.output.setValue(True)
 
 
 class ExportFBXCamera(api.ComputeNode):
@@ -66,26 +66,26 @@ class ExportFBXCamera(api.ComputeNode):
     padding = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0,
                                       required=False)
 
-    def validate(self):
-        camera = self.camera.value()
+    def validate(self, context):
+        camera = context.camera.value()
         if not camera.isValid() or not camera.isAlive():
             raise ValueError
-        outputPath = self.path.value()
-        if os.path.exists(outputPath) and not self.force.value():
+        outputPath = context.path.value()
+        if os.path.exists(outputPath) and not context.force.value():
             raise OSError("Path already exists: {}".format(outputPath))
 
     def execute(self, context):
         from maya.api import OpenMaya as om2
         from pw.libs.maya.utils import files
 
-        self.validate()
-        camera = self.camera.value()
-        outputPath = self.path.value()
+        self.validate(context)
+        camera = context.camera.value()
+        outputPath = context.path.value()
 
         cameraPath = om2.MDagPath.getAPathTo(camera.object())
 
-        startFrame = self.startFrame.value() - self.padding.value()
-        endFrame = self.endFrame.value() + self.padding.value()
+        startFrame = context.startFrame.value() - context.padding.value()
+        endFrame = context.endFrame.value() + context.padding.value()
         files.exportFbx(outputPath,
                         cameraPath.fullPathName(),
                         skeletonDefinition=False,
@@ -96,5 +96,5 @@ class ExportFBXCamera(api.ComputeNode):
                         animation=True,
                         startFrame=startFrame,
                         endFrame=endFrame,
-                        step=self.subFrames.value())
-        self.output.setValue(True)
+                        step=context.subFrames.value())
+        context.output.setValue(True)

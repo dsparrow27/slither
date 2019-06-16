@@ -8,5 +8,5 @@ class GreaterThanOrEqualToNode(api.ComputeNode):
     result = api.AttributeDefinition(type_=api.types.kBool, output=True)
 
     def execute(self, context):
-        result = self.value1Plug_ >= self.value2Plug_
-        self.result.setValue(result)
+        result = context.value1Plug_ >= context.value2Plug_
+        context.result.setValue(result)

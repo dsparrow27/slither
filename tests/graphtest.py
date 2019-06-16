@@ -23,6 +23,18 @@ class TestGraphStandardExecutor(unittest.TestCase):
         self.graph.initialize()
         self.executeType = self.graph.STANDARDEXECUTOR
 
+    def testGraphLocalExecutor(self):
+        testGraph = api.Graph()
+        testGraph.initialize()
+        testGraph.loadFromFile(os.path.join(os.path.dirname(__file__), "data", "testGraph.json"))
+        testGraph.execute(testGraph.root, self.graph.STANDARDEXECUTOR)
+
+    def testGraphBackgroundExecutor(self):
+        testGraph = api.Graph()
+        testGraph.initialize()
+        testGraph.loadFromFile(os.path.join(os.path.dirname(__file__), "data", "testGraph.json"))
+        testGraph.execute(testGraph.root, self.graph.PARALLELEXECUTOR)
+
     def test_compoundConnections(self):
         comp = self.graph.root.createNode("testCompound", "compound")
         comp.createAttribute(createInputAttrDef(name="testInput",

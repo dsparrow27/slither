@@ -11,4 +11,4 @@ class ArcCos(api.ComputeNode):
     output = api.AttributeDefinition(output=True, type_=api.types.kFloat, default=0)
 
     def execute(self, context):
-        self.output.setValue(math.acos(self.input.value()))
+        context.output.setValue(math.acos(context.input.value()))

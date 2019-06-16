@@ -9,9 +9,9 @@ class IfNode(api.ComputeNode):
     result = api.AttributeDefinition(type_=api.types.kBool, output=True)
 
     def execute(self, context):
-        if self.conditionPlug_.value:
-            result = self.ifTruePlug_.value
+        if context.conditionPlug_.value:
+            result = context.ifTruePlug_.value
         else:
-            result = self.ifFalsePlug.value
+            result = context.ifFalsePlug.value
 
-        self.result.setValue(result)
+        context.result.setValue(result)

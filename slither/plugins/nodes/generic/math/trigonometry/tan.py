@@ -11,4 +11,4 @@ class Tan(api.ComputeNode):
     output = api.AttributeDefinition(output=True, type_=api.types.kFloat, default=0)
 
     def execute(self, context):
-        self.output.setValue(math.tan(self.input.value()))
+        context.output.setValue(math.tan(context.input.value()))

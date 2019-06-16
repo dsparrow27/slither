@@ -1,14 +1,21 @@
 import copy
 import logging
+import time
 
 from slither.core import attribute
 from slither.core import service
 from slither.core import types
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 
 class Context(dict):
+    """Subclass of dict to wrap individual nodes attribute types.
+
+    This class is create for every node before it's executed and passed
+    to the execute() method.
+    """
 
     def __getattribute__(self, item):
         try:
@@ -364,14 +371,23 @@ class ComputeNode(DependencyNode):
         self._dirty = False
 
     def process(self, context):
+        fullName = self.fullName()
+        start = time.clock()
         try:
+            logger.debug("Processing node: {}".format(fullName),
+                         extra={"context": context})
             self.progress = 0
             self.validate(context)
             self.execute(context)
             self.progress = 100
         except Exception:
             self.progress = 0
+            logger.error("Failed to execute Node: {}".format(fullName),
+                         exc_info=True)
             raise
+        logger.debug("Finished executing Node: {}, running time: {}".format(fullName,
+                                                                            time.clock() - start))
+        self.setDirty(False)
 
     def validate(self, context):
         return True
@@ -394,6 +410,7 @@ class ComputeNode(DependencyNode):
         if self._dirty == state:
             return
         self._dirty = state
+        logger.debug("Node: {},  dirty state changed, '{}'".format(self.fullName(), str(state)))
         # if we setting to a dirty state and we need to propagate
         # then loop the downstream nodes and set their state
         if state and propagate:

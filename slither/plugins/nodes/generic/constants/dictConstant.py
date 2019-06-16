@@ -9,4 +9,4 @@ class Dictionary(api.ComputeNode):
     output = api.AttributeDefinition(output=True, type_=api.types.kDict, default=dict())
 
     def execute(self, context):
-        self.output.setValue(dict(self.input.value()))
+        context.output.setValue(dict(context.input.value()))

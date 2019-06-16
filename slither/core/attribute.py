@@ -104,9 +104,19 @@ class Attribute(object):
         self.node = node
         # parent attribute
         self.parent = None
-        self.upstream = None
+        self._upstream = None
         self._value = self.definition.type
         self.id = 0
+
+    @property
+    def upstream(self):
+        return self._upstream
+
+    @upstream.setter
+    def upstream(self, value):
+        self._upstream = value
+        if self.node is not None:
+            self.node.setDirty(True)
 
     @property
     def isElement(self):

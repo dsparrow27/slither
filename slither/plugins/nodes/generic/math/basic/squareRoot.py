@@ -11,4 +11,4 @@ class SquareRoot(api.ComputeNode):
     output = api.AttributeDefinition(output=True, type_=api.types.kFloat, default=0)
 
     def execute(self, context):
-        self.output.setValue(math.sqrt(self.input.value()))
+        context.output.setValue(math.sqrt(context.input.value()))

@@ -11,4 +11,4 @@ class Floor(api.ComputeNode):
     output = api.AttributeDefinition(output=True, type_=api.types.kFloat, default=0, doc="The result of the floor")
 
     def execute(self, context):
-        self.output.setValue(math.floor(self.input.value()))
+        context.output.setValue(math.floor(context.input.value()))

@@ -8,6 +8,6 @@ class InRangeNode(api.ComputeNode):
     result = api.AttributeDefinition(api.types.kBool, output=True)
 
     def execute(self, context):
-        result = self.value1.value() in range(self.value2.value())
+        result = context.value1.value() in range(context.value2.value())
 
-        self.result.setValue(result)
+        context.result.setValue(result)

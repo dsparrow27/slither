@@ -9,4 +9,4 @@ class Integer(api.ComputeNode):
     output = api.AttributeDefinition(output=True, type_=api.types.kInt, default=0)
 
     def execute(self, context):
-        self.output.setValue(int(self.input.value()))
+        context.output.setValue(int(context.input.value()))

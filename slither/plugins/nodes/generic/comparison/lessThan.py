@@ -8,5 +8,5 @@ class LessThanNode(api.ComputeNode):
     result = api.AttributeDefinition(api.types.kBool, output=True)
 
     def execute(self, context):
-        result = self.value1.value() < self.value2.value()
-        self.result.setValue(result)
+        result = context.value1.value() < context.value2.value()
+        context.result.setValue(result)

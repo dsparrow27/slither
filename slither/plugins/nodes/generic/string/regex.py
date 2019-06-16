@@ -12,4 +12,4 @@ class Regex(api.ComputeNode):
     output = api.AttributeDefinition(output=True, type_=api.types.kString, array=True, default=[])
 
     def execute(self, context):
-        self.output.setValue([char for char in self.strings.value() if re.search(self.searchString.value(), char)])
+        context.output.setValue([char for char in context.strings.value() if re.search(context.searchString.value(), char)])

@@ -10,4 +10,4 @@ class Substract(api.ComputeNode):
     output = api.AttributeDefinition(output=True, type_=api.types.kFloat, default=0)
 
     def execute(self, context):
-        self.output.setValue(self.inputA.value() - self.inputB.value())
+        context.output.setValue(context.inputA.value() - context.inputB.value())

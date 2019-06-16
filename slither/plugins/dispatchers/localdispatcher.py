@@ -1,5 +1,8 @@
+import time
+
 from slither.core.node import Context
 from slither.core import dispatcher
+from slither.core import service
 
 
 class StandardExecutor(dispatcher.BaseDispatcher):
@@ -9,13 +12,12 @@ class StandardExecutor(dispatcher.BaseDispatcher):
         if node.isCompound():
             node.mutate()
             return node.topologicalOrder()
-        return node.upstreamNodes()
+        return service.nodeBreadthFirstSearch(node)
 
     def startProcess(self, node):
         nodes = self._dependents(node)
         visited = set()
         for n, dependents in nodes.items():
-
             for d in dependents:
                 if d in visited:
                     dependents.remove(d)
@@ -34,18 +36,10 @@ class StandardExecutor(dispatcher.BaseDispatcher):
         ctx = Context.fromNode(node)
         ctx["variables"] = self.graph.variables
         node.process(ctx)
-        outputInfo = {k: Type.value() for k, Type in ctx["outputs"].items()}
-        # in the case where the node is a compound
-        # the outputs could be connected to child nodes
-        # so loop the outputs, find the upstream and add the connected value
-        if node.isCompound:
-            for output in node.outputs():
-                upstream = output.upstream
-
-                if upstream:
-                    outputInfo[output.name()] = upstream.value()
-        node.copyOutputData(outputInfo)
+        self.onNodeCompleted(node, ctx)
 
     def execute(self, node):
+        start = time.clock()
         self.processNode(node)
+        self.logger.debug("Total executing time: {}".format(time.clock()-start))
         return True

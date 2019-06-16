@@ -11,4 +11,4 @@ class ArcSin(api.ComputeNode):
     output = api.AttributeDefinition(output=True, type_=api.types.kFloat, default=0)
 
     def execute(self, context):
-        self.output.setValue(math.asin(self.input.value()))
+        context.output.setValue(math.asin(context.input.value()))

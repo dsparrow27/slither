@@ -8,6 +8,6 @@ class GreaterThanNode(api.ComputeNode):
     result = api.AttributeDefinition(type_=api.types.kBool, output=True)
 
     def execute(self, context):
-        result = self.value1.value() > self.value2.value()
+        result = context.value1.value() > context.value2.value()
 
-        self.result.setValue(result)
+        context.result.setValue(result)

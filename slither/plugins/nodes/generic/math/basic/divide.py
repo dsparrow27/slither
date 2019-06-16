@@ -12,6 +12,6 @@ class Divide(api.ComputeNode):
     def execute(self, context):
         # @todo log
         try:
-            self.output.setValue(self.inputA.value() / self.inputB.value())
+            context.output.setValue(context.inputA.value() / context.inputB.value())
         except ZeroDivisionError:
             raise

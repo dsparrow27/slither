@@ -10,4 +10,4 @@ class HalfPiNode(api.ComputeNode):
     output = api.AttributeDefinition(output=True, type_=api.types.kBool, default=True)
 
     def execute(self, context):
-        self.output.setValue(math.pi * 0.5)
+        context.output.setValue(math.pi * 0.5)
