@@ -12,8 +12,8 @@ class BaseDispatcher(object):
 
     def execute(self, node):
         raise NotImplementedError("Execute method isn't implemented")
-
-    def onNodeCompleted(self, node, context):
+    @classmethod
+    def onNodeCompleted(cls, node, context):
         outputInfo = {k: Type.value() for k, Type in context["outputs"].items()}
         # in the case where the node is a compound
         # the outputs could be connected to child nodes

@@ -15,10 +15,13 @@ class Parallel(dispatcher.BaseDispatcher):
         :param node: Node instance, either a compound or a subclass of node
         :return: bool, True when finished executing nodes
         """
+        start = time.clock()
         self._execute(node)
+        self.logger.debug("Total executing time: {}".format(time.clock() - start))
+
     @classmethod
     def _execute(cls, node):
-        start = time.clock()
+
         if node.isCompound():
             node.mutate()
             nodes = node.topologicalOrder()
@@ -30,7 +33,7 @@ class Parallel(dispatcher.BaseDispatcher):
         while nodes:
             cls.stopProcesses(nodes, processes, parentConnections, childConnections)
             cls.startProcesses(nodes, processes, parentConnections, childConnections)
-        cls.logger.debug("Total executing time: {}".format(time.clock() - start))
+
         return True
 
     @classmethod
@@ -53,7 +56,6 @@ class Parallel(dispatcher.BaseDispatcher):
             childConnections.append(childConnection)
             process = multiprocessing.Process(target=cls.startProcess(node, parentConnection))
             processes.append(process)
-
             process.start()
 
     @classmethod
@@ -67,7 +69,7 @@ class Parallel(dispatcher.BaseDispatcher):
                 recvData = childConnection.recv()
                 node = nodes.keys()[index]
                 # copy the output data from the process back into the main process output data
-                self.onNodeCompleted(node, recvData)
+                cls.onNodeCompleted(node, recvData)
                 del nodes[node]
                 for dependent, dependents in nodes.items():
                     if node in dependents:
