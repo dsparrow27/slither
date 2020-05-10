@@ -6,6 +6,9 @@ from slither.core import service
 
 
 class StandardExecutor(dispatcher.BaseDispatcher):
+    """Serial graph dispatcher, in this case all processing will block the
+    current process.
+    """
     Type = "Serial"
 
     def _dependents(self, node):

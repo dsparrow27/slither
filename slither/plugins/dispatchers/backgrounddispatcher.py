@@ -1,5 +1,5 @@
 import multiprocessing
-import time
+import timeit
 
 from slither.core import service
 from slither.core import dispatcher
@@ -7,6 +7,9 @@ from slither.core.node import Context
 
 
 class Parallel(dispatcher.BaseDispatcher):
+    """Background dispatcher using subprocess per node. The process is still blocked at this time
+    but all node computations are done in parallel.
+    """
     Type = "Parallel"
 
     def execute(self, node):
@@ -15,9 +18,14 @@ class Parallel(dispatcher.BaseDispatcher):
         :param node: Node instance, either a compound or a subclass of node
         :return: bool, True when finished executing nodes
         """
-        start = time.clock()
-        self._execute(node)
-        self.logger.debug("Total executing time: {}".format(time.clock() - start))
+        start = timeit.default_timer()
+        try:
+            self._execute(node)
+        finally:
+            end = timeit.default_timer()
+            totalExecutionTime = end - start
+
+            self.logger.debug("Total executing time: {}".format(totalExecutionTime))
 
     @classmethod
     def _execute(cls, node):
