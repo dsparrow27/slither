@@ -14,7 +14,7 @@ class FilesInDirectory(api.ComputeNode):
 
     def execute(self, context):
         directory = os.path.normpath(context.directory.value())
-
+        print(context.recursive.value())
         if not context.recursive.value():
             context.output.setValue([f for f in glob.glob(os.path.join(directory, "*")) if os.path.isfile(f)])
             return

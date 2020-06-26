@@ -102,7 +102,7 @@ class BooleanType(types.DataType):
         return bool(self._value)
 
     def value(self):
-        return bool(self)
+        return bool(self._value)
 
     def setValue(self, value):
         if self.value() != value:

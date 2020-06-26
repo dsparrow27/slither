@@ -5,21 +5,20 @@ logger = logging.getLogger("Slither")
 
 
 def topologicalOrder(nodes):
+    sortedNodes = OrderedDict()
     unsorted = {}
     for child in nodes:
         dependencies = child.upstreamNodes()  # attribute level dependencies
         unsorted[child] = dependencies
+    resolve = dict(unsorted)
 
-    sortedNodes = OrderedDict()
-
-    while unsorted:
+    while resolve:
         for node, nodes in unsorted.items():
             for dependent in nodes:
                 if dependent in unsorted:
                     break
             else:
-
-                del unsorted[node]
+                del resolve[node]
                 sortedNodes[node] = nodes
 
     return sortedNodes

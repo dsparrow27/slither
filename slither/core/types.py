@@ -1,5 +1,5 @@
 import logging
-
+from zoovendor import six
 logger = logging.getLogger(__name__)
 
 
@@ -7,14 +7,14 @@ class DataType(object):
     Type = None
 
     def __init__(self, value=None, default=None):
-        self._value = value
-        self.default = default
+        self.__dict__["_value"] = value
+        self.__dict__["default"] = default
 
     @property
     def typeName(self):
         if self.Type is None:
             return None
-        elif isinstance(self.Type, basestring):
+        elif isinstance(self.Type, six.string_types):
             return self.Type
         return self.Type.__name__
 

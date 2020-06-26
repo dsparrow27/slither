@@ -5,7 +5,7 @@ import time
 from slither.core import attribute
 from slither.core import service
 from slither.core import types
-
+import six
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
@@ -40,25 +40,34 @@ class Context(dict):
         attrData = {"outputs": {}, "inputs": {}}
         for attr in node.attributes:
             if attr.isInput():
-                attrData["inputs"][attr.name()] = copy.deepcopy(attr.type())
+                attrData["inputs"][attr.name()] = ContextAttr(attr.value())
             else:
-                attrData["outputs"][attr.name()] = copy.deepcopy(attr.type())
+                attrData["outputs"][attr.name()] = ContextAttr(attr.value())
         attrData["name"] = node.name
         return cls(**attrData)
 
+class ContextAttr(object):
+    def __init__(self, value):
+        self._value = value
+    def value(self):
+        return self._value
+    def setValue(self, value):
+        self._value = value
 
 class NodeMeta(type):
     @staticmethod
     def __new__(cls, className, bases, classDict):
-        for name, attr in iter(classDict.items()):
+        newClassDict = {}
+        for name, attr in classDict.items():
             if isinstance(attr, attribute.AttributeDefinition):
                 attr.setName(name)
                 attr.internal = True
-                newName = '_{}'.format(name) if not name.startswith("_") else name
-                old = classDict.pop(name)
-                classDict[newName] = old
+                newName = '_{}'.format(name)
+                newClassDict[newName] = attr
+            else:
+                newClassDict[name] = attr
 
-        return super(NodeMeta, cls).__new__(cls, className, bases, classDict)
+        return super(NodeMeta, cls).__new__(cls, className, bases, newClassDict)
 
 
 class BaseNode(object):
@@ -167,21 +176,20 @@ class BaseNode(object):
     def deserialize(self, data):
         return {}
 
-
+@six.add_metaclass(NodeMeta)
 class DependencyNode(BaseNode):
-    __metaclass__ = NodeMeta
 
     def __init__(self, name, graph):
         self.attributes = []
         super(DependencyNode, self).__init__(name, graph)
-        attrDef = attribute.AttributeDefinition(input=True,
+        attrDef = attribute.AttributeDefinition(name="Dependencies",
+                                                input=True,
                                                 output=True,
                                                 type_=types.kList,
                                                 default=list(),
                                                 required=False, array=True,
                                                 doc="Node Level dependencies",
                                                 internal=True)
-        attrDef.name = "Dependencies"
         self.createAttribute(attrDef)
 
         for name, attrDef in iter(self.__class__.__dict__.items()):

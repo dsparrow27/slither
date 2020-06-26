@@ -1,5 +1,5 @@
 import logging
-
+import copy
 from slither.core import errors
 
 logger = logging.getLogger("Slither")
@@ -355,10 +355,9 @@ class ArrayAttribute(Attribute):
             return self.elements[index]
 
     def append(self, value):
-        data = self.definition.serialize()
-        data["array"] = data
-        data["name"] = self.name() + "[{}]".format(len(self) + 1)
-        definition = AttributeDefinition(**data)
+        definition = copy.deepcopy(self.definition)
+        # data["array"] = data
+        definition.name =self.name() + "[{}]".format(len(self) + 1) 
         attr = Attribute(definition, node=self)
         attr.setValue(value)
         self.elements.append(attr)

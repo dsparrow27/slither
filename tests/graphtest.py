@@ -2,7 +2,9 @@
 """
 import os
 import unittest
-
+from zoo.core import api
+cfg = api.zooFromPath(os.environ["ZOOTOOLS_ROOT"])
+cfg.resolver.resolveFromPath(cfg.resolver.environmentPath())
 from slither import api
 
 
