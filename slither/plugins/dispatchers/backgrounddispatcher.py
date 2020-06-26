@@ -1,12 +1,10 @@
 import multiprocessing
 import timeit
 
-from slither.core import graphsearch
-from slither.core import dispatcher
-from slither.core.node import Context
+from slither import api
 
 
-class Parallel(dispatcher.BaseDispatcher):
+class Parallel(api.BaseDispatcher):
     """Background dispatcher using subprocess per node. The process is still blocked at this time
     but all node computations are done in parallel.
     """
@@ -34,7 +32,7 @@ class Parallel(dispatcher.BaseDispatcher):
             node.mutate()
             nodes = node.topologicalOrder()
         else:
-            nodes = graphsearch.nodeBreadthFirstSearch(node)
+            nodes = api.nodeBreadthFirstSearch(node)
         processes = []
         parentConnections = []
         childConnections = []
@@ -96,6 +94,6 @@ class Parallel(dispatcher.BaseDispatcher):
     def startProcess(cls, node, parentConnection):
         if node.isCompound():
             cls._execute(node)
-        ctx = Context.fromNode(node)
+        ctx = api.Context.fromNode(node)
         node.process(ctx)
         parentConnection.send(ctx)

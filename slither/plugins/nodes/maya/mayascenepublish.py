@@ -1,4 +1,3 @@
-from pw.libs.shotgun import constants as shotgunConstants
 from slither import api
 
 
@@ -23,7 +22,7 @@ class MayaSceneSaveCompound(api.Compound):
                                       default=True)
     publishedFileType = api.AttributeDefinition(type_=api.types.kString, input=True, array=False,
                                                 required=True,
-                                                default=shotgunConstants.MA_FILE_TYPE)
+                                                default="Maya Scene")
     publishDependencies = api.AttributeDefinition(type_=api.types.kFile, input=True, array=True,
                                                   required=False,
                                                   default=[])

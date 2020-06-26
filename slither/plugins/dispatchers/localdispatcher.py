@@ -1,11 +1,9 @@
 import time
 
-from slither.core.node import Context
-from slither.core import dispatcher
-from slither.core import graphsearch
+from slither import api
 
 
-class StandardExecutor(dispatcher.BaseDispatcher):
+class StandardExecutor(api.BaseDispatcher):
     """Serial graph dispatcher, in this case all processing will block the
     current process.
     """
@@ -15,7 +13,7 @@ class StandardExecutor(dispatcher.BaseDispatcher):
         if node.isCompound():
             node.mutate()
             return node.topologicalOrder()
-        return graphsearch.nodeBreadthFirstSearch(node)
+        return api.nodeBreadthFirstSearch(node)
 
     def startProcess(self, node):
         nodes = self._dependents(node)
@@ -36,7 +34,7 @@ class StandardExecutor(dispatcher.BaseDispatcher):
     def processNode(self, node):
         if node.isCompound():
             self.startProcess(node)
-        ctx = Context.fromNode(node)
+        ctx = api.Context.fromNode(node)
         ctx["variables"] = self.graph.variables
         node.process(ctx)
         self.onNodeCompleted(node, ctx)

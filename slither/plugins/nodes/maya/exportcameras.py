@@ -53,7 +53,7 @@ class ExportFBXCamera(api.ComputeNode):
     category = "maya"
     documentation = ""
     path = api.AttributeDefinition(input=True, type_=api.types.kFile, array=False, default="")
-    camera = api.AttributeDefinition(input=True, type_=api.types.kMObjectHandle, array=False, default=None)
+    camera = api.AttributeDefinition(input=True, type_=api.types.kString, array=False, default=None)
     output = api.AttributeDefinition(output=True, type_=api.types.kBool, array=False, default=False)
     startFrame = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0)
     endFrame = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0)
@@ -81,13 +81,10 @@ class ExportFBXCamera(api.ComputeNode):
         self.validate(context)
         camera = context.camera.value()
         outputPath = context.path.value()
-
-        cameraPath = om2.MDagPath.getAPathTo(camera.object())
-
         startFrame = context.startFrame.value() - context.padding.value()
         endFrame = context.endFrame.value() + context.padding.value()
         files.exportFbx(outputPath,
-                        cameraPath.fullPathName(),
+                        camera,
                         skeletonDefinition=False,
                         constraints=False,
                         shapes=False,
