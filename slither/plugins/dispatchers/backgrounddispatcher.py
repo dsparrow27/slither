@@ -1,7 +1,7 @@
 import multiprocessing
 import timeit
 
-from slither.core import service
+from slither.core import graphsearch
 from slither.core import dispatcher
 from slither.core.node import Context
 
@@ -34,7 +34,7 @@ class Parallel(dispatcher.BaseDispatcher):
             node.mutate()
             nodes = node.topologicalOrder()
         else:
-            nodes = service.nodeBreadthFirstSearch(node)
+            nodes = graphsearch.nodeBreadthFirstSearch(node)
         processes = []
         parentConnections = []
         childConnections = []

@@ -3,7 +3,7 @@ import logging
 import time
 
 from slither.core import attribute
-from slither.core import service
+from slither.core import graphsearch
 from slither.core import types
 import six
 logger = logging.getLogger(__name__)
@@ -569,7 +569,7 @@ class Compound(ComputeNode):
         return len(self.children) > 0
 
     def topologicalOrder(self):
-        return service.topologicalOrder(self.children)
+        return graphsearch.topologicalOrder(self.children)
 
     def serialize(self):
         data = super(Compound, self).serialize()

@@ -2,7 +2,7 @@ import time
 
 from slither.core.node import Context
 from slither.core import dispatcher
-from slither.core import service
+from slither.core import graphsearch
 
 
 class StandardExecutor(dispatcher.BaseDispatcher):
@@ -15,7 +15,7 @@ class StandardExecutor(dispatcher.BaseDispatcher):
         if node.isCompound():
             node.mutate()
             return node.topologicalOrder()
-        return service.nodeBreadthFirstSearch(node)
+        return graphsearch.nodeBreadthFirstSearch(node)
 
     def startProcess(self, node):
         nodes = self._dependents(node)
