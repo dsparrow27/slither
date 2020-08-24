@@ -3,7 +3,7 @@ import os
 import pprint
 import sys
 
-from slither.core import api
+from slither import api
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +12,7 @@ class DestroyTankEngine(api.ComputeNode):
     Type = "DestroyTankEngine"
     category = "shotgun"
     documentation = "Destroys the shotgun toolkit engine by calling destroy_engine on the instance"
-    engine = api.AttributeDefinition(output=True, type_="ksgtkEngine", array=False, default=None)
+    engine = api.AttributeDefinition(output=True, type_=api.types.ksgtkEngine, array=False, default=None)
 
     def execute(self, context):
         if self.engine is not None:
@@ -32,7 +32,7 @@ class InitTankEngine(api.ComputeNode):
     configUri = api.AttributeDefinition(input=True, type_=api.types.kString, default="")
     plugins = api.AttributeDefinition(input=True, type_=api.types.kString, default="")
     engine_name = api.AttributeDefinition(input=True, type_=api.types.kString, default="")
-    engine = api.AttributeDefinition(output=True, type_="ksgtkEngine", array=False, default=None)
+    engine = api.AttributeDefinition(output=True, type_=api.types.ksgtkEngine, array=False, default=None)
 
     def execute(self, context):
         context = self.context.value()

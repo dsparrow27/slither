@@ -15,7 +15,7 @@ def topologicalOrder(nodes):
     while resolve:
         for node, nodes in unsorted.items():
             for dependent in nodes:
-                if dependent in unsorted:
+                if dependent in sortedNodes:
                     break
             else:
                 del resolve[node]

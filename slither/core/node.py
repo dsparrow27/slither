@@ -6,6 +6,7 @@ from slither.core import attribute
 from slither.core import graphsearch
 from slither.core import types
 import six
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
@@ -46,13 +47,17 @@ class Context(dict):
         attrData["name"] = node.name
         return cls(**attrData)
 
+
 class ContextAttr(object):
     def __init__(self, value):
         self._value = value
+
     def value(self):
         return self._value
+
     def setValue(self, value):
         self._value = value
+
 
 class NodeMeta(type):
     @staticmethod
@@ -175,6 +180,7 @@ class BaseNode(object):
 
     def deserialize(self, data):
         return {}
+
 
 @six.add_metaclass(NodeMeta)
 class DependencyNode(BaseNode):
@@ -464,7 +470,7 @@ class PythonNode(ComputeNode):
                 raise
         else:
             try:
-                exec (outputCode, globals(), _locals)
+                exec(outputCode, globals(), _locals)
             except Exception:
                 raise
 

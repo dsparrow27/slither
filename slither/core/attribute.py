@@ -185,7 +185,10 @@ class Attribute(object):
         return self._value.value()
 
     def setValue(self, value):
-        return self._value.setValue(value)
+        valueSet = self._value.setValue(value)
+        if valueSet and self.node is not None and self.isInput():
+            self.node.setDirty(True)
+        return valueSet
 
     def isInput(self):
         """Returns True if this attribute is an output attribute"""
@@ -234,13 +237,13 @@ class Attribute(object):
                 return selfNode.createConnection(attr, self)
             elif attr.isOutput() and self.isOutput():
                 return selfNode.createConnection(self, attr)
-            logger.error("Unsupported connection combination:\n\t{}->{}".format(self, attr))
+            logger.error("Unsupported connection combination: {}->{}".format(self, attr))
             raise errors.UnsupportedConnectionCombinationError(self, attr)
         elif self.isInput() and attr.isOutput():
             return self.node.createConnection(attr, self)
         elif self.isOutput() and attr.isInput():
             return self.node.createConnection(self, attr)
-        logger.error("Unsupported connection combination:\n\t{}->{}".format(self, attr))
+        logger.error("Unsupported connection combination: {}->{}".format(self, attr))
         raise errors.UnsupportedConnectionCombinationError(self, attr)
 
     def disconnect(self):
@@ -357,7 +360,7 @@ class ArrayAttribute(Attribute):
     def append(self, value):
         definition = copy.deepcopy(self.definition)
         # data["array"] = data
-        definition.name =self.name() + "[{}]".format(len(self) + 1) 
+        definition.name = self.name() + "[{}]".format(len(self) + 1)
         attr = Attribute(definition, node=self)
         attr.setValue(value)
         self.elements.append(attr)

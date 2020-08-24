@@ -9,7 +9,7 @@ class ExportAlembicCamera(api.ComputeNode):
     category = "maya"
     documentation = ""
     path = api.AttributeDefinition(input=True, type_=api.types.kFile, array=False, default="")
-    camera = api.AttributeDefinition(input=True, type_=api.types.kMObjectHandle, array=False, default=None)
+    camera = api.AttributeDefinition(input=True, type_=api.types.kString, array=False, default=None)
     output = api.AttributeDefinition(output=True, type_=api.types.kBool, array=False, default=False)
     startFrame = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0)
     endFrame = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0)
@@ -31,18 +31,18 @@ class ExportAlembicCamera(api.ComputeNode):
             raise OSError("Path already exists: {}".format(outputPath))
 
     def execute(self, context):
-        from maya.api import OpenMaya as om2
+        from maya import cmds
 
         self.validate(context)
         camera = context.camera.value()
         outputPath = context.path.value()
-
-        cameraPath = om2.MDagPath.getAPathTo(camera.object())
+        if not cmds.objExists(camera):
+            raise ValueError("Missing Camera in the scene: {}".format(camera))
 
         startFrame = context.startFrame.value() - context.padding.value()
         endFrame = context.endFrame.value() + context.padding.value()
         files.exportAbc(outputPath,
-                        cameraPath.fullPathName(),
+                        camera,
                         "{:d} {:d}".format(startFrame, endFrame),
                         subframeValue=context.subFrames.value())
         context.output.setValue(True)
@@ -75,7 +75,6 @@ class ExportFBXCamera(api.ComputeNode):
             raise OSError("Path already exists: {}".format(outputPath))
 
     def execute(self, context):
-        from maya.api import OpenMaya as om2
         from pw.libs.maya.utils import files
 
         self.validate(context)

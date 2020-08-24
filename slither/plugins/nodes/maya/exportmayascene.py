@@ -14,14 +14,14 @@ class ExportMayaScene(api.ComputeNode):
 
     def execute(self, context):
 
-        from pw.libs.maya.utils import files
-        outputPath = self.path.value()
+        from zoo.libs.maya.utils import files
+        outputPath = context.path.value()
         if not outputPath:
             raise ValueError("No path specified")
-        if os.path.exists(outputPath) and not self.force.value():
+        if os.path.exists(outputPath) and not context.force.value():
             raise OSError("Path already exists!: {}".format(outputPath))
         try:
             files.saveScene(outputPath)
-            self.output.setValue(True)
+            context.output.setValue(True)
         except Exception:
-            self.output.setValue(False)
+            context.output.setValue(False)
