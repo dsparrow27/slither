@@ -1,0 +1,60 @@
+{
+  "dataTypes": [
+    {
+      "type": "kString",
+      "pluginPath": "./generic.py"
+    },
+    {
+      "type": "kFloat",
+      "pluginPath": "./generic.py"
+    },
+    {
+      "type": "kInt",
+      "pluginPath": "./generic.py"
+    },
+    {
+      "type": "kString",
+      "pluginPath": "./generic.py"
+    },
+    {
+      "type": "kBool",
+      "pluginPath": "./generic.py"
+    },
+    {
+      "type": "kDict",
+      "pluginPath": "./generic.py"
+    },
+    {
+      "type": "kFile",
+      "pluginPath": "./generic.py"
+    },
+    {
+      "type": "kDirectory",
+      "pluginPath": "./generic.py"
+    },
+    {
+      "type": "kList",
+      "pluginPath": "./generic.py"
+    },
+    {
+      "type": "kMulti",
+      "pluginPath": "./generic.py"
+    },
+    {
+      "type": "kMatrix4",
+      "pluginPath": "./matrix.py"
+    },
+    {
+      "type": "kQuaternion",
+      "pluginPath": "./quaterion.py"
+    },
+    {
+      "type": "kVector3D",
+      "pluginPath": "./vector.py"
+    },
+    {
+      "type": "kVector2D",
+      "pluginPath": "./vector.py"
+    }
+  ]
+}

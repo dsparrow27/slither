@@ -29,6 +29,7 @@ class AttributeDefinition(object):
     def _validateType(self):
         """Validate's the dataType and converts it if necessary.
         """
+        print(self.type)
         self.type = self.type(self.default, self.default)
 
     def __eq__(self, other):
@@ -120,15 +121,15 @@ class Attribute(object):
 
     @property
     def isElement(self):
-        return self.parent.definition.isArray
+        return self.parent.isArray
 
     @property
     def isCompound(self):
-        return self.definition.isCompound
+        return self.definition.compound
 
     @property
     def isArray(self):
-        return self.definition.isArray
+        return self.definition.array
 
     def __repr__(self):
         return "attribute(%s)" % (self.name())

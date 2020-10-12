@@ -12,13 +12,10 @@ set ABS_PATH=%CD%
 rem // Restore original directory
 popd
 
-set pluginBase=%ABS_PATH%\slither\plugins
-set nodeLib=%pluginBase%\nodes\generic
-set ZOOTOOLS_ROOT=D:\dave\code\python\tools\personal\zootoolspro_install
+set SLITHER_PLUGIN_PATH=%ABS_PATH%\slither\plugins
+set ZOOTOOLS_ROOT=F:\code\python\personal\zootoolspro
+set ZOO_PACKAGE_VERSION_PATH=F:\code\python\personal\vortexUI\package_version.config
+set PYTHONPATH=%PYTHONPATH%;%ABS_PATH%;F:\code\python\personal\zootoolspro\install\core\python
 
-set PYTHONPATH=%PYTHONPATH%;%ABS_PATH%;D:\dave\code\python\tools\personal\zootoolspro_install\install\core\python
-set SLITHER_NODE_LIB=%nodeLib%
-set SLITHER_TYPE_LIB=%pluginBase%\datatypes\generic
-set DISPATCHER_LIB=%pluginBase%\dispatchers
+call py -m unittest discover -s %ABS_PATH%/tests
 
-call C:\Users\dave\AppData\Local\Programs\Python\Python37-32\python.exe %ABS_PATH%/tests/graphtest.py

@@ -1,26 +1,10 @@
 import os
 
 from slither import api
-from zoo.libs.maya.utils import files
 
 
 class ExportAlembicCamera(api.ComputeNode):
     Type = "exportAlembicCamera"
-    category = "maya"
-    documentation = ""
-    path = api.AttributeDefinition(input=True, type_=api.types.kFile, array=False, default="")
-    camera = api.AttributeDefinition(input=True, type_=api.types.kString, array=False, default=None)
-    output = api.AttributeDefinition(output=True, type_=api.types.kBool, array=False, default=False)
-    startFrame = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0)
-    endFrame = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0)
-    subFrames = api.AttributeDefinition(input=True, type_=api.types.kFloat, array=False, default=0)
-    cameraName = api.AttributeDefinition(input=True, type_=api.types.kString, array=False, default="NO_NAME",
-                                         required=True
-                                         )
-    force = api.AttributeDefinition(input=True, type_=api.types.kBool, array=False, default=False,
-                                    required=False)
-    padding = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0,
-                                      required=False)
 
     def validate(self, context):
         camera = context.camera.value()
@@ -31,6 +15,7 @@ class ExportAlembicCamera(api.ComputeNode):
             raise OSError("Path already exists: {}".format(outputPath))
 
     def execute(self, context):
+        from zoo.libs.maya.utils import files
         from maya import cmds
 
         self.validate(context)
@@ -50,21 +35,6 @@ class ExportAlembicCamera(api.ComputeNode):
 
 class ExportFBXCamera(api.ComputeNode):
     Type = "exportFBXCamera"
-    category = "maya"
-    documentation = ""
-    path = api.AttributeDefinition(input=True, type_=api.types.kFile, array=False, default="")
-    camera = api.AttributeDefinition(input=True, type_=api.types.kString, array=False, default=None)
-    output = api.AttributeDefinition(output=True, type_=api.types.kBool, array=False, default=False)
-    startFrame = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0)
-    endFrame = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0)
-    subFrames = api.AttributeDefinition(input=True, type_=api.types.kFloat, array=False, default=0)
-    cameraName = api.AttributeDefinition(input=True, type_=api.types.kString, array=False, default="NO_NAME",
-                                         required=True
-                                         )
-    force = api.AttributeDefinition(input=True, type_=api.types.kBool, array=False, default=False,
-                                    required=False)
-    padding = api.AttributeDefinition(input=True, type_=api.types.kInt, array=False, default=0,
-                                      required=False)
 
     def validate(self, context):
         camera = context.camera.value()

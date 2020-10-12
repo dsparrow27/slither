@@ -1,0 +1,270 @@
+{
+  "nodes": [
+    {
+            "name": "exportAlembicCamera",
+            "type": "exportAlembicCamera",
+            "category": "compounds",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+
+                {
+                    "name": "script",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": true,
+                    "value": [],
+                    "internal": false,
+                    "type": "kString"
+                },
+                {
+                    "name": "path",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": "true",
+                    "output": false,
+                    "value": "",
+                    "internal": false,
+                    "type": "kFile"
+                },
+                {
+                    "name": "camera",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": "true",
+                    "output": false,
+                    "value": "",
+                    "internal": false,
+                    "type": "kString"
+                },
+                {
+                    "name": "output",
+                    "default": false,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": "true",
+                    "value": false,
+                    "internal": false,
+                    "type": "kBool"
+                },
+                {
+                    "name": "startFrame",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": "true",
+                    "output": false,
+                    "value": 0,
+                    "internal": false,
+                    "type": "kInt"
+                },
+                {
+                    "name": "endFrame",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": "true",
+                    "output": false,
+                    "value": 0,
+                    "internal": false,
+                    "type": "kInt"
+                },
+                {
+                    "name": "subFrames",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": "true",
+                    "output": false,
+                    "value": 0,
+                    "internal": false,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "cameraName",
+                    "default": "NO_NAME",
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": "true",
+                    "output": false,
+                    "value": "NO_NAME",
+                    "internal": false,
+                    "type": "kString"
+                },
+                {
+                    "name": "force",
+                    "default": false,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": "true",
+                    "output": false,
+                    "value": false,
+                    "internal": false,
+                    "type": "kBool"
+                },
+                {
+                    "name": "padding",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": "true",
+                    "output": false,
+                    "value": 0,
+                    "internal": false,
+                    "type": "kInt"
+                }
+            ],
+            "pluginPath": "./exportcameras.py"
+        },
+        {
+            "name": "exportFBXCamera",
+            "type": "exportFBXCamera",
+            "category": "maya",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+
+                {
+                    "name": "script",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": true,
+                    "value": [],
+                    "internal": false,
+                    "type": "kString"
+                },
+                {
+                    "name": "path",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": "true",
+                    "output": false,
+                    "value": "",
+                    "internal": false,
+                    "type": "kFile"
+                },
+                {
+                    "name": "camera",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": "true",
+                    "output": false,
+                    "value": "",
+                    "internal": false,
+                    "type": "kString"
+                },
+                {
+                    "name": "output",
+                    "default": false,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": "true",
+                    "value": false,
+                    "internal": false,
+                    "type": "kBool"
+                },
+                {
+                    "name": "startFrame",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": "true",
+                    "output": false,
+                    "value": 0,
+                    "internal": false,
+                    "type": "kInt"
+                },
+                {
+                    "name": "endFrame",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": "true",
+                    "output": false,
+                    "value": 0,
+                    "internal": false,
+                    "type": "kInt"
+                },
+                {
+                    "name": "subFrames",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": "true",
+                    "output": false,
+                    "value": 0,
+                    "internal": false,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "cameraName",
+                    "default": "NO_NAME",
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": "true",
+                    "output": false,
+                    "value": "NO_NAME",
+                    "internal": false,
+                    "type": "kString"
+                },
+                {
+                    "name": "force",
+                    "default": false,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": "true",
+                    "output": false,
+                    "value": false,
+                    "internal": false,
+                    "type": "kBool"
+                },
+                {
+                    "name": "padding",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": "true",
+                    "output": false,
+                    "value": 0,
+                    "internal": false,
+                    "type": "kInt"
+                }
+            ],
+            "pluginPath": "./exportcameras.py"
+        }
+  ]
+}

@@ -3,8 +3,12 @@
 import os
 import unittest
 from zoo.core import api
+
 cfg = api.zooFromPath(os.environ["ZOOTOOLS_ROOT"])
 cfg.resolver.resolveFromPath(cfg.resolver.environmentPath())
+# from zoo.libs.utils import zlogging
+# zlogging.setGlobalDebug(True)
+
 from slither import api
 
 
@@ -21,21 +25,21 @@ def createOutputAttrDef(name, type_):
 
 class TestGraphStandardExecutor(unittest.TestCase):
     def setUp(self):
-        self.graph = api.Graph()
-        self.graph.initialize()
-        self.executeType = self.graph.STANDARDEXECUTOR
+        self.app = api.Application()
+        self.graph = self.app.createGraph("mainGraph")
+        self.executeType = self.app.STANDARDEXECUTOR
 
     def testGraphLocalExecutor(self):
-        testGraph = api.Graph()
-        testGraph.initialize()
+        testGraph = self.app.createGraph("localExecutor")
         testGraph.loadFromFile(os.path.join(os.path.dirname(__file__), "data", "testGraph.json"))
-        testGraph.execute(testGraph.root, self.graph.STANDARDEXECUTOR)
+        testGraph.execute(testGraph.root, self.app.STANDARDEXECUTOR)
+        self.app.deleteGraph("localExecutor")
 
     def testGraphBackgroundExecutor(self):
-        testGraph = api.Graph()
-        testGraph.initialize()
+        testGraph = self.app.createGraph("backgroundExecutor")
         testGraph.loadFromFile(os.path.join(os.path.dirname(__file__), "data", "testGraph.json"))
-        testGraph.execute(testGraph.root, self.graph.PARALLELEXECUTOR)
+        testGraph.execute(testGraph.root, self.app.PARALLELEXECUTOR)
+        self.app.deleteGraph("backgroundExecutor")
 
     def test_compoundConnections(self):
         comp = self.graph.root.createNode("testCompound", "compound")
@@ -43,7 +47,7 @@ class TestGraphStandardExecutor(unittest.TestCase):
                                                 type_=api.types.kFloat))
         comp.createAttribute(createOutputAttrDef(name="testOutput",
                                                  type_=api.types.kFloat))
-        subChild = comp.createNode("subsubChild", "Sum")
+        subChild = comp.createNode("subsubChild", "sum")
 
         subChild.inputA.connect(comp.testInput)
         subChild.output.connect(comp.testOutput)
@@ -56,12 +60,12 @@ class TestGraphStandardExecutor(unittest.TestCase):
         self.assertTrue(comp.hasChild("subsubChild"))
         self.assertTrue(comp.hasAttribute("testInput"))
         self.assertTrue(comp.hasAttribute("testOutput"))
-        self.assertEquals(subChild.inputA.upstream, comp.testInput)
-        self.assertEquals(comp.testOutput.upstream, subChild.output)
+        self.assertEqual(subChild.inputA.upstream, comp.testInput)
+        self.assertEqual(comp.testOutput.upstream, subChild.output)
         self.graph.execute(self.graph.root, self.executeType)
-        self.assertEquals(subChild.output.value(), 30.0)
-        self.assertEquals(comp.testOutput.value(), 30.0)
-        self.assertEquals(self.graph.root.execution.value(), 30)
+        self.assertEqual(subChild.output.value(), 30.0)
+        self.assertEqual(comp.testOutput.value(), 30.0)
+        self.assertEqual(self.graph.root.execution.value(), 30)
 
     def test_deserialize(self):
         comp = self.graph.root.createNode("testCompound", "compound")
@@ -69,7 +73,7 @@ class TestGraphStandardExecutor(unittest.TestCase):
                                                 type_=api.types.kFloat))
         comp.createAttribute(createOutputAttrDef(name="testOutput",
                                                  type_=api.types.kFloat))
-        subChild = comp.createNode("subsubChild", "Sum")
+        subChild = comp.createNode("subsubChild", "sum")
         subChild.inputA.connect(comp.testInput)
         subChild.output.connect(comp.testOutput)
         self.graph.root.createAttribute(createOutputAttrDef("execution", api.types.kFloat))
@@ -78,10 +82,9 @@ class TestGraphStandardExecutor(unittest.TestCase):
         subChild.inputB.setValue(30)
         self.graph.execute(self.graph.root, self.executeType)
         serializeData = self.graph.serialize()
-        newGraph = api.Graph()
-        newGraph.initialize()
+        newGraph = self.app.createGraph("newGraph")
         newGraph.load(serializeData)
-        self.assertEquals(len(newGraph.root.children), len(self.graph.root.children))
+        self.assertEqual(len(newGraph.root.children), len(self.graph.root.children))
         self.assertTrue(newGraph.root.child("testCompound"))
         subChildNew = newGraph.root.child("testCompound")
         self.assertTrue(subChildNew.child("subsubChild"))
@@ -89,14 +92,16 @@ class TestGraphStandardExecutor(unittest.TestCase):
         self.assertTrue(subChildNew.hasAttribute("testOutput"))
         self.assertTrue(newGraph.root.hasAttribute("execution"))
         self.assertIsNotNone(subChildNew.child("subsubChild").inputA.upstream)
-        self.assertEquals(subChildNew.child("subsubChild").inputA.upstream, comp.testInput)
+        self.assertEqual(subChildNew.child("subsubChild").inputA.upstream, comp.testInput)
         newGraph.execute(newGraph.root, self.executeType)
-        self.assertEquals(subChildNew.child("subsubChild").output.value(), 30)
-        self.assertEquals(subChildNew.testOutput.value(), 30)
-        self.assertEquals(newGraph.root.execution.value(), 30)
-        testGraph = api.Graph()
-        testGraph.initialize()
+        self.assertEqual(subChildNew.child("subsubChild").output.value(), 30)
+        self.assertEqual(subChildNew.testOutput.value(), 30)
+        self.assertEqual(newGraph.root.execution.value(), 30)
+        self.app.deleteGraph("newGraph")
+        testGraph = self.app.createGraph("testGraph")
         testGraph.loadFromFile(os.path.join(os.path.dirname(__file__), "data", "testGraph.json"))
+        self.app.deleteGraph("testGraph")
+
 
 if __name__ == "__main__":
     unittest.main()

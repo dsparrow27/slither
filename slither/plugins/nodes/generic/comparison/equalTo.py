@@ -2,10 +2,10 @@ from slither import api
 
 
 class EqualToNode(api.ComputeNode):
-    Type = "equalToNode"
-    value1 = api.AttributeDefinition(type_=api.types.kFloat, input=True)
-    value2 = api.AttributeDefinition(type_=api.types.kFloat, input=True)
-    result = api.AttributeDefinition(type_=api.types.kBool, output=True)
+    Type = "equalTo"
+    # value1 = api.AttributeDefinition(type_=api.types.kFloat, input=True)
+    # value2 = api.AttributeDefinition(type_=api.types.kFloat, input=True)
+    # result = api.AttributeDefinition(type_=api.types.kBool, output=True)
 
     def execute(self, context):
         result = context.value1.value() == context.value2.value()

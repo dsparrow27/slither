@@ -4,13 +4,13 @@ from slither import api
 
 
 class FolderInDirectory(api.ComputeNode):
-    Type = "FolderInDirectory"
-    category = "directories"
-    documentation = "returns a list of folders in a directory, if recursive is True(default is False) then all " \
-                    "subfolders will be returned as well"
-    directory = api.AttributeDefinition(input=True, type_=api.types.kDirectory, default="")
-    recursive = api.AttributeDefinition(input=True, type_=api.types.kBool, default=False)
-    output = api.AttributeDefinition(output=True, type_=api.types.kDirectory, array=True, default=[])
+    Type = "folderInDirectory"
+    # category = "directories"
+    # documentation = "returns a list of folders in a directory, if recursive is True(default is False) then all " \
+    #                 "subfolders will be returned as well"
+    # directory = api.AttributeDefinition(input=True, type_=api.types.kDirectory, default="")
+    # recursive = api.AttributeDefinition(input=True, type_=api.types.kBool, default=False)
+    # output = api.AttributeDefinition(output=True, type_=api.types.kDirectory, array=True, default=[])
 
     def execute(self, context):
         directory = os.path.normpath(context.directory.value())

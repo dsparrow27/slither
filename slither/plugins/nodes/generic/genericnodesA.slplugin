@@ -1,0 +1,1919 @@
+{
+    "nodes": [
+        {
+            "name": "compound",
+            "type": "compound",
+            "category": "",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "compound": true,
+            "attributes": [
+
+            ],
+            "pluginPath": null
+        },
+        {
+            "name": "pin",
+            "type": "pin",
+            "category": "",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "pin": true,
+            "attributes": [
+            ],
+            "pluginPath": null
+        },
+        {
+            "name": "comment",
+            "type": "comment",
+            "category": "",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "comment": true,
+            "attributes": [
+            ],
+            "pluginPath": null
+        },
+        {
+            "name": "EqualTo",
+            "type": "equalTo",
+            "category": "",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "script",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": true,
+                    "value": [],
+                    "internal": false,
+                    "type": "kString"
+                },
+                {
+                    "name": "value1",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "value2",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "result",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": false,
+                    "internal": true,
+                    "type": "kBool"
+                }
+            ],
+            "pluginPath": "./comparison/equalTo.py"
+        },
+        {
+            "name": "GreaterThan",
+            "type": "greaterThan",
+            "category": "",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "script",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": true,
+                    "value": [],
+                    "internal": false,
+                    "type": "kString"
+                },
+                {
+                    "name": "value1",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "value2",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "result",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": false,
+                    "internal": true,
+                    "type": "kBool"
+                }
+            ],
+            "pluginPath": "./comparison/greaterThan.py"
+        },
+        {
+            "name": "GreaterThanOrEqualTo",
+            "type": "greaterThanOrEqualTo",
+            "category": "",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "script",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": true,
+                    "value": [],
+                    "internal": false,
+                    "type": "kString"
+                },
+                {
+                    "name": "value1",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "value2",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "result",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": false,
+                    "internal": true,
+                    "type": "kBool"
+                }
+            ],
+            "pluginPath": "./comparison/greaterThanOrEqualTo.py"
+        },
+        {
+            "name": "If",
+            "type": "condition",
+            "category": "",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "script",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": true,
+                    "value": [],
+                    "internal": false,
+                    "type": "kString"
+                },
+                {
+                    "name": "ifTrue",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": null,
+                    "internal": true,
+                    "type": "kMulti"
+                },
+                {
+                    "name": "ifFalse",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": null,
+                    "internal": true,
+                    "type": "kMulti"
+                },
+                {
+                    "name": "condition",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "result",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": null,
+                    "internal": true,
+                    "type": "kMulti"
+                }
+            ],
+            "pluginPath": "./comparison/ifCondition.py"
+        },
+        {
+            "name": "InRange",
+            "type": "inRange",
+            "category": "",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "script",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": true,
+                    "value": [],
+                    "internal": false,
+                    "type": "kString"
+                },
+                {
+                    "name": "value1",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "value2",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "result",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": false,
+                    "internal": true,
+                    "type": "kBool"
+                }
+            ],
+            "pluginPath": "./comparison/inRange.py"
+        },
+        {
+            "name": "LessThan",
+            "type": "lessThan",
+            "category": "",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "script",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": true,
+                    "value": [],
+                    "internal": false,
+                    "type": "kString"
+                },
+                {
+                    "name": "value1",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "value2",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "result",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": false,
+                    "internal": true,
+                    "type": "kBool"
+                }
+            ],
+            "pluginPath": "./comparison/lessThan.py"
+        },
+        {
+            "name": "LessThanOrEqualTo",
+            "type": "lessThanOrEqualTo",
+            "category": "",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "script",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": true,
+                    "value": [],
+                    "internal": false,
+                    "type": "kString"
+                },
+                {
+                    "name": "value1",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "value2",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "result",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": false,
+                    "internal": true,
+                    "type": "kBool"
+                }
+            ],
+            "pluginPath": "./comparison/lessThanOrEqualTo.py"
+        },
+        {
+            "name": "NotEqualTo",
+            "type": "notEqualTo",
+            "category": "",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "script",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": true,
+                    "value": [],
+                    "internal": false,
+                    "type": "kString"
+                },
+                {
+                    "name": "value1",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "value2",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "result",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": false,
+                    "internal": true,
+                    "type": "kBool"
+                }
+            ],
+            "pluginPath": "./comparison/notEqualTo.py"
+        },
+        {
+            "name": "Bool",
+            "type": "bool",
+            "category": "constant",
+            "documentation": "boolean",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "script",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": true,
+                    "value": [],
+                    "internal": false,
+                    "type": "kString"
+                }
+            ],
+            "pluginPath": "./constants/booleanConstants.py"
+        },
+        {
+            "name": "HalfPi",
+            "type": "halfPi",
+            "category": "constant",
+            "documentation": "HalfPi",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "script",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": true,
+                    "value": [],
+                    "internal": false,
+                    "type": "kString"
+                }
+            ],
+            "pluginPath": "./constants/halfPi.py"
+        },
+        {
+            "name": "Integer",
+            "type": "integer",
+            "category": "constant",
+            "documentation": "integer",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "value",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kInt"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kInt"
+                }
+            ],
+            "pluginPath": "./constants/integer.py"
+        },
+        {
+            "name": "Pi",
+            "type": "pi",
+            "category": "constant",
+            "documentation": "Pi",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "output",
+                    "default": true,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": true,
+                    "internal": true,
+                    "type": "kBool"
+                }
+            ],
+            "pluginPath": "./constants/pi.py"
+        },
+        {
+            "name": "Scalar",
+            "type": "scalar",
+            "category": "constant",
+            "documentation": "Scalar",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "value",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                }
+            ],
+            "pluginPath": "./constants/scalar.py"
+        },
+        {
+            "name": "String",
+            "type": "string",
+            "category": "constant",
+            "documentation": "String constant",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "script",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": true,
+                    "value": [],
+                    "internal": false,
+                    "type": "kString"
+                }
+            ],
+            "pluginPath": "./constants/stringConstant.py"
+        },
+        {
+            "name": "CopyFilesTo",
+            "type": "copyFilesTo",
+            "category": "",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "script",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": true,
+                    "value": [],
+                    "internal": false,
+                    "type": "kString"
+                },
+                {
+                    "name": "source",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kFile"
+                },
+                {
+                    "name": "destinationFolder",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kDirectory"
+                },
+                {
+                    "name": "result",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": "",
+                    "internal": true,
+                    "type": "kFile"
+                }
+            ],
+            "pluginPath": "./directories/copyFiles.py"
+        },
+        {
+            "name": "FilesInDirectory",
+            "type": "filesInDirectory",
+            "category": "directories",
+            "documentation": "returns a list of files in a directory",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                {
+                    "name": "directory",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kDirectory"
+                },
+                {
+                    "name": "recursive",
+                    "default": false,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": false,
+                    "internal": true,
+                    "type": "kBool"
+                },
+                {
+                    "name": "output",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "internal": true,
+                    "type": "kFile"
+                },
+                {
+                    "name": "output",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "internal": true,
+                    "type": "kFile"
+                }
+            ],
+            "pluginPath": "./directories/filesindirectory.py"
+        },
+        {
+            "name": "FolderInDirectory",
+            "type": "folderInDirectory",
+            "category": "directories",
+            "documentation": "returns a list of folders in a directory, if recursive is True(default is False) then all subfolders will be returned as well",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "directory",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kDirectory"
+                },
+                {
+                    "name": "recursive",
+                    "default": false,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": false,
+                    "internal": true,
+                    "type": "kBool"
+                },
+                {
+                    "name": "output",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "internal": true,
+                    "type": "kDirectory"
+                },
+                {
+                    "name": "output",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "internal": true,
+                    "type": "kDirectory"
+                }
+            ],
+            "pluginPath": "./directories/foldersindirectory.py"
+        },
+        {
+            "name": "Glob",
+            "type": "glob",
+            "category": "directories",
+            "documentation": "returns a list of files in a directory",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "directory",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kDirectory"
+                },
+                {
+                    "name": "pattern",
+                    "default": "*",
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": false,
+                    "value": "*",
+                    "internal": true,
+                    "type": "kString"
+                },
+                {
+                    "name": "output",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "internal": true,
+                    "type": "kFile"
+                },
+                {
+                    "name": "output",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "internal": true,
+                    "type": "kFile"
+                }
+            ],
+            "pluginPath": "./directories/globfiles.py"
+        },
+        {
+            "name": "PathExists",
+            "type": "pathExists",
+            "category": "directories",
+            "documentation": "Checks if file path exists(os.path.exists)",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "file",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kFile"
+                },
+                {
+                    "name": "output",
+                    "default": false,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": false,
+                    "internal": true,
+                    "type": "kBool"
+                }
+            ],
+            "pluginPath": "./directories/pathexists.py"
+        },
+        {
+            "name": "Rename",
+            "type": "rename",
+            "category": "directories",
+            "documentation": "Rename",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "file",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kFile"
+                },
+                {
+                    "name": "name",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kString"
+                }
+            ],
+            "pluginPath": "./directories/rename.py"
+        },
+        {
+            "name": "ConvertToVideo",
+            "type": "convertToVideo",
+            "category": "ffmpeg",
+            "documentation": "Convert's an image sequence to a video",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "input",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kDirectory"
+                },
+                {
+                    "name": "frame",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kInt"
+                },
+                {
+                    "name": "outputPath",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kFile"
+                },
+                {
+                    "name": "output",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "internal": true,
+                    "type": "kFile"
+                },
+                {
+                    "name": "output",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "internal": true,
+                    "type": "kFile"
+                }
+            ],
+            "pluginPath": "./ffmpeg/createthumbnail.py"
+        },
+        {
+            "name": "Floor",
+            "type": "floor",
+            "category": "math",
+            "documentation": "The floor of the input value",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "input",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                }
+            ],
+            "pluginPath": "./math/basic/floor.py"
+        },
+        {
+            "name": "Divide",
+            "type": "divide",
+            "category": "math",
+            "documentation": "Divides the input values together, raises ZooDivisionError if dividing by 0",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "inputA",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "inputB",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                }
+            ],
+            "pluginPath": "./math/basic/divide.py"
+        },
+        {
+            "name": "Invert",
+            "type": "invert",
+            "category": "math",
+            "documentation": "Multiplies the input values together",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "input",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                }
+            ],
+            "pluginPath": "./math/basic/invert.py"
+        },
+        {
+            "name": "Modulo",
+            "type": "modulo",
+            "category": "math",
+            "documentation": "Multiplies the input values together",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "inputA",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "inputB",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                }
+            ],
+            "pluginPath": "./math/basic/modulo.py"
+        },
+        {
+            "name": "Multiply",
+            "type": "multiply",
+            "category": "math",
+            "documentation": "Multiplies the input values together",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "inputA",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "inputB",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                }
+            ],
+            "pluginPath": "./math/basic/multiply.py"
+        },
+        {
+            "name": "Power",
+            "type": "power",
+            "category": "math",
+            "documentation": "power of the input values",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "inputA",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "inputB",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                }
+            ],
+            "pluginPath": "./math/basic/power.py"
+        },
+        {
+            "name": "SquareRoot",
+            "type": "squareRoot",
+            "category": "math",
+            "documentation": "SquareRoot of the input values",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "input",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                }
+            ],
+            "pluginPath": "./math/basic/squareRoot.py"
+        },
+        {
+            "name": "Substract",
+            "type": "substract",
+            "category": "math",
+            "documentation": "subtracts the input values",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "inputA",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "inputB",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                }
+            ],
+            "pluginPath": "./math/basic/subtract.py"
+        },
+        {
+            "name": "Sum",
+            "type": "sum",
+            "category": "math",
+            "documentation": "Adds the input values together",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "inputA",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "inputB",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                }
+            ],
+            "pluginPath": "./math/basic/sum.py"
+        },
+        {
+            "name": "ArcCos",
+            "type": "arcCos",
+            "category": "math",
+            "documentation": "Arc cos",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "input",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                }
+            ],
+            "pluginPath": "./math/trigonometry/arccos.py"
+        },
+        {
+            "name": "ArcSin",
+            "type": "arcSin",
+            "category": "math",
+            "documentation": "Arc sin",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "input",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                }
+            ],
+            "pluginPath": "./math/trigonometry/arcsin.py"
+        },
+        {
+            "name": "ArcTan",
+            "type": "arcTan",
+            "category": "math",
+            "documentation": "Arc tan",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "input",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                }
+            ],
+            "pluginPath": "./math/trigonometry/arctan.py"
+        },
+        {
+            "name": "Cos",
+            "type": "cos",
+            "category": "math",
+            "documentation": "cos",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "input",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                }
+            ],
+            "pluginPath": "./math/trigonometry/cos.py"
+        },
+        {
+            "name": "Sin",
+            "type": "sin",
+            "category": "math",
+            "documentation": "sin",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "input",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                }
+            ],
+            "pluginPath": "./math/trigonometry/sin.py"
+        },
+        {
+            "name": "Tan",
+            "type": "tan",
+            "category": "math",
+            "documentation": "tan",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "input",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                },
+                {
+                    "name": "output",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kFloat"
+                }
+            ],
+            "pluginPath": "./math/trigonometry/tan.py"
+        },
+        {
+            "name": "Regex",
+            "type": "regex",
+            "category": "string",
+            "documentation": "Returns a list of items the have the characters",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "strings",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": [],
+                    "internal": true,
+                    "type": "kString"
+                },
+                {
+                    "name": "searchString",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kString"
+                },
+                {
+                    "name": "output",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "internal": true,
+                    "type": "kString"
+                },
+                {
+                    "name": "strings",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": [],
+                    "internal": true,
+                    "type": "kString"
+                },
+                {
+                    "name": "output",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "internal": true,
+                    "type": "kString"
+                }
+            ],
+            "pluginPath": "./string/regex.py"
+        },
+        {
+            "name": "SplitString",
+            "type": "splitString",
+            "category": "string",
+            "documentation": "splits a string by a delimiter",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "string",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kString"
+                },
+                {
+                    "name": "delimiter",
+                    "default": ",",
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": ",",
+                    "internal": true,
+                    "type": "kString"
+                },
+                {
+                    "name": "output",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "internal": true,
+                    "type": "kString"
+                },
+                {
+                    "name": "output",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "internal": true,
+                    "type": "kString"
+                }
+            ],
+            "pluginPath": "./string/split.py"
+        },
+        {
+            "name": "SubString",
+            "type": "subString",
+            "category": "string",
+            "documentation": "Returns a list of strings that have the search string in it.\n    ",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                
+                {
+                    "name": "script",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": true,
+                    "value": [],
+                    "internal": false,
+                    "type": "kString"
+                },
+                {
+                    "name": "value",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": [],
+                    "internal": true,
+                    "type": "kString"
+                },
+                {
+                    "name": "output",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "internal": true,
+                    "type": "kString"
+                }
+            ],
+            "pluginPath": "./string/subString.py"
+        }
+
+    ]
+}

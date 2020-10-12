@@ -11,31 +11,17 @@ logger.addHandler(logging.StreamHandler())
 
 
 class Graph(object):
-    PARALLELEXECUTOR = 0
-    STANDARDEXECUTOR = 1
     NODE_LIB_ENV = "SLITHER_NODE_LIB"
     TYPE_LIB_ENV = "SLITHER_TYPE_LIB"
     DISPATCHER_LIB_ENV = "DISPATCHER_LIB"
 
-    def __init__(self):
-        self.nodeRegistry = pluginmanager.PluginManager(node.BaseNode, variableName="Type")
-        self.typeRegistry = pluginmanager.PluginManager(types.DataType, variableName="Type")
-        self.dispatchers = pluginmanager.PluginManager(dispatcher.BaseDispatcher, variableName="Type")
+    def __init__(self, app, name):
+        self.application = app
+        self.name = name
         self._root = None
         self.variables = {}
         self.nodeIds = set()
         self.connections = []
-
-    def initialize(self):
-        self.dispatchers.registerPaths(os.environ[self.DISPATCHER_LIB_ENV].split(os.pathsep))
-        self.typeRegistry.registerPaths(os.environ[self.TYPE_LIB_ENV].split(os.pathsep))
-        types.__dict__.update(self.typeRegistry.plugins.items())
-
-        self.nodeRegistry.registerPaths(os.environ[self.NODE_LIB_ENV].split(os.pathsep))
-        # add the compound base node
-        self.nodeRegistry.registerPlugin(node.Compound)
-        self.nodeRegistry.registerPlugin(node.Pin)
-        self.nodeRegistry.registerPlugin(node.Comment)
 
     def shutdown(self):
         pass
@@ -44,13 +30,13 @@ class Graph(object):
         return "<{}>".format(self.__class__.__name__)
 
     def dataType(self, typeName):
-        return self.typeRegistry.getPlugin(typeName)
+        return self.application.registry.dataTypeClass(typeName)
 
     @property
     def root(self):
         if self._root is not None:
             return self._root
-        self._root = self.nodeRegistry.loadPlugin("compound", name="Root", graph=self)
+        self._root = self.application.registry.nodeClass("compound", graph=self, name="Root")
         self._root.id = self._generateNewNodeId()
         # mark the root as internal and locked so it can't be deleted.
         self._root.isLocked = True
@@ -74,11 +60,8 @@ class Graph(object):
 
     def execute(self, n, executorType):
         logger.debug("Starting execution")
-        if executorType == Graph.PARALLELEXECUTOR:
-            exe = self.dispatchers.getPlugin("Parallel")(self)
-        elif executorType == Graph.STANDARDEXECUTOR:
-            exe = self.dispatchers.getPlugin("Serial")(self)
-        else:
+        exe = self.application.registry.dispatcherClass(executorType, graph=self)
+        if exe is None:
             raise NotImplementedError("No Dispatcher of type: {}".format(str(executorType)))
         try:
             exe.execute(n)
@@ -165,7 +148,7 @@ class Graph(object):
                 newName = name + str(counter)
                 counter += 1
             name = newName
-        newNode = self.nodeRegistry.loadPlugin(type_, name=name, graph=self)
+        newNode = self.application.registry.nodeClass(type_, name=name, graph=self)
         if newNode is not None:
             newNode.id = self._generateNewNodeId()
             parent.addChild(newNode)

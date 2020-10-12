@@ -8,7 +8,7 @@ class Parallel(api.BaseDispatcher):
     """Background dispatcher using subprocess per node. The process is still blocked at this time
     but all node computations are done in parallel.
     """
-    Type = "Parallel"
+    Type = "parallel"
 
     def execute(self, node):
         """Executes a given node in parallel if the node is a compound then the children will be executed
@@ -73,7 +73,7 @@ class Parallel(api.BaseDispatcher):
         for index, childConnection in enumerate(childConnections):
             if childConnection.poll():
                 recvData = childConnection.recv()
-                node = nodes.keys()[index]
+                node = list(nodes.keys())[index]
                 # copy the output data from the process back into the main process output data
                 cls.onNodeCompleted(node, recvData)
                 del nodes[node]

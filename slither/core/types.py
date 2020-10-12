@@ -1,10 +1,16 @@
 import logging
 from zoovendor import six
+
 logger = logging.getLogger(__name__)
 
 
 class DataType(object):
     Type = None
+
+    @classmethod
+    def create(cls, info):
+        newCls = cls(info.get("value"), info.get("default"))
+        return newCls
 
     def __init__(self, value=None, default=None):
         self.__dict__["_value"] = value

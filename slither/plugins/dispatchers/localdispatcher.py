@@ -1,4 +1,4 @@
-import time
+import timeit
 
 from slither import api
 
@@ -7,7 +7,7 @@ class StandardExecutor(api.BaseDispatcher):
     """Serial graph dispatcher, in this case all processing will block the
     current process.
     """
-    Type = "Serial"
+    Type = "serial"
 
     def _dependents(self, node):
         if node.isCompound():
@@ -40,7 +40,7 @@ class StandardExecutor(api.BaseDispatcher):
         self.onNodeCompleted(node, ctx)
 
     def execute(self, node):
-        start = time.clock()
+        start = timeit.default_timer()
         self.processNode(node)
-        self.logger.debug("Total executing time: {}".format(time.clock()-start))
+        self.logger.debug("Total executing time: {}".format(timeit.default_timer()-start))
         return True

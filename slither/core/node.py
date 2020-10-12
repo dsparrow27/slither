@@ -1,6 +1,6 @@
 import copy
 import logging
-import time
+import timeit
 
 from slither.core import attribute
 from slither.core import graphsearch
@@ -60,7 +60,7 @@ class ContextAttr(object):
 
 
 class NodeMeta(type):
-    @staticmethod
+    # @staticmethod
     def __new__(cls, className, bases, classDict):
         newClassDict = {}
         for name, attr in classDict.items():
@@ -80,6 +80,19 @@ class BaseNode(object):
     category = ""
     tags = []
     documentation = ""
+
+    @classmethod
+    def create(cls, info, graph):
+        name = info["name"]
+        node = cls(name, graph)
+        node.properties = info.get("properties", {})
+        node.nodeUI = info.get("nodeUI", {})
+        node.isLocked = info.get("locked", False)
+        node.tags = info.get("tags", [])
+        node.documentation = info.get("documentation", "")
+        node.category = info.get("category", "misc")
+        node.Type = info.get("type", "")
+        return node
 
     def __init__(self, name, graph):
         self.graph = graph
@@ -184,6 +197,22 @@ class BaseNode(object):
 
 @six.add_metaclass(NodeMeta)
 class DependencyNode(BaseNode):
+    @classmethod
+    def create(cls, info, graph):
+        n = super(DependencyNode, cls).create(info, graph)
+        for attr in info.get("attributes", []):
+            if n.hasAttribute(attr["name"]):
+                continue
+            attrDef = attribute.AttributeDefinition(name=attr["name"],
+                                                    input=attr.get("input", False),
+                                                    output=attr.get("output", False),
+                                                    type_=graph.application.registry.dataTypes[attr["type"]]["class"],
+                                                    default=attr.get("default"),
+                                                    required=attr.get("required", False), array=attr["array"],
+                                                    doc=attr.get("documentation", ""),
+                                                    internal=attr.get("internal", False))
+            n.createAttribute(attrDef)
+        return n
 
     def __init__(self, name, graph):
         self.attributes = []
@@ -386,7 +415,7 @@ class ComputeNode(DependencyNode):
 
     def process(self, context):
         fullName = self.fullName()
-        start = time.clock()
+        start = timeit.default_timer()
         try:
             logger.debug("Processing node: {}".format(fullName),
                          extra={"context": context})
@@ -400,7 +429,7 @@ class ComputeNode(DependencyNode):
                          exc_info=True)
             raise
         logger.debug("Finished executing Node: {}, running time: {}".format(fullName,
-                                                                            time.clock() - start))
+                                                                            timeit.default_timer() - start))
         self.setDirty(False)
 
     def validate(self, context):
@@ -470,7 +499,7 @@ class PythonNode(ComputeNode):
                 raise
         else:
             try:
-                exec(outputCode, globals(), _locals)
+                exec (outputCode, globals(), _locals)
             except Exception:
                 raise
 
