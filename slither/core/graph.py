@@ -36,7 +36,7 @@ class Graph(object):
     def root(self):
         if self._root is not None:
             return self._root
-        self._root = self.application.registry.nodeClass("compound", graph=self, name="Root")
+        self._root = self.application.registry.nodeClass("compound", graph=self, name=self.name)
         self._root.id = self._generateNewNodeId()
         # mark the root as internal and locked so it can't be deleted.
         self._root.isLocked = True
@@ -45,12 +45,16 @@ class Graph(object):
 
     def saveToFile(self, filePath, node=None):
         data = self.serialize(node)
+        pathSplit = filePath.split(os.path.extsep)
+        outputPath = filePath
+        if pathSplit[-1] != ".slgraph":
+            outputPath = pathSplit[0] + ".slgraph"
         try:
-            filesystem.saveJson(data, filePath)
+            filesystem.saveJson(data, outputPath)
         except TypeError:
             pprint.pprint(data)
             raise
-        return os.path.exists(filePath)
+        return outputPath
 
     def serialize(self, node=None):
         n = node or self.root
@@ -133,7 +137,6 @@ class Graph(object):
         if destination.upstream is not None:
             raise errors.AttributeAlreadyConnected(source, destination)
         logger.debug("Creating connection between: {}->{}".format(source.fullName(), destination.fullName()))
-        print("Creating connection between: {}->{}".format(source.fullName(), destination.fullName()))
         destination.upstream = source
         self.connections.append({"source": source.node.id, "destination": destination.node.id,
                                  "input": destination.id, "output": source.id})

@@ -2,10 +2,6 @@
 """
 import os
 import unittest
-from zoo.core import api
-
-cfg = api.zooFromPath(os.environ["ZOOTOOLS_ROOT"])
-cfg.resolver.resolveFromPath(cfg.resolver.environmentPath())
 # from zoo.libs.utils import zlogging
 # zlogging.setGlobalDebug(True)
 
@@ -44,14 +40,14 @@ class TestGraphStandardExecutor(unittest.TestCase):
     def test_compoundConnections(self):
         comp = self.graph.root.createNode("testCompound", "compound")
         comp.createAttribute(createInputAttrDef(name="testInput",
-                                                type_=api.types.kFloat))
+                                                type_=self.app.registry.dataTypeClass("kFloat")))
         comp.createAttribute(createOutputAttrDef(name="testOutput",
-                                                 type_=api.types.kFloat))
+                                                 type_=self.app.registry.dataTypeClass("kFloat")))
         subChild = comp.createNode("subsubChild", "sum")
 
         subChild.inputA.connect(comp.testInput)
         subChild.output.connect(comp.testOutput)
-        self.graph.root.createAttribute(createOutputAttrDef("execution", api.types.kFloat))
+        self.graph.root.createAttribute(createOutputAttrDef("execution", self.app.registry.dataTypeClass("kFloat")))
         comp.testOutput.connect(self.graph.root.execution)
         comp.testInput.setValue(10)
         subChild.inputB.setValue(30)
@@ -70,18 +66,20 @@ class TestGraphStandardExecutor(unittest.TestCase):
     def test_deserialize(self):
         comp = self.graph.root.createNode("testCompound", "compound")
         comp.createAttribute(createInputAttrDef(name="testInput",
-                                                type_=api.types.kFloat))
+                                                type_=self.app.registry.dataTypeClass("kFloat")))
         comp.createAttribute(createOutputAttrDef(name="testOutput",
-                                                 type_=api.types.kFloat))
+                                                 type_=self.app.registry.dataTypeClass("kFloat")))
         subChild = comp.createNode("subsubChild", "sum")
         subChild.inputA.connect(comp.testInput)
         subChild.output.connect(comp.testOutput)
-        self.graph.root.createAttribute(createOutputAttrDef("execution", api.types.kFloat))
+        self.graph.root.createAttribute(createOutputAttrDef("execution", self.app.registry.dataTypeClass("kFloat")))
         comp.testOutput.connect(self.graph.root.execution)
         comp.testInput.setValue(10)
         subChild.inputB.setValue(30)
         self.graph.execute(self.graph.root, self.executeType)
+        self.assertEqual(self.graph.root.execution.value(), 30)
         serializeData = self.graph.serialize()
+
         newGraph = self.app.createGraph("newGraph")
         newGraph.load(serializeData)
         self.assertEqual(len(newGraph.root.children), len(self.graph.root.children))
@@ -92,7 +90,6 @@ class TestGraphStandardExecutor(unittest.TestCase):
         self.assertTrue(subChildNew.hasAttribute("testOutput"))
         self.assertTrue(newGraph.root.hasAttribute("execution"))
         self.assertIsNotNone(subChildNew.child("subsubChild").inputA.upstream)
-        self.assertEqual(subChildNew.child("subsubChild").inputA.upstream, comp.testInput)
         newGraph.execute(newGraph.root, self.executeType)
         self.assertEqual(subChildNew.child("subsubChild").output.value(), 30)
         self.assertEqual(subChildNew.testOutput.value(), 30)

@@ -15,7 +15,7 @@ popd
 set SLITHER_PLUGIN_PATH=%ABS_PATH%\slither\plugins
 set ZOOTOOLS_ROOT=F:\code\python\personal\zootoolspro
 set ZOO_PACKAGE_VERSION_PATH=F:\code\python\personal\vortexUI\package_version.config
-set PYTHONPATH=%PYTHONPATH%;%ABS_PATH%;F:\code\python\personal\zootoolspro\install\core\python
-
-call py -m unittest discover -s %ABS_PATH%/tests
+set PYTHONPATH=%PYTHONPATH%;%ABS_PATH%;%ZOOTOOLS_ROOT%\install\core\python
+set TEST_PATH=%ABS_PATH%/tests
+call py %ABS_PATH%/tests/runtests.py
 

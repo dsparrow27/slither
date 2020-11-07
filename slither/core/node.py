@@ -4,8 +4,8 @@ import timeit
 
 from slither.core import attribute
 from slither.core import graphsearch
-from slither.core import types
 import six
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -192,6 +192,8 @@ class BaseNode(object):
         return data
 
     def deserialize(self, data):
+        self.nodeUI.update(data.get("nodeUI", {}))
+        self.properties.update(data.get("properties", {}))
         return {}
 
 
@@ -206,7 +208,7 @@ class DependencyNode(BaseNode):
             attrDef = attribute.AttributeDefinition(name=attr["name"],
                                                     input=attr.get("input", False),
                                                     output=attr.get("output", False),
-                                                    type_=graph.application.registry.dataTypes[attr["type"]]["class"],
+                                                    type_=graph.application.registry.dataTypeClass(attr["type"]),
                                                     default=attr.get("default"),
                                                     required=attr.get("required", False), array=attr["array"],
                                                     doc=attr.get("documentation", ""),
@@ -217,16 +219,6 @@ class DependencyNode(BaseNode):
     def __init__(self, name, graph):
         self.attributes = []
         super(DependencyNode, self).__init__(name, graph)
-        attrDef = attribute.AttributeDefinition(name="Dependencies",
-                                                input=True,
-                                                output=True,
-                                                type_=types.kList,
-                                                default=list(),
-                                                required=False, array=True,
-                                                doc="Node Level dependencies",
-                                                internal=True)
-        self.createAttribute(attrDef)
-
         for name, attrDef in iter(self.__class__.__dict__.items()):
             if isinstance(attrDef, attribute.AttributeDefinition):
                 self.createAttribute(copy.deepcopy(attrDef))
@@ -375,6 +367,7 @@ class DependencyNode(BaseNode):
     def deserialize(self, data):
         super(DependencyNode, self).deserialize(data)
         for attr in data["attributes"]:
+            attr = dict(attr)
             currentAttr = self.attribute(attr["name"].split("|")[-1])
             if currentAttr is not None:
                 currentAttr.deserialize(attr)
@@ -469,8 +462,8 @@ class PythonNode(ComputeNode):
 
         attrDef = attribute.AttributeDefinition(name="script",
                                                 input=True,
-                                                output=True,
-                                                type_=types.kString,
+                                                output=False,
+                                                type_=graph.application.registry.dataTypeClass("kString"),
                                                 default=list(),
                                                 required=True,
                                                 array=False,
@@ -502,7 +495,6 @@ class PythonNode(ComputeNode):
                 exec (outputCode, globals(), _locals)
             except Exception:
                 raise
-
 
 class Compound(ComputeNode):
     """The Compound class encapsulates a set of child nodes, which can include other compounds.
@@ -561,7 +553,7 @@ class Compound(ComputeNode):
         pass
 
     def child(self, name):
-        for child in self:
+        for child in self.children:
             if child.name == name:
                 return child
             elif child.isCompound():

@@ -62,7 +62,7 @@
                         }
                     ],
                     "documentation": "Adds the input values together",
-                    "type": "Sum",
+                    "type": "sum",
                     "id": 2,
                     "properties": {}
                 }

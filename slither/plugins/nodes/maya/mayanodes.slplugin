@@ -10,18 +10,7 @@
             "properties": {},
             "attributes": [
 
-                {
-                    "name": "script",
-                    "default": [],
-                    "array": false,
-                    "compound": false,
-                    "required": true,
-                    "input": true,
-                    "output": true,
-                    "value": [],
-                    "internal": false,
-                    "type": "kString"
-                },
+
                 {
                     "name": "path",
                     "default": "",
@@ -143,18 +132,7 @@
             "properties": {},
             "attributes": [
 
-                {
-                    "name": "script",
-                    "default": [],
-                    "array": false,
-                    "compound": false,
-                    "required": true,
-                    "input": true,
-                    "output": true,
-                    "value": [],
-                    "internal": false,
-                    "type": "kString"
-                },
+
                 {
                     "name": "path",
                     "default": "",

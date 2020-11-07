@@ -28,6 +28,7 @@ class Application(object):
         g = self.graph(name)
         self.graphs.remove(g)
         return g
+
     def createGraph(self, name):
         g = graph.Graph(self, name=name)
         self.graphs.append(g)

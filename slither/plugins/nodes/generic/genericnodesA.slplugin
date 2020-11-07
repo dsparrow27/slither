@@ -3,7 +3,7 @@
         {
             "name": "compound",
             "type": "compound",
-            "category": "",
+            "category": "organization",
             "documentation": "",
             "tags": [],
             "nodeUI": {},
@@ -17,7 +17,7 @@
         {
             "name": "pin",
             "type": "pin",
-            "category": "",
+            "category": "organization",
             "documentation": "",
             "tags": [],
             "nodeUI": {},
@@ -30,7 +30,7 @@
         {
             "name": "comment",
             "type": "comment",
-            "category": "",
+            "category": "organization",
             "documentation": "",
             "tags": [],
             "nodeUI": {},
@@ -43,25 +43,14 @@
         {
             "name": "EqualTo",
             "type": "equalTo",
-            "category": "",
+            "category": "logic",
             "documentation": "",
             "tags": [],
             "nodeUI": {},
             "properties": {},
             "attributes": [
                 
-                {
-                    "name": "script",
-                    "default": [],
-                    "array": false,
-                    "compound": false,
-                    "required": true,
-                    "input": true,
-                    "output": true,
-                    "value": [],
-                    "internal": false,
-                    "type": "kString"
-                },
+
                 {
                     "name": "value1",
                     "default": null,
@@ -104,25 +93,14 @@
         {
             "name": "GreaterThan",
             "type": "greaterThan",
-            "category": "",
+            "category": "logic",
             "documentation": "",
             "tags": [],
             "nodeUI": {},
             "properties": {},
             "attributes": [
                 
-                {
-                    "name": "script",
-                    "default": [],
-                    "array": false,
-                    "compound": false,
-                    "required": true,
-                    "input": true,
-                    "output": true,
-                    "value": [],
-                    "internal": false,
-                    "type": "kString"
-                },
+
                 {
                     "name": "value1",
                     "default": null,
@@ -165,25 +143,14 @@
         {
             "name": "GreaterThanOrEqualTo",
             "type": "greaterThanOrEqualTo",
-            "category": "",
+            "category": "logic",
             "documentation": "",
             "tags": [],
             "nodeUI": {},
             "properties": {},
             "attributes": [
                 
-                {
-                    "name": "script",
-                    "default": [],
-                    "array": false,
-                    "compound": false,
-                    "required": true,
-                    "input": true,
-                    "output": true,
-                    "value": [],
-                    "internal": false,
-                    "type": "kString"
-                },
+
                 {
                     "name": "value1",
                     "default": null,
@@ -226,25 +193,14 @@
         {
             "name": "If",
             "type": "condition",
-            "category": "",
+            "category": "logic",
             "documentation": "",
             "tags": [],
             "nodeUI": {},
             "properties": {},
             "attributes": [
                 
-                {
-                    "name": "script",
-                    "default": [],
-                    "array": false,
-                    "compound": false,
-                    "required": true,
-                    "input": true,
-                    "output": true,
-                    "value": [],
-                    "internal": false,
-                    "type": "kString"
-                },
+
                 {
                     "name": "ifTrue",
                     "default": null,
@@ -299,25 +255,14 @@
         {
             "name": "InRange",
             "type": "inRange",
-            "category": "",
+            "category": "logic",
             "documentation": "",
             "tags": [],
             "nodeUI": {},
             "properties": {},
             "attributes": [
                 
-                {
-                    "name": "script",
-                    "default": [],
-                    "array": false,
-                    "compound": false,
-                    "required": true,
-                    "input": true,
-                    "output": true,
-                    "value": [],
-                    "internal": false,
-                    "type": "kString"
-                },
+
                 {
                     "name": "value1",
                     "default": null,
@@ -360,25 +305,14 @@
         {
             "name": "LessThan",
             "type": "lessThan",
-            "category": "",
+            "category": "logic",
             "documentation": "",
             "tags": [],
             "nodeUI": {},
             "properties": {},
             "attributes": [
                 
-                {
-                    "name": "script",
-                    "default": [],
-                    "array": false,
-                    "compound": false,
-                    "required": true,
-                    "input": true,
-                    "output": true,
-                    "value": [],
-                    "internal": false,
-                    "type": "kString"
-                },
+
                 {
                     "name": "value1",
                     "default": null,
@@ -421,25 +355,14 @@
         {
             "name": "LessThanOrEqualTo",
             "type": "lessThanOrEqualTo",
-            "category": "",
+            "category": "logic",
             "documentation": "",
             "tags": [],
             "nodeUI": {},
             "properties": {},
             "attributes": [
                 
-                {
-                    "name": "script",
-                    "default": [],
-                    "array": false,
-                    "compound": false,
-                    "required": true,
-                    "input": true,
-                    "output": true,
-                    "value": [],
-                    "internal": false,
-                    "type": "kString"
-                },
+
                 {
                     "name": "value1",
                     "default": null,
@@ -482,25 +405,14 @@
         {
             "name": "NotEqualTo",
             "type": "notEqualTo",
-            "category": "",
+            "category": "logic",
             "documentation": "",
             "tags": [],
             "nodeUI": {},
             "properties": {},
             "attributes": [
                 
-                {
-                    "name": "script",
-                    "default": [],
-                    "array": false,
-                    "compound": false,
-                    "required": true,
-                    "input": true,
-                    "output": true,
-                    "value": [],
-                    "internal": false,
-                    "type": "kString"
-                },
+
                 {
                     "name": "value1",
                     "default": null,
@@ -549,19 +461,6 @@
             "nodeUI": {},
             "properties": {},
             "attributes": [
-                
-                {
-                    "name": "script",
-                    "default": [],
-                    "array": false,
-                    "compound": false,
-                    "required": true,
-                    "input": true,
-                    "output": true,
-                    "value": [],
-                    "internal": false,
-                    "type": "kString"
-                }
             ],
             "pluginPath": "./constants/booleanConstants.py"
         },
@@ -574,18 +473,17 @@
             "nodeUI": {},
             "properties": {},
             "attributes": [
-                
                 {
-                    "name": "script",
+                    "name": "output",
                     "default": [],
                     "array": false,
                     "compound": false,
                     "required": true,
-                    "input": true,
+                    "input": false,
                     "output": true,
-                    "value": [],
+                    "value": 3.14,
                     "internal": false,
-                    "type": "kString"
+                    "type": "kFloat"
                 }
             ],
             "pluginPath": "./constants/halfPi.py"
@@ -698,44 +596,20 @@
             "nodeUI": {},
             "properties": {},
             "attributes": [
-                
-                {
-                    "name": "script",
-                    "default": [],
-                    "array": false,
-                    "compound": false,
-                    "required": true,
-                    "input": true,
-                    "output": true,
-                    "value": [],
-                    "internal": false,
-                    "type": "kString"
-                }
             ],
             "pluginPath": "./constants/stringConstant.py"
         },
         {
             "name": "CopyFilesTo",
             "type": "copyFilesTo",
-            "category": "",
+            "category": "filesystem",
             "documentation": "",
             "tags": [],
             "nodeUI": {},
             "properties": {},
             "attributes": [
                 
-                {
-                    "name": "script",
-                    "default": [],
-                    "array": false,
-                    "compound": false,
-                    "required": true,
-                    "input": true,
-                    "output": true,
-                    "value": [],
-                    "internal": false,
-                    "type": "kString"
-                },
+
                 {
                     "name": "source",
                     "default": null,
@@ -778,7 +652,7 @@
         {
             "name": "FilesInDirectory",
             "type": "filesInDirectory",
-            "category": "directories",
+            "category": "filesystem",
             "documentation": "returns a list of files in a directory",
             "tags": [],
             "nodeUI": {},
@@ -838,7 +712,7 @@
         {
             "name": "FolderInDirectory",
             "type": "folderInDirectory",
-            "category": "directories",
+            "category": "filessystem",
             "documentation": "returns a list of folders in a directory, if recursive is True(default is False) then all subfolders will be returned as well",
             "tags": [],
             "nodeUI": {},
@@ -899,7 +773,7 @@
         {
             "name": "Glob",
             "type": "glob",
-            "category": "directories",
+            "category": "filesystem",
             "documentation": "returns a list of files in a directory",
             "tags": [],
             "nodeUI": {},
@@ -960,7 +834,7 @@
         {
             "name": "PathExists",
             "type": "pathExists",
-            "category": "directories",
+            "category": "filesystem",
             "documentation": "Checks if file path exists(os.path.exists)",
             "tags": [],
             "nodeUI": {},
@@ -997,7 +871,7 @@
         {
             "name": "Rename",
             "type": "rename",
-            "category": "directories",
+            "category": "filesystem",
             "documentation": "Rename",
             "tags": [],
             "nodeUI": {},
@@ -1875,18 +1749,7 @@
             "properties": {},
             "attributes": [
                 
-                {
-                    "name": "script",
-                    "default": [],
-                    "array": false,
-                    "compound": false,
-                    "required": true,
-                    "input": true,
-                    "output": true,
-                    "value": [],
-                    "internal": false,
-                    "type": "kString"
-                },
+
                 {
                     "name": "value",
                     "default": [],

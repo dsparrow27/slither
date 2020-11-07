@@ -5,6 +5,10 @@ from slither.core import errors
 logger = logging.getLogger("Slither")
 
 
+class NotSupportedAttributeIO(Exception):
+    pass
+
+
 class AttributeDefinition(object):
     """Acts as a blob of data to be attached to any given attribute, If you're
     """
@@ -24,13 +28,8 @@ class AttributeDefinition(object):
 
         self.__doc__ = doc
         self.validateDefault()
-        self._validateType()
-
-    def _validateType(self):
-        """Validate's the dataType and converts it if necessary.
-        """
-        print(self.type)
-        self.type = self.type(self.default, self.default)
+        if self.input and self.output:
+            raise NotSupportedAttributeIO(self.name)
 
     def __eq__(self, other):
         if not isinstance(other, AttributeDefinition):
@@ -207,6 +206,8 @@ class Attribute(object):
         """
         return self.upstream is not None
 
+    isConnected = hasUpstream
+
     def canConnect(self, attribute):
         isCompound = attribute.node.isCompound() or self.node.isCompound()
         if attribute.parent == self.node:
@@ -250,6 +251,8 @@ class Attribute(object):
     def disconnect(self):
         if self.hasUpstream():
             self.upstream = None
+            return True
+        return False
 
     def serialize(self):
 
