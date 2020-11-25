@@ -6,7 +6,6 @@ from slither.core import attribute
 from slither.core import graphsearch
 import six
 
-
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
@@ -492,9 +491,10 @@ class PythonNode(ComputeNode):
                 raise
         else:
             try:
-                exec (outputCode, globals(), _locals)
+                exec(outputCode, globals(), _locals)
             except Exception:
                 raise
+
 
 class Compound(ComputeNode):
     """The Compound class encapsulates a set of child nodes, which can include other compounds.
@@ -509,6 +509,8 @@ class Compound(ComputeNode):
         """
         super(Compound, self).__init__(name, graph=graph)
         self.children = []
+        if not self.nodeUI.get("label"):
+            self.nodeUI["label"] = self.Type
 
     @staticmethod
     def isCompound():
