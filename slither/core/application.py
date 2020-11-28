@@ -6,8 +6,7 @@ import os
 from slither.core import dispatcher, node, types, graph
 from zoo.libs.utils import filesystem, zlogging, modules
 
-logger = zlogging.getLogger(__name__)
-logger.addHandler(logging.StreamHandler())
+logger = logging.getLogger(__name__)
 
 
 class Application(object):
@@ -64,6 +63,7 @@ class Registry(object):
         if cachedObject:
             info = registeredTypeInfo["info"].copy()
             info.update(kwargs)
+            logger.debug("Creating Node : {}".format(nodeType))
             return cachedObject.create(info, graph)
         raise ValueError("Failed")
 

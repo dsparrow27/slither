@@ -1,8 +1,5 @@
 """A simple test for nested compound networks
 """
-import os
-import unittest
-
 from zoo.libs.utils import unittestBase
 from slither import api
 

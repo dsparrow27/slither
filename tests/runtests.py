@@ -1,10 +1,11 @@
 import os
 import sys
-
+import logging
 from zoo.core import api
 
 cfg = api.zooFromPath(os.environ["ZOOTOOLS_ROOT"])
 cfg.resolver.resolveFromPath(cfg.resolver.environmentPath())
+logging.basicConfig(level=logging.DEBUG)
 
 
 def main():

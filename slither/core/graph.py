@@ -1,13 +1,10 @@
-import logging
 import os
 import pprint
-
-from slither.core import dispatcher, node, types, errors
-from zoo.libs.plugin import pluginmanager
+import logging
+from slither.core import node, errors
 from zoo.libs.utils import filesystem, zlogging
 
-logger = zlogging.getLogger(__name__)
-logger.addHandler(logging.StreamHandler())
+logger = logging.getLogger(__name__)
 
 
 class Graph(object):
@@ -80,18 +77,15 @@ class Graph(object):
         self.load(filesystem.loadJson(path))
 
     def load(self, data):
+        logger.debug("Starting graph loading")
         # data can be a fraction full graph or it maybe start from the graph root system
         newNodes = {}
         connections = data.get("connections", [])
-        if data["name"] == "Root":
-            children = data.get("children", [])
-            newNodes[data["id"]] = self.root
-        else:
-            children = [data]
+        children = data.get("children", [])
+        newNodes[data["id"]] = self.root
 
         root = self.root
         root.deserialize(data, includeChildren=False)
-
         for child in children:
             newNode = self.createNode(child["name"], child["type"], parent=root)
             for i, n in newNode.deserialize(child).items():
@@ -106,6 +100,7 @@ class Graph(object):
             if sourceNode is None or destinationNode is None:
                 missingNodes.append(connection)
                 continue
+
             sourceAttr = sourceNode.attributeById(connection["output"])
             destAttr = destinationNode.attributeById(connection["input"])
             if sourceAttr is None or destAttr is None:
@@ -136,10 +131,13 @@ class Graph(object):
             raise errors.AttributeCompatiblityError(source, destination)
         if destination.upstream is not None:
             raise errors.AttributeAlreadyConnected(source, destination)
+
         logger.debug("Creating connection between: {}->{}".format(source.fullName(), destination.fullName()))
         destination.upstream = source
-        self.connections.append({"source": source.node.id, "destination": destination.node.id,
-                                 "input": destination.id, "output": source.id})
+        connection = {"source": source.node.id, "destination": destination.node.id,
+                      "input": destination.id, "output": source.id}
+        self.connections.append(connection)
+        return connection
 
     def createNode(self, name, type_, parent=None):
         parent = parent if parent is not None else self.root

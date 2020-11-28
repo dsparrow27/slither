@@ -6,9 +6,7 @@ from slither.core import attribute
 from slither.core import graphsearch
 import six
 
-
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
 
 
 class Context(dict):
@@ -253,7 +251,7 @@ class DependencyNode(BaseNode):
             attribute.id = 1 if not self.attributes else max(attr.id for attr in self.attributes) + 1
             self.attributes.append(attribute)
             return True
-        logger.warning("Couldn't create attribute: node-{}: attrbute-{}".format(self.node.name(), attribute.name()))
+        logger.warning("Couldn't create attribute: node-{}: attribute-{}".format(self.node.name(), attribute.name()))
         return False
 
     def createAttribute(self, attributeDefinition):
@@ -374,7 +372,8 @@ class DependencyNode(BaseNode):
             else:
                 # temp solution
                 attr["type_"] = self.graph.dataType(attr["type_"])
-                self.createAttribute(attributeDefinition=attribute.AttributeDefinition(**attr))
+                newAttr = self.createAttribute(attributeDefinition=attribute.AttributeDefinition(**attr))
+                newAttr.id = attr["id"]
         return {}
 
 
@@ -492,9 +491,10 @@ class PythonNode(ComputeNode):
                 raise
         else:
             try:
-                exec (outputCode, globals(), _locals)
+                exec(outputCode, globals(), _locals)
             except Exception:
                 raise
+
 
 class Compound(ComputeNode):
     """The Compound class encapsulates a set of child nodes, which can include other compounds.

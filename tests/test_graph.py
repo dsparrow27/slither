@@ -2,9 +2,6 @@
 """
 import os
 import unittest
-# from zoo.libs.utils import zlogging
-# zlogging.setGlobalDebug(True)
-
 from slither import api
 
 
@@ -27,13 +24,13 @@ class TestGraphStandardExecutor(unittest.TestCase):
 
     def testGraphLocalExecutor(self):
         testGraph = self.app.createGraph("localExecutor")
-        testGraph.loadFromFile(os.path.join(os.path.dirname(__file__), "data", "testGraph.json"))
+        testGraph.loadFromFile(os.path.join(os.path.dirname(__file__), "data", "testGraph.slgraph"))
         testGraph.execute(testGraph.root, self.app.STANDARDEXECUTOR)
         self.app.deleteGraph("localExecutor")
 
     def testGraphBackgroundExecutor(self):
         testGraph = self.app.createGraph("backgroundExecutor")
-        testGraph.loadFromFile(os.path.join(os.path.dirname(__file__), "data", "testGraph.json"))
+        testGraph.loadFromFile(os.path.join(os.path.dirname(__file__), "data", "testGraph.slgraph"))
         testGraph.execute(testGraph.root, self.app.PARALLELEXECUTOR)
         self.app.deleteGraph("backgroundExecutor")
 
@@ -79,7 +76,6 @@ class TestGraphStandardExecutor(unittest.TestCase):
         self.graph.execute(self.graph.root, self.executeType)
         self.assertEqual(self.graph.root.execution.value(), 30)
         serializeData = self.graph.serialize()
-
         newGraph = self.app.createGraph("newGraph")
         newGraph.load(serializeData)
         self.assertEqual(len(newGraph.root.children), len(self.graph.root.children))
@@ -95,8 +91,9 @@ class TestGraphStandardExecutor(unittest.TestCase):
         self.assertEqual(subChildNew.testOutput.value(), 30)
         self.assertEqual(newGraph.root.execution.value(), 30)
         self.app.deleteGraph("newGraph")
+
         testGraph = self.app.createGraph("testGraph")
-        testGraph.loadFromFile(os.path.join(os.path.dirname(__file__), "data", "testGraph.json"))
+        testGraph.loadFromFile(os.path.join(os.path.dirname(__file__), "data", "testGraph.slgraph"))
         self.app.deleteGraph("testGraph")
 
 

@@ -2,7 +2,7 @@ import logging
 import copy
 from slither.core import errors
 
-logger = logging.getLogger("Slither")
+logger = logging.getLogger(__name__)
 
 
 class NotSupportedAttributeIO(Exception):
@@ -88,6 +88,7 @@ class AttributeDefinition(object):
             if name == "value":
                 self.type.setValue(value)
             elif name not in ("type",) and hasattr(self, name) and value != self.__getattribute__(name):
+                # logger.debug("Setting Attribute {} parameter: {} -> {}".format(self, name, value))
                 self.__setattr__(name, value)
 
 
@@ -185,6 +186,7 @@ class Attribute(object):
         return self._value.value()
 
     def setValue(self, value):
+        logger.debug("Setting Attribute '{}' value too : {}".format(self, value))
         valueSet = self._value.setValue(value)
         if valueSet and self.node is not None and self.isInput():
             self.node.setDirty(True)
@@ -264,6 +266,7 @@ class Attribute(object):
     def deserialize(self, data):
         if self.definition:
             self.definition.deserialize(data)
+            self.id = data.get("id", self.id)
             self.setValue(data.get("value"))
 
 
