@@ -509,6 +509,8 @@ class Compound(ComputeNode):
         """
         super(Compound, self).__init__(name, graph=graph)
         self.children = []
+        if not self.nodeUI.get("label"):
+            self.nodeUI["label"] = self.Type
 
     @staticmethod
     def isCompound():

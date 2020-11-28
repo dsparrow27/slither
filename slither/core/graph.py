@@ -33,8 +33,9 @@ class Graph(object):
     def root(self):
         if self._root is not None:
             return self._root
-        self._root = self.application.registry.nodeClass("compound", graph=self, name=self.name)
+        self._root = self.application.registry.nodeClass("compound", graph=self, name=self.name or "world")
         self._root.id = self._generateNewNodeId()
+        self._root.nodeUI["label"] = "root"
         # mark the root as internal and locked so it can't be deleted.
         self._root.isLocked = True
         self._root.isInternal = True

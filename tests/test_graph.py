@@ -89,6 +89,7 @@ class TestGraphStandardExecutor(unittest.TestCase):
         newGraph.execute(newGraph.root, self.executeType)
         self.assertEqual(subChildNew.child("subsubChild").output.value(), 30)
         self.assertEqual(subChildNew.testOutput.value(), 30)
+        self.assertIsNotNone(newGraph.root.execution.upstream)
         self.assertEqual(newGraph.root.execution.value(), 30)
         self.app.deleteGraph("newGraph")
 
