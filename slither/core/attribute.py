@@ -213,14 +213,18 @@ class Attribute(object):
     def canConnect(self, attribute):
         isCompound = attribute.node.isCompound() or self.node.isCompound()
         if attribute.parent == self.node:
+            logger.debug("Attribute's is on the same Node")
             return False
         elif attribute.isInput() and self.isInput() and not isCompound:
+            logger.debug("Attribute is an input and neither the node nor the attr.node is a compound")
             return False
         elif attribute.isOutput() and self.isOutput() and not isCompound:
+            logger.debug("Attribute is an output and neither the node nor the attr.node is a compound")
             return False
         elif attribute.type().Type != self.type().Type:
+            logger.debug("Attribute types are not the same: {}".format(self.type()))
             return False
-
+        logger.debug("Able to connect")
         return True
 
     def isConnectedTo(self, attribute):
@@ -233,22 +237,30 @@ class Attribute(object):
         return True
 
     def connect(self, attr):
+        if self == attr:
+            raise errors.UnsupportedConnectionCombinationError(self, attr)
         attrNode = attr.node
         selfNode = self.node
-        parent = self.node.parent
-        if attrNode == parent:
-            if attr.isInput() and self.isInput():
-                return selfNode.createConnection(attr, self)
-            elif attr.isOutput() and self.isOutput():
-                return selfNode.createConnection(self, attr)
-            logger.error("Unsupported connection combination: {}->{}".format(self, attr))
+        if attrNode == selfNode:
             raise errors.UnsupportedConnectionCombinationError(self, attr)
-        elif self.isInput() and attr.isOutput():
-            return self.node.createConnection(attr, self)
-        elif self.isOutput() and attr.isInput():
-            return self.node.createConnection(self, attr)
-        logger.error("Unsupported connection combination: {}->{}".format(self, attr))
-        raise errors.UnsupportedConnectionCombinationError(self, attr)
+        src = self
+        dest = attr
+        attrParent = attrNode.parent
+        selfParent = selfNode.parent
+        if self.isInput() and attr.isOutput():
+            src = attr
+            dest = self
+        # compound input attribute to child input
+        elif self.isInput() and attr.isInput():
+            # if we connecting from the child attr to the compound input
+            if selfParent == attrNode:
+                src = attr
+                dest = self
+        elif self.isOutput() and attr.isOutput():
+            if attrParent == selfNode:
+                src = attr
+                dest = self
+        self.node.createConnection(src, dest)
 
     def disconnect(self):
         if self.hasUpstream():
@@ -274,8 +286,8 @@ class CompoundAttribute(Attribute):
     type_ = "compound"
 
     def __init__(self, definition, node=None):
-        super(CompoundAttribute, self).__init__(definition, node=node)
         self.children = []
+        super(CompoundAttribute, self).__init__(definition, node=node)
 
     def __repr__(self):
         return "CompoundAttribute(%s)" % (self.name())
@@ -285,18 +297,6 @@ class CompoundAttribute(Attribute):
 
     def __iter__(self):
         return iter(self.children)
-
-    def __setattr__(self, key, value):
-        if key != "children":
-            attr = getattr(self, key)
-            if attr:
-                attr.setValue(value)
-
-    def __getattr__(self, name):
-        for child in self.children:
-            if child.name() == name:
-                return name
-        return super(CompoundAttribute, self).__getattribute__(name)
 
     def addChild(self, child):
         if child not in self.children:
