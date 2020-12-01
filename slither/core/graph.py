@@ -5,6 +5,7 @@ from slither.core import node, errors
 from zoo.libs.utils import filesystem, zlogging
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 
 class Graph(object):
