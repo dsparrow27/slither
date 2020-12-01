@@ -235,7 +235,7 @@
                     "output": false,
                     "value": 0,
                     "internal": true,
-                    "type": "kFloat"
+                    "type": "kBool"
                 },
                 {
                     "name": "result",
@@ -461,6 +461,30 @@
             "nodeUI": {},
             "properties": {},
             "attributes": [
+            {
+                    "name": "output",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": false,
+                    "output": true,
+                    "value": false,
+                    "internal": false,
+                    "type": "kFloat"
+                },
+            {
+                    "name": "value",
+                    "default": [],
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": false,
+                    "value": false,
+                    "internal": false,
+                    "type": "kBool"
+                }
             ],
             "pluginPath": "./constants/booleanConstants.py"
         },
@@ -545,7 +569,7 @@
                     "output": true,
                     "value": true,
                     "internal": true,
-                    "type": "kBool"
+                    "type": "kFloat"
                 }
             ],
             "pluginPath": "./constants/pi.py"
@@ -596,6 +620,30 @@
             "nodeUI": {},
             "properties": {},
             "attributes": [
+            {
+                    "name": "value",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kString"
+                },
+                {
+                    "name": "output",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": "",
+                    "internal": true,
+                    "type": "kString"
+                }
             ],
             "pluginPath": "./constants/stringConstant.py"
         },
@@ -693,18 +741,6 @@
                     "value": [],
                     "internal": true,
                     "type": "kFile"
-                },
-                {
-                    "name": "output",
-                    "default": [],
-                    "array": true,
-                    "compound": false,
-                    "required": false,
-                    "input": false,
-                    "output": true,
-                    "value": [],
-                    "internal": true,
-                    "type": "kFile"
                 }
             ],
             "pluginPath": "./directories/filesindirectory.py"
@@ -754,18 +790,6 @@
                     "value": [],
                     "internal": true,
                     "type": "kDirectory"
-                },
-                {
-                    "name": "output",
-                    "default": [],
-                    "array": true,
-                    "compound": false,
-                    "required": false,
-                    "input": false,
-                    "output": true,
-                    "value": [],
-                    "internal": true,
-                    "type": "kDirectory"
                 }
             ],
             "pluginPath": "./directories/foldersindirectory.py"
@@ -803,18 +827,6 @@
                     "value": "*",
                     "internal": true,
                     "type": "kString"
-                },
-                {
-                    "name": "output",
-                    "default": [],
-                    "array": true,
-                    "compound": false,
-                    "required": false,
-                    "input": false,
-                    "output": true,
-                    "value": [],
-                    "internal": true,
-                    "type": "kFile"
                 },
                 {
                     "name": "output",
@@ -954,19 +966,7 @@
                 {
                     "name": "output",
                     "default": [],
-                    "array": true,
-                    "compound": false,
-                    "required": false,
-                    "input": false,
-                    "output": true,
-                    "value": [],
-                    "internal": true,
-                    "type": "kFile"
-                },
-                {
-                    "name": "output",
-                    "default": [],
-                    "array": true,
+                    "array": false,
                     "compound": false,
                     "required": false,
                     "input": false,
@@ -1662,18 +1662,6 @@
                     "value": [],
                     "internal": true,
                     "type": "kString"
-                },
-                {
-                    "name": "output",
-                    "default": [],
-                    "array": true,
-                    "compound": false,
-                    "required": false,
-                    "input": false,
-                    "output": true,
-                    "value": [],
-                    "internal": true,
-                    "type": "kString"
                 }
             ],
             "pluginPath": "./string/regex.py"
@@ -1709,18 +1697,6 @@
                     "input": true,
                     "output": false,
                     "value": ",",
-                    "internal": true,
-                    "type": "kString"
-                },
-                {
-                    "name": "output",
-                    "default": [],
-                    "array": true,
-                    "compound": false,
-                    "required": false,
-                    "input": false,
-                    "output": true,
-                    "value": [],
                     "internal": true,
                     "type": "kString"
                 },

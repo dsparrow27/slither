@@ -17,10 +17,10 @@
                     "array": false,
                     "compound": false,
                     "required": false,
-                    "input": "true",
+                    "input": true,
                     "output": false,
                     "value": "",
-                    "internal": false,
+                    "internal": true,
                     "type": "kFile"
                 },
                 {
@@ -29,10 +29,10 @@
                     "array": false,
                     "compound": false,
                     "required": false,
-                    "input": "true",
+                    "input": true,
                     "output": false,
                     "value": "",
-                    "internal": false,
+                    "internal": true,
                     "type": "kString"
                 },
                 {
@@ -42,9 +42,9 @@
                     "compound": false,
                     "required": false,
                     "input": false,
-                    "output": "true",
+                    "output": true,
                     "value": false,
-                    "internal": false,
+                    "internal": true,
                     "type": "kBool"
                 },
                 {
@@ -53,10 +53,10 @@
                     "array": false,
                     "compound": false,
                     "required": false,
-                    "input": "true",
+                    "input": true,
                     "output": false,
                     "value": 0,
-                    "internal": false,
+                    "internal": true,
                     "type": "kInt"
                 },
                 {
@@ -65,10 +65,10 @@
                     "array": false,
                     "compound": false,
                     "required": false,
-                    "input": "true",
+                    "input": true,
                     "output": false,
                     "value": 0,
-                    "internal": false,
+                    "internal": true,
                     "type": "kInt"
                 },
                 {
@@ -77,10 +77,10 @@
                     "array": false,
                     "compound": false,
                     "required": false,
-                    "input": "true",
+                    "input": true,
                     "output": false,
                     "value": 0,
-                    "internal": false,
+                    "internal": true,
                     "type": "kFloat"
                 },
                 {
@@ -89,10 +89,10 @@
                     "array": false,
                     "compound": false,
                     "required": true,
-                    "input": "true",
+                    "input": true,
                     "output": false,
                     "value": "NO_NAME",
-                    "internal": false,
+                    "internal": true,
                     "type": "kString"
                 },
                 {
@@ -101,10 +101,10 @@
                     "array": false,
                     "compound": false,
                     "required": false,
-                    "input": "true",
+                    "input": true,
                     "output": false,
                     "value": false,
-                    "internal": false,
+                    "internal": true,
                     "type": "kBool"
                 },
                 {
@@ -113,10 +113,10 @@
                     "array": false,
                     "compound": false,
                     "required": false,
-                    "input": "true",
+                    "input": true,
                     "output": false,
                     "value": 0,
-                    "internal": false,
+                    "internal": true,
                     "type": "kInt"
                 }
             ],
@@ -139,10 +139,10 @@
                     "array": false,
                     "compound": false,
                     "required": false,
-                    "input": "true",
+                    "input": true,
                     "output": false,
                     "value": "",
-                    "internal": false,
+                    "internal": true,
                     "type": "kFile"
                 },
                 {
@@ -151,10 +151,10 @@
                     "array": false,
                     "compound": false,
                     "required": false,
-                    "input": "true",
+                    "input": true,
                     "output": false,
                     "value": "",
-                    "internal": false,
+                    "internal": true,
                     "type": "kString"
                 },
                 {
@@ -164,9 +164,9 @@
                     "compound": false,
                     "required": false,
                     "input": false,
-                    "output": "true",
+                    "output": true,
                     "value": false,
-                    "internal": false,
+                    "internal": true,
                     "type": "kBool"
                 },
                 {
@@ -175,10 +175,10 @@
                     "array": false,
                     "compound": false,
                     "required": false,
-                    "input": "true",
+                    "input": true,
                     "output": false,
                     "value": 0,
-                    "internal": false,
+                    "internal": true,
                     "type": "kInt"
                 },
                 {
@@ -187,10 +187,10 @@
                     "array": false,
                     "compound": false,
                     "required": false,
-                    "input": "true",
+                    "input": true,
                     "output": false,
                     "value": 0,
-                    "internal": false,
+                    "internal": true,
                     "type": "kInt"
                 },
                 {
@@ -199,10 +199,10 @@
                     "array": false,
                     "compound": false,
                     "required": false,
-                    "input": "true",
+                    "input": true,
                     "output": false,
                     "value": 0,
-                    "internal": false,
+                    "internal": true,
                     "type": "kFloat"
                 },
                 {
@@ -211,10 +211,10 @@
                     "array": false,
                     "compound": false,
                     "required": true,
-                    "input": "true",
+                    "input": true,
                     "output": false,
                     "value": "NO_NAME",
-                    "internal": false,
+                    "internal": true,
                     "type": "kString"
                 },
                 {
@@ -223,10 +223,10 @@
                     "array": false,
                     "compound": false,
                     "required": false,
-                    "input": "true",
+                    "input": true,
                     "output": false,
                     "value": false,
-                    "internal": false,
+                    "internal": true,
                     "type": "kBool"
                 },
                 {
@@ -235,14 +235,118 @@
                     "array": false,
                     "compound": false,
                     "required": false,
-                    "input": "true",
+                    "input": true,
                     "output": false,
                     "value": 0,
-                    "internal": false,
+                    "internal": true,
                     "type": "kInt"
                 }
             ],
             "pluginPath": "./exportcameras.py"
+        },
+        {
+            "name": "currentMayaScene",
+            "type": "currentMayaScene",
+            "category": "maya",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                {
+                    "name": "path",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": "",
+                    "internal": true,
+                    "type": "kFile"
+                }
+            ],
+            "pluginPath": "./scene.py"
+        },
+        {
+            "name": "mayaSceneOpen",
+            "type": "mayaSceneOpen",
+            "category": "maya",
+            "documentation": "Open the supplied maya file",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                {
+                    "name": "sceneFile",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "type": "kFile"
+                },
+                {
+                    "name": "force",
+                    "default": false,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "type": "kBool"
+                }
+            ],
+            "pluginPath": "./openscene.py"
+        },
+        {
+            "name": "mayaSceneImport",
+            "type": "mayaSceneImport",
+            "category": "maya",
+            "documentation": "import the supplied maya file",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                {
+                    "name": "sceneFile",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "type": "kFile"
+                }
+            ],
+            "pluginPath": "./openscene.py"
+        },
+        {
+            "name": "mayaAlembicImport",
+            "type": "mayaAlembicImport",
+            "category": "maya",
+            "documentation": "import the supplied alembic file",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                {
+                    "name": "filePath",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "type": "kFile"
+                }
+            ],
+            "pluginPath": "./openscene.py"
         }
   ]
 }

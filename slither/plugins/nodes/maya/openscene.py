@@ -3,10 +3,6 @@ from slither import api
 
 class MayaSceneOpen(api.ComputeNode):
     Type = "mayaSceneOpen"
-    category = "maya"
-    documentation = "Open the supplied maya file"
-    sceneFile = api.AttributeDefinition(input=True, type_=api.types.kFile, default="")
-    force = api.AttributeDefinition(input=True, type_=api.types.kBool, default="false")
 
     def execute(self, context):
         from maya import cmds
@@ -17,9 +13,6 @@ class MayaSceneOpen(api.ComputeNode):
 
 class MayaSceneImport(api.ComputeNode):
     Type = "mayaSceneImport"
-    category = "maya"
-    documentation = "import the supplied maya file"
-    sceneFile = api.AttributeDefinition(input=True, type_=api.types.kFile, default="")
 
     def execute(self, context):
         from maya import cmds
@@ -49,7 +42,8 @@ class MayaFBXImport(api.ComputeNode):
         mel.eval("FBXImportSetLockedAttribute -v true;")
         mel.eval("FBXExportConstraints -v {};".format("false" if not context.constraints.value() else "true"))
         mel.eval(
-            "FBXExportSkeletonDefinitions -v {};".format("false" if not context.skeletonDefinitions.value() else "true"))
+            "FBXExportSkeletonDefinitions -v {};".format(
+                "false" if not context.skeletonDefinitions.value() else "true"))
         mel.eval("FBXImportLights -v {};".format(str(context.lights.value()).lower()))
         mel.eval("FBXImportCameras -v {};".format(str(context.cameras.value()).lower()))
         mel.eval("FBXImportHardEdges -v false;")
@@ -60,9 +54,6 @@ class MayaFBXImport(api.ComputeNode):
 
 class MayaAbcImport(api.ComputeNode):
     Type = "mayaAlembicImport"
-    category = "maya"
-    documentation = "import the supplied alembic file"
-    filePath = api.AttributeDefinition(input=True, type_=api.types.kFile, default="")
 
     def execute(self, context):
         from maya import cmds

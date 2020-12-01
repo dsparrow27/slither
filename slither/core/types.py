@@ -7,6 +7,9 @@ logger = logging.getLogger(__name__)
 class DataType(object):
     Type = None
 
+    def acceptsType(self, type_):
+        return self.Type == type_
+
     @classmethod
     def create(cls, info):
         newCls = cls(info.get("value"), info.get("default"))
