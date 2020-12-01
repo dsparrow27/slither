@@ -75,7 +75,8 @@ class AttributeDefinition(object):
                     input=self.input,
                     output=self.output,
                     value=attrValue,
-                    internal=self.internal)
+                    internal=self.internal,
+                    doc=self.documentation())
 
     def deserialize(self, data):
         """Deserialize's the provided data on this definition instance. The data must be
