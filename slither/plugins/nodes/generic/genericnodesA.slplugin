@@ -1,6 +1,31 @@
 {
     "nodes": [
         {
+            "name": "python",
+            "type": "python",
+            "category": "scripts",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "compound": false,
+            "attributes": [
+                {
+                    "name": "script",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kString"
+                }
+            ],
+            "pluginPath": null
+        },
+        {
             "name": "compound",
             "type": "compound",
             "category": "organization",
@@ -24,6 +49,30 @@
             "properties": {},
             "pin": true,
             "attributes": [
+                 {
+                    "name": "input",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kMulti"
+                },
+                {
+                    "name": "output",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": 0,
+                    "internal": true,
+                    "type": "kMulti"
+                }
             ],
             "pluginPath": null
         },
@@ -470,7 +519,7 @@
                     "input": false,
                     "output": true,
                     "value": false,
-                    "internal": false,
+                    "internal": true,
                     "type": "kFloat"
                 },
             {
@@ -482,7 +531,7 @@
                     "input": true,
                     "output": false,
                     "value": false,
-                    "internal": false,
+                    "internal": true,
                     "type": "kBool"
                 }
             ],
@@ -506,7 +555,7 @@
                     "input": false,
                     "output": true,
                     "value": 3.14,
-                    "internal": false,
+                    "internal": true,
                     "type": "kFloat"
                 }
             ],

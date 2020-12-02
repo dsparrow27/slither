@@ -42,7 +42,7 @@ class TestGraphStandardExecutor(unittest.TestCase):
                                                  type_=self.app.registry.dataTypeClass("kFloat")))
         subChild = comp.createNode("subsubChild", "sum")
 
-        subChild.inputA.connect(comp.testInput)
+        comp.testInput.connect(subChild.inputA)
         subChild.output.connect(comp.testOutput)
         self.graph.root.createAttribute(createOutputAttrDef("execution", self.app.registry.dataTypeClass("kFloat")))
         comp.testOutput.connect(self.graph.root.execution)
@@ -56,9 +56,12 @@ class TestGraphStandardExecutor(unittest.TestCase):
         self.assertEqual(subChild.inputA.upstream, comp.testInput)
         self.assertEqual(comp.testOutput.upstream, subChild.output)
         self.graph.execute(self.graph.root, self.executeType)
-        self.assertEqual(subChild.output.value(), 30.0)
-        self.assertEqual(comp.testOutput.value(), 30.0)
-        self.assertEqual(self.graph.root.execution.value(), 30)
+        self.assertEqual(comp.testInput.value(), 10)
+        self.assertEqual(comp.testOutput.value(), 40.0)
+        self.assertEqual(subChild.inputA.value(), 10)
+        self.assertEqual(subChild.inputB.value(), 30)
+        self.assertEqual(subChild.output.value(), 40.0)
+        self.assertEqual(self.graph.root.execution.value(), 40.0)
 
     def test_deserialize(self):
         comp = self.graph.root.createNode("testCompound", "compound")
@@ -67,15 +70,23 @@ class TestGraphStandardExecutor(unittest.TestCase):
         comp.createAttribute(createOutputAttrDef(name="testOutput",
                                                  type_=self.app.registry.dataTypeClass("kFloat")))
         subChild = comp.createNode("subsubChild", "sum")
-        subChild.inputA.connect(comp.testInput)
+
+        comp.testInput.connect(subChild.inputA)
         subChild.output.connect(comp.testOutput)
         self.graph.root.createAttribute(createOutputAttrDef("execution", self.app.registry.dataTypeClass("kFloat")))
         comp.testOutput.connect(self.graph.root.execution)
         comp.testInput.setValue(10)
         subChild.inputB.setValue(30)
+
+        self.assertTrue(self.graph.root.hasChild("testCompound"))
+        self.assertTrue(comp.hasChild("subsubChild"))
+        self.assertTrue(comp.hasAttribute("testInput"))
+        self.assertTrue(comp.hasAttribute("testOutput"))
+        self.assertEqual(subChild.inputA.upstream, comp.testInput)
+        self.assertEqual(comp.testOutput.upstream, subChild.output)
         self.graph.execute(self.graph.root, self.executeType)
-        self.assertEqual(self.graph.root.execution.value(), 30)
         serializeData = self.graph.serialize()
+        # re load the graph and test setup matches the above
         newGraph = self.app.createGraph("newGraph")
         newGraph.load(serializeData)
         self.assertEqual(len(newGraph.root.children), len(self.graph.root.children))
@@ -86,16 +97,15 @@ class TestGraphStandardExecutor(unittest.TestCase):
         self.assertTrue(subChildNew.hasAttribute("testOutput"))
         self.assertTrue(newGraph.root.hasAttribute("execution"))
         self.assertIsNotNone(subChildNew.child("subsubChild").inputA.upstream)
-        newGraph.execute(newGraph.root, self.executeType)
-        self.assertEqual(subChildNew.child("subsubChild").output.value(), 30)
-        self.assertEqual(subChildNew.testOutput.value(), 30)
-        self.assertIsNotNone(newGraph.root.execution.upstream)
-        self.assertEqual(newGraph.root.execution.value(), 30)
-        self.app.deleteGraph("newGraph")
 
-        testGraph = self.app.createGraph("testGraph")
-        testGraph.loadFromFile(os.path.join(os.path.dirname(__file__), "data", "testGraph.slgraph"))
-        self.app.deleteGraph("testGraph")
+        newGraph.execute(newGraph.root, self.executeType)
+        self.assertEqual(subChildNew.testInput.value(), 10)
+        self.assertEqual(subChildNew.child("subsubChild").inputA.value(), 10)
+        self.assertEqual(subChildNew.child("subsubChild").inputB.value(), 30)
+        self.assertEqual(subChildNew.child("subsubChild").output.value(), 40)
+        self.assertEqual(subChildNew.testOutput.value(), 40)
+        self.assertIsNotNone(newGraph.root.execution.upstream)
+        self.assertEqual(newGraph.root.execution.value(), 40)
 
 
 if __name__ == "__main__":

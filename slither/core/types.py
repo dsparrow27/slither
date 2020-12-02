@@ -7,8 +7,8 @@ logger = logging.getLogger(__name__)
 class DataType(object):
     Type = None
 
-    def acceptsType(self, type_):
-        return self.Type == type_
+    def supportsType(self, type_):
+        return self.Type == type_.Type
 
     @classmethod
     def create(cls, info):

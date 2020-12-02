@@ -30,6 +30,9 @@ class AttributeDefinition(object):
         self.validateDefault()
         if self.input and self.output:
             raise NotSupportedAttributeIO(self.name)
+        value = kwargs.get("value")
+        if value is not None:
+            self.type.setValue(value)
 
     def __eq__(self, other):
         if not isinstance(other, AttributeDefinition):
@@ -79,7 +82,7 @@ class AttributeDefinition(object):
                     doc=self.documentation())
 
     def deserialize(self, data):
-        """Deserialize's the provided data on this definition instance. The data must be
+        """Deserialize the provided data on this definition instance. The data must be
         in the same form as serialize()
 
         :param data: The data to apply to this instance
@@ -88,6 +91,7 @@ class AttributeDefinition(object):
         for name, value in iter(data.items()):
             if name == "value":
                 self.type.setValue(value)
+
             elif name not in ("type",) and hasattr(self, name) and value != self.__getattribute__(name):
                 # logger.debug("Setting Attribute {} parameter: {} -> {}".format(self, name, value))
                 self.__setattr__(name, value)
@@ -184,6 +188,8 @@ class Attribute(object):
         return self.definition.type
 
     def value(self):
+        if self._upstream is not None:
+            return self._upstream.value()
         return self._value.value()
 
     def setValue(self, value):
@@ -222,7 +228,7 @@ class Attribute(object):
         elif attribute.isOutput() and self.isOutput() and not isCompound:
             logger.debug("Attribute is an output and neither the node nor the attr.node is a compound")
             return False
-        elif attribute.type().Type != self.type().Type:
+        elif not attribute.type().supportsType(self.type()):
             logger.debug("Attribute types are not the same: {}".format(self.type()))
             return False
         logger.debug("Able to connect")
