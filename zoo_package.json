@@ -5,7 +5,8 @@
     "displayName": "Slither",
     "environment": {
         "PYTHONPATH": [
-            "{self}"
+            "{self}",
+            "{self}/slither/vendor"
         ], 
         "ZOO_BASE_PATHS": [
             "{self}"

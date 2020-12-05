@@ -1,31 +1,56 @@
+import contextlib
 import inspect
+from functools import wraps
 
 import logging
 import os
 
 from slither.core import dispatcher, node, types, graph
 from zoo.libs.utils import filesystem, zlogging, modules, env
-
+from blinker import signal
 logger = logging.getLogger(__name__)
 
 
 class EventSystem(object):
-    def __init__(self):
-        self.nodeCreated = None
-        self.nodeDeleted = None
-        self.nodeNameChanged = None
-        self.nodeDirtyChanged = None
-        self.attributeCreated = None
-        self.attributeDeleted = None
-        self.attributeNameChanged = None
-        self.attributeValueChanged = None
-        self.schedulerNodeCompleted = None
-        self.schedulerNodeErrored = None
 
-    def emit(self, name, *args, **kwargs):
+    def __init__(self):
+        self._blockSignal = False
+        self.graphCreated = signal("graphCreated")
+        self.graphDeleted = signal("graphDeleted")
+        self.nodeCreated = signal("nodeCreated")
+        self.nodeDeleted = signal("nodeDeleted")
+        self.nodeNameChanged = signal("nodeNameChanged")
+        self.nodeDirtyChanged = signal("nodeDirtyChanged")
+        self.attributeCreated = signal("attributeCreated")
+        self.attributeDeleted = signal("attributeDeleted")
+        self.attributeNameChanged = signal("attributeNameChanged")
+        self.attributeValueChanged = signal("attributeValueChanged")
+        self.schedulerNodeCompleted = signal("schedulerNodeCompleted")
+        self.schedulerNodeErrored = signal("schedulerNodeErrored")
+
+    def emit(self, signal, *args, **kwargs):
         """Internal use only
         """
-        pass
+        if self._blockSignal:
+            logger.debug("Signals are currently being blocked")
+            return
+        if not bool(signal.receivers):
+            logger.debug("No Receivers for signal :{}".format(signal.name))
+            return
+
+        signal.send(*args, **kwargs)
+
+    def blockSignals(self, func):
+
+        @wraps(func)
+        def _block(*args, **kwargs):
+            try:
+                self._blockSignal = True
+                return func(*args, **kwargs)
+            finally:
+                self._blockSignal = False
+
+        return _block
 
 
 class Application(object):
@@ -47,11 +72,13 @@ class Application(object):
     def deleteGraph(self, name):
         g = self.graph(name)
         self.graphs.remove(g)
+        self.events.emit(self.events.graphDeleted, graph=g)
         return g
 
     def createGraph(self, name):
         g = graph.Graph(self, name=name)
         self.graphs.append(g)
+        self.events.emit(self.events.graphCreated, graph=g)
         return g
 
 

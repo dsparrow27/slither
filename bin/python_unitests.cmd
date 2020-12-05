@@ -12,7 +12,6 @@ set ABS_PATH=%CD%
 rem // Restore original directory
 popd
 set ZOO_PACKAGE_VERSION_PATH=%ABS_PATH%\zoo\package_version.config
-set PYTHONPATH=%PYTHONPATH%;%ABS_PATH%;
 set TEST_PATH=%ABS_PATH%/tests
 
 

@@ -163,6 +163,7 @@ class BaseNode(object):
         :rtype: str
         """
         if self.name != name:
+            self.graph.application.events.emit(self.graph.application.events.nodeNameChanged, node=self, name=name)
             self.name = name
 
         return self.name
@@ -250,6 +251,7 @@ class DependencyNode(BaseNode):
         if attribute not in self.attributes:
             attribute.id = 1 if not self.attributes else max(attr.id for attr in self.attributes) + 1
             self.attributes.append(attribute)
+            self.graph.application.events.emit(self.graph.application.events.attributeCreated, node=self, attribute=attribute)
             return True
         logger.warning("Couldn't create attribute: node-{}: attribute-{}".format(self.node.name(), attribute.name()))
         return False
@@ -446,6 +448,7 @@ class ComputeNode(DependencyNode):
             return
         self._dirty = state
         logger.debug("Node: {},  dirty state changed, '{}'".format(self.fullName(), str(state)))
+        self.graph.application.events.emit(self.graph.application.events.nodeDirtyChanged, node=self, state=state)
         # if we setting to a dirty state and we need to propagate
         # then loop the downstream nodes and set their state
         if state and propagate:
@@ -589,7 +592,8 @@ class Compound(ComputeNode):
         if par is not None:
             self.clear()
             par.removeChild(self)
-        return True
+            return True
+        return False
 
     def hasChild(self, name):
         return any(i.name == name for i in self)
