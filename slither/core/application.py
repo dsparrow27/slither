@@ -9,13 +9,33 @@ from zoo.libs.utils import filesystem, zlogging, modules, env
 logger = logging.getLogger(__name__)
 
 
+class EventSystem(object):
+    def __init__(self):
+        self.nodeCreated = None
+        self.nodeDeleted = None
+        self.nodeNameChanged = None
+        self.nodeDirtyChanged = None
+        self.attributeCreated = None
+        self.attributeDeleted = None
+        self.attributeNameChanged = None
+        self.attributeValueChanged = None
+        self.schedulerNodeCompleted = None
+        self.schedulerNodeErrored = None
+
+    def emit(self, name, *args, **kwargs):
+        """Internal use only
+        """
+        pass
+
+
 class Application(object):
     PARALLELEXECUTOR = "parallel"
     STANDARDEXECUTOR = "serial"
 
     def __init__(self):
-        self.graphs = []
         env.addToEnv(Registry.LIB_ENV, [os.path.join(os.path.dirname(__file__), "..", "plugins")])
+        self.graphs = []
+        self.events = EventSystem()
         self.registry = Registry()
         self.registry.discoverPlugins()
 

@@ -409,7 +409,7 @@
                     "required": false,
                     "input": true,
                     "output": false,
-                    "value": true,
+                    "value": false,
                     "type": "kBool"
                 },
                 {
@@ -420,7 +420,7 @@
                     "required": false,
                     "input": true,
                     "output": false,
-                    "value": true,
+                    "value": false,
                     "type": "kBool"
                 },{
                     "name": "lights",
@@ -430,7 +430,7 @@
                     "required": false,
                     "input": true,
                     "output": false,
-                    "value": true,
+                    "value": false,
                     "type": "kBool"
                 },{
                     "name": "cameras",
@@ -440,7 +440,7 @@
                     "required": false,
                     "input": true,
                     "output": false,
-                    "value": true,
+                    "value": false,
                     "type": "kBool"
                 },
                 {
