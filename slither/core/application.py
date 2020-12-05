@@ -4,7 +4,7 @@ import logging
 import os
 
 from slither.core import dispatcher, node, types, graph
-from zoo.libs.utils import filesystem, zlogging, modules
+from zoo.libs.utils import filesystem, zlogging, modules, env
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +15,7 @@ class Application(object):
 
     def __init__(self):
         self.graphs = []
+        env.addToEnv(Registry.LIB_ENV, [os.path.join(os.path.dirname(__file__), "..", "plugins")])
         self.registry = Registry()
         self.registry.discoverPlugins()
 
