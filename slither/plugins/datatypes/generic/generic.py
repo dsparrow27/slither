@@ -70,6 +70,9 @@ class IntType(types.DataType):
 class StringType(types.DataType):
     Type = "kString"
 
+    def supportsType(self, type_):
+        return type_.Type in ("kString", "kFile", "kDirectory")
+
     def __init__(self, value=None, default=None):
         super(StringType, self).__init__(
             "" if value is None else value,
@@ -178,6 +181,10 @@ class ListType(types.DataType):
             self._value = value
             return True
         return False
+
+
+class EnumType(types.DataType):
+    Type = "kEnum"
 
 
 class MultiType(types.DataType):

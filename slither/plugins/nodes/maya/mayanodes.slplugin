@@ -3,7 +3,7 @@
     {
             "name": "exportAlembicCamera",
             "type": "exportAlembicCamera",
-            "category": "compounds",
+            "category": "maya",
             "documentation": "",
             "tags": [],
             "nodeUI": {},
@@ -298,6 +298,17 @@
                     "output": false,
                     "value": "",
                     "type": "kBool"
+                },
+                {
+                    "name": "nodes",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "type": "kString"
                 }
             ],
             "pluginPath": "./openscene.py"
@@ -321,6 +332,17 @@
                     "output": false,
                     "value": "",
                     "type": "kFile"
+                },
+                {
+                    "name": "nodes",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "type": "kString"
                 }
             ],
             "pluginPath": "./openscene.py"
@@ -344,6 +366,93 @@
                     "output": false,
                     "value": "",
                     "type": "kFile"
+                },
+                {
+                    "name": "nodes",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "type": "kString"
+                }
+            ],
+            "pluginPath": "./openscene.py"
+        },
+        {
+            "name": "mayaFBXImport",
+            "type": "mayaFBXImport",
+            "category": "maya",
+            "documentation": "import the supplied fbx file",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "attributes": [
+                {
+                    "name": "filePath",
+                    "default": "",
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "type": "kFile"
+                },
+                {
+                    "name": "constraints",
+                    "default": true,
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": true,
+                    "type": "kBool"
+                },
+                {
+                    "name": "skeletonDefinitions",
+                    "default": true,
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": true,
+                    "type": "kBool"
+                },{
+                    "name": "lights",
+                    "default": true,
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": true,
+                    "type": "kBool"
+                },{
+                    "name": "cameras",
+                    "default": true,
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": true,
+                    "type": "kBool"
+                },
+                {
+                    "name": "nodes",
+                    "default": [],
+                    "array": true,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": [],
+                    "type": "kString"
                 }
             ],
             "pluginPath": "./openscene.py"

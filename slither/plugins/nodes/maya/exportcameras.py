@@ -45,7 +45,7 @@ class ExportFBXCamera(api.ComputeNode):
             raise OSError("Path already exists: {}".format(outputPath))
 
     def execute(self, context):
-        from pw.libs.maya.utils import files
+        from zoo.libs.maya.utils import files
 
         self.validate(context)
         camera = context.camera.value()

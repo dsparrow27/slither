@@ -229,7 +229,7 @@ class Attribute(object):
             logger.debug("Attribute is an output and neither the node nor the attr.node is a compound")
             return False
         elif not attribute.type().supportsType(self.type()):
-            logger.debug("Attribute types are not the same: {}".format(self.type()))
+            logger.debug("Attribute types are not the same: {}".format(self.type().Type))
             return False
         logger.debug("Able to connect")
         return True

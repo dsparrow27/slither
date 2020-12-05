@@ -470,7 +470,7 @@ class PythonNode(ComputeNode):
         self.createAttribute(attrDef)
 
     def execute(self, context):
-        script = context.script
+        script = context.script.value()
         if not script:
             raise ValueError("")
         script = script.replace(u"\u2029", "\n")

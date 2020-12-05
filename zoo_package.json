@@ -1,0 +1,20 @@
+{
+    "author": "David Sparrow",
+    "authorEmail": "dsparrow27@gmail.com",
+    "description": "Execution engine",
+    "displayName": "Slither",
+    "environment": {
+        "PYTHONPATH": [
+            "{self}"
+        ], 
+        "ZOO_BASE_PATHS": [
+            "{self}"
+        ]
+    },
+    "name": "slither",
+    "requirements": ["zoo_core", "zoo_maya"],
+    "tests": [
+        "{self}/tests"
+    ], 
+    "version": "0.0.1"
+}
