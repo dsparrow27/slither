@@ -1,6 +1,0 @@
-{
-  "dispatchers": [
-    {"type":  "parallel", "pluginPath":  "./backgrounddispatcher.py"},
-    {"type":  "serial", "pluginPath": "./localdispatcher.py"}
-  ]
-}

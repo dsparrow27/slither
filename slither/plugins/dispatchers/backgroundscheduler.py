@@ -4,8 +4,8 @@ import timeit
 from slither import api
 
 
-class Parallel(api.BaseDispatcher):
-    """Background dispatcher using subprocess per node. The process is still blocked at this time
+class Parallel(api.BaseScheduler):
+    """Background scheduler using subprocess per node. The process is still blocked at this time
     but all node computations are done in parallel.
     """
     Type = "parallel"

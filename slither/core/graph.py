@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.DEBUG)
 class Graph(object):
     NODE_LIB_ENV = "SLITHER_NODE_LIB"
     TYPE_LIB_ENV = "SLITHER_TYPE_LIB"
-    DISPATCHER_LIB_ENV = "DISPATCHER_LIB"
+    scheduler_LIB_ENV = "scheduler_LIB"
 
     def __init__(self, app, name):
         """
@@ -71,9 +71,9 @@ class Graph(object):
 
     def execute(self, n, executorType):
         logger.debug("Starting execution")
-        exe = self.application.registry.dispatcherClass(executorType, graph=self)
+        exe = self.application.registry.schedulerClass(executorType, graph=self)
         if exe is None:
-            raise NotImplementedError("No Dispatcher of type: {}".format(str(executorType)))
+            raise NotImplementedError("No scheduler of type: {}".format(str(executorType)))
         try:
             exe.execute(n)
             logger.debug("Finished Executing graph")

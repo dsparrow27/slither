@@ -5,7 +5,7 @@ from functools import wraps
 import logging
 import os
 
-from slither.core import dispatcher, node, types, graph
+from slither.core import scheduler, node, types, graph
 from zoo.libs.utils import filesystem, zlogging, modules, env
 from blinker import signal
 logger = logging.getLogger(__name__)
@@ -90,7 +90,7 @@ class Registry(object):
     def __init__(self):
         self.nodes = {}
         self.dataTypes = {}
-        self.dispatchers = {}
+        self.schedulers = {}
 
     def nodeClass(self, nodeType, graph, **kwargs):
         """Retrieves the node class for the type.
@@ -128,8 +128,8 @@ class Registry(object):
             return cachedObject.create(info)
         raise ValueError("Failed")
 
-    def dispatcherClass(self, dispatcherType, *args, **kwargs):
-        registeredTypeInfo = self.dispatchers.get(dispatcherType)
+    def schedulerClass(self, schedulerType, *args, **kwargs):
+        registeredTypeInfo = self.schedulers.get(schedulerType)
         if not registeredTypeInfo:
             raise ValueError("fail")
         # if we've already discovered the object once before
@@ -156,7 +156,7 @@ class Registry(object):
             return
         pluginInfo = filesystem.loadJson(filePath)
         nodes = pluginInfo.get("nodes", [])
-        dispatchers = pluginInfo.get("dispatchers", [])
+        schedulers = pluginInfo.get("schedulers", [])
         dataTypes = pluginInfo.get("dataTypes", [])
         for datatype in dataTypes:
             self.registerDataType(filePath, datatype)
@@ -164,8 +164,8 @@ class Registry(object):
         for n in nodes:
             self.registerNode(filePath, n)
 
-        for dispatch in dispatchers:
-            self.registerDispatcher(filePath, dispatch)
+        for dispatch in schedulers:
+            self.registerscheduler(filePath, dispatch)
 
     def registryPluginFolder(self, path):
         for root, dirs, files in os.walk(path):
@@ -215,25 +215,25 @@ class Registry(object):
         types.__dict__[dataType["type"]] = dataClass
         self.dataTypes[dataType["type"]] = info
 
-    def registerDispatcher(self, path, dispatcherInfo):
-        pluginPath = dispatcherInfo.get("pluginPath", "")
+    def registerscheduler(self, path, schedulerInfo):
+        pluginPath = schedulerInfo.get("pluginPath", "")
         if not pluginPath:
             raise ValueError(
-                "No plugin path specified for path and datatype: {} - {}".format(path, dispatcherInfo["type"]))
+                "No plugin path specified for path and datatype: {} - {}".format(path, schedulerInfo["type"]))
         if not os.path.isabs(pluginPath):
             pluginPath = os.path.abspath(os.path.join(os.path.dirname(path), pluginPath))
         pluginObj = modules.importModule(pluginPath)
-        for dataClass in modules.iterSubclassesFromModule(pluginObj, dispatcher.BaseDispatcher):
-            if dataClass.Type == dispatcherInfo["type"]:
+        for dataClass in modules.iterSubclassesFromModule(pluginObj, scheduler.BaseScheduler):
+            if dataClass.Type == schedulerInfo["type"]:
                 break
         else:
-            raise ValueError("No dispatcher subclass found: {} - {}".format(path, dispatcherInfo["type"]))
+            raise ValueError("No scheduler subclass found: {} - {}".format(path, schedulerInfo["type"]))
         info = {
-            "info": dispatcherInfo,
+            "info": schedulerInfo,
             "class": dataClass,
             "path": pluginPath
         }
-        self.dispatchers[dispatcherInfo["type"]] = info
+        self.schedulers[schedulerInfo["type"]] = info
 
     def _nodeObjectByNode(self, nodeInfo):
         if nodeInfo.get("compound", False):

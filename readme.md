@@ -39,14 +39,14 @@ Graph mutation
 import os
 import sys
 from slither import api
-from slither.core import dispatcher
+from slither.core import scheduler
 
 app = api.initialize()
 root = app.root
 
 testSum = app.createNode("testNode", type_="Sum")
 
-dispatcher.StandardExecutor().execute(root)
+scheduler.StandardExecutor().execute(root)
 # pprint the graph
 pprint.pprint(root.serialize())
 # get the final result for the graph

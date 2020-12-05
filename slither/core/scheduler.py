@@ -5,7 +5,7 @@ import tempfile
 logger = logging.getLogger(__name__)
 
 
-class BaseDispatcher(object):
+class BaseScheduler(object):
     Type = "base"
 
     def __init__(self, graph):

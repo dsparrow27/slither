@@ -3,8 +3,8 @@ import timeit
 from slither import api
 
 
-class StandardExecutor(api.BaseDispatcher):
-    """Serial graph dispatcher, in this case all processing will block the
+class StandardExecutor(api.BaseScheduler):
+    """Serial graph scheduler, in this case all processing will block the
     current process.
     """
     Type = "serial"
