@@ -161,9 +161,11 @@ class Attribute(object):
         return self.definition.name
 
     def setName(self, name):
+        oldName = self.definition.name
         self.definition.setName(name)
         self.node.graph.application.events.emit(self.node.graph.application.events.attributeNameChanged,
-                                                attribute=self, name=name)
+                                                sender=self,
+                                                attribute=self, oldName=oldName, name=name)
 
     def fullName(self):
         if self.parent is not None:

@@ -8,18 +8,19 @@ import os
 from slither.core import scheduler, node, types, graph
 from zoo.libs.utils import filesystem, zlogging, modules, env
 from blinker import signal
-logger = logging.getLogger(__name__)
+
+logger = zlogging.getLogger(__name__)
 
 
 class EventSystem(object):
 
     def __init__(self):
         self._blockSignal = False
-        self.graphCreated = signal("graphCreated")
-        self.graphDeleted = signal("graphDeleted")
-        self.nodeCreated = signal("nodeCreated")
-        self.nodeDeleted = signal("nodeDeleted")
-        self.nodeNameChanged = signal("nodeNameChanged")
+        self.graphCreated = signal("graphCreated", doc="kwargs(sender, graph)")
+        self.graphDeleted = signal("graphDeleted", doc="kwargs(sender, graph)")
+        self.nodeCreated = signal("nodeCreated", doc="kwargs(sender, node)")
+        self.nodeDeleted = signal("nodeDeleted", doc="kwargs(sender, node)")
+        self.nodeNameChanged = signal("nodeNameChanged", doc="kwargs(sender, node, name)")
         self.nodeDirtyChanged = signal("nodeDirtyChanged")
         self.attributeCreated = signal("attributeCreated")
         self.attributeDeleted = signal("attributeDeleted")
@@ -28,7 +29,7 @@ class EventSystem(object):
         self.schedulerNodeCompleted = signal("schedulerNodeCompleted")
         self.schedulerNodeErrored = signal("schedulerNodeErrored")
 
-    def emit(self, signal, *args, **kwargs):
+    def emit(self, signal, sender, **kwargs):
         """Internal use only
         """
         if self._blockSignal:
@@ -37,8 +38,8 @@ class EventSystem(object):
         if not bool(signal.receivers):
             logger.debug("No Receivers for signal :{}".format(signal.name))
             return
-
-        signal.send(*args, **kwargs)
+        logger.debug("Sending signal: {}".format(signal.name))
+        signal.send(sender, **kwargs)
 
     def blockSignals(self, func):
 
@@ -78,7 +79,14 @@ class Application(object):
     def createGraph(self, name):
         g = graph.Graph(self, name=name)
         self.graphs.append(g)
-        self.events.emit(self.events.graphCreated, graph=g)
+        self.events.emit(self.events.graphCreated, sender=self, graph=g)
+        return g
+
+    def createGraphFromPath(self, name, filePath):
+        g = graph.Graph(self, name=name)
+        g.loadFromFile(filePath)
+        self.graphs.append(g)
+        self.events.emit(self.events.graphCreated, sender=self, graph=g)
         return g
 
 

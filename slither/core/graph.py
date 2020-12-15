@@ -47,7 +47,7 @@ class Graph(object):
         _root.isLocked = True
         _root.isInternal = True
         self._root = _root
-        self.application.events.emit(self.application.events.nodeCreated, node=_root)
+        self.application.events.emit(self.application.events.nodeCreated, sender=self, node=_root)
         return self._root
 
     def saveToFile(self, filePath, node=None):
@@ -174,7 +174,7 @@ class Graph(object):
 
         result = _create(name, type_, parent)
         if result is not None:
-            self.application.events.emit(self.application.events.nodeCreated, node=self)
+            self.application.events.emit(self.application.events.nodeCreated, sender=self, node=result)
         return result
 
     def _generateNewNodeId(self):
@@ -191,6 +191,6 @@ class Graph(object):
                 child.disconnectAll()
             self.nodeIds.remove(child.id)
             parent.children.remove(child)
-            self.application.events.emit(self.application.events.nodeDeleted, node=child)
+            self.application.events.emit(self.application.events.nodeDeleted, sender=self, node=child)
             return True
         return False

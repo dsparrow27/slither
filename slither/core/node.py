@@ -162,9 +162,14 @@ class BaseNode(object):
         :type name: str
         :rtype: str
         """
-        if self.name != name:
-            self.graph.application.events.emit(self.graph.application.events.nodeNameChanged, node=self, name=name)
+        oldName = self.name
+        if oldName != name:
             self.name = name
+            self.graph.application.events.emit(self.graph.application.events.nodeNameChanged,
+                                               sender=self,
+                                               node=self,
+                                               oldName=name,
+                                               name=name)
 
         return self.name
 
@@ -251,7 +256,9 @@ class DependencyNode(BaseNode):
         if attribute not in self.attributes:
             attribute.id = 1 if not self.attributes else max(attr.id for attr in self.attributes) + 1
             self.attributes.append(attribute)
-            self.graph.application.events.emit(self.graph.application.events.attributeCreated, node=self, attribute=attribute)
+            self.graph.application.events.emit(self.graph.application.events.attributeCreated,
+                                               sender=self,
+                                               node=self, attribute=attribute)
             return True
         logger.warning("Couldn't create attribute: node-{}: attribute-{}".format(self.node.name(), attribute.name()))
         return False
@@ -448,7 +455,8 @@ class ComputeNode(DependencyNode):
             return
         self._dirty = state
         logger.debug("Node: {},  dirty state changed, '{}'".format(self.fullName(), str(state)))
-        self.graph.application.events.emit(self.graph.application.events.nodeDirtyChanged, node=self, state=state)
+        self.graph.application.events.emit(self.graph.application.events.nodeDirtyChanged, sender=self,
+                                           node=self, state=state)
         # if we setting to a dirty state and we need to propagate
         # then loop the downstream nodes and set their state
         if state and propagate:
