@@ -340,8 +340,9 @@ class DependencyNode(BaseNode):
         if self.parent:
             children = self.parent.children
             for i in children:
-                if self in i.upstreamNodes():
-                    nodes.append(i)
+                if isinstance(i, DependencyNode):
+                    if self in i.upstreamNodes():
+                        nodes.append(i)
         return nodes
 
     def disconnectAll(self):
