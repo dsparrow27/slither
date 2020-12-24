@@ -1,5 +1,4 @@
 import multiprocessing
-import timeit
 
 from slither import api
 
@@ -8,92 +7,54 @@ class Parallel(api.BaseScheduler):
     """Background scheduler using subprocess per node. The process is still blocked at this time
     but all node computations are done in parallel.
     """
+
     Type = "parallel"
 
-    def execute(self, node):
-        """Executes a given node in parallel if the node is a compound then the children will be executed
+    def __init__(self, job):
+        super(Parallel, self).__init__(job)
+        self._tasks = {}  # nodeId: {"parentConnection": "", "childConnection": "" }
 
-        :param node: Node instance, either a compound or a subclass of node
-        :return: bool, True when finished executing nodes
-        """
-        start = timeit.default_timer()
-        try:
-            self._execute(node)
-        finally:
-            end = timeit.default_timer()
-            totalExecutionTime = end - start
+    def shutdown(self):
+        self._tasks = {}
 
-            self.logger.debug("Total executing time: {}".format(totalExecutionTime))
+    def schedule(self, taskId, nodeInfo):
+        parent, child = multiprocessing.Pipe()
+        process = multiprocessing.Process(target=executeNode, args=(nodeInfo, parent))
+        self._tasks[taskId] = {"parentConnection": parent,
+                               "childConnection": child,
+                               "process": process,
+                               "status": api.Status.RUNNING}
+        process.start()
 
-    @classmethod
-    def _execute(cls, node):
+    def taskStatus(self, taskId):
 
-        if node.isCompound():
-            node.mutate()
-            nodes = node.topologicalOrder()
-        else:
-            nodes = api.nodeBreadthFirstSearch(node)
-        processes = []
-        parentConnections = []
-        childConnections = []
-        while nodes:
-            cls.stopProcesses(nodes, processes, parentConnections, childConnections)
-            cls.startProcesses(nodes, processes, parentConnections, childConnections)
+        task = self._tasks.get(taskId, {})
+        connection = task["childConnection"]
 
-        return True
+        if not connection.poll():
+            task["status"] = api.Status.RUNNING
+            return api.Status.RUNNING
+        task["process"].join()
+        task["status"] = api.Status.COMPLETED
+        return api.Status.COMPLETED
 
-    @classmethod
-    def startProcesses(cls, nodes, processes, parentConnections, childConnections):
-        """
-        :param nodes: list(node), a list of nodes to execute
-        :param processes: list(multiprocessing.Process), a list of processing class
-        :param parentConnections: list(multiprocessing.Connection), a list of parent connections which will store the
-        processed nodes output values as a dict
-        :param childConnections: list(multiprocessing.Connection)
-        """
-        for node, dependents in nodes.items():
-            if dependents:
-                if len(dependents) == 1 and dependents[0] == node.parent:
-                    nodes[node] = list()
-                else:
-                    continue
-            parentConnection, childConnection = multiprocessing.Pipe()
-            parentConnections.append(parentConnection)
-            childConnections.append(childConnection)
-            process = multiprocessing.Process(target=cls.startProcess(node, parentConnection))
-            processes.append(process)
-            process.start()
+    def taskResults(self, taskId):
+        task = self._tasks.get(taskId, {})
 
-    @classmethod
-    def stopProcesses(cls, nodes, processes, parentConnections, childConnections):
-        if not parentConnections:
-            return
-        needToTerminate = []
-        # determine indices for processes that need to be removed
-        for index, childConnection in enumerate(childConnections):
-            if childConnection.poll():
-                recvData = childConnection.recv()
-                node = list(nodes.keys())[index]
-                # copy the output data from the process back into the main process output data
-                cls.onNodeCompleted(node, recvData)
-                del nodes[node]
-                for dependent, dependents in nodes.items():
-                    if node in dependents:
-                        nodes[dependent].pop(dependents.index(node))
-                needToTerminate.append(index)
-        # loop the indices that need to be removed
+        connection = task["childConnection"]
+        if not connection.poll():
+            return {}
 
-        # remove the process/connections/nodes[index] from the storage
-        for processIndex in reversed(needToTerminate):
-            childConnections.pop(processIndex)
-            process = processes.pop(processIndex)
-            process.join()
-            del parentConnections[processIndex]
+        data = connection.recv()
+        task["process"].join()
+        return data
 
-    @classmethod
-    def startProcess(cls, node, parentConnection):
-        if node.isCompound():
-            cls._execute(node)
-        ctx = api.Context.fromNode(node)
-        node.process(ctx)
-        parentConnection.send(ctx)
+
+def executeNode(nodeInfo, connection):
+    nodeApp = api.Application()
+    graph = nodeApp.createGraph("ExecutionGraph-{}".format(nodeInfo["name"]))
+    graph.variables = nodeInfo["context"]["variables"]
+    newNode = graph.createNode(nodeInfo["name"], nodeInfo["type"])
+    context = api.Context.fromExtractData(nodeInfo["context"])
+    newNode.proxyCls.compute(context)
+    connection.send(context.serialize())

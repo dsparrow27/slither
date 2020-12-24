@@ -1,7 +1,7 @@
 from slither import api
 
 
-class PublishCompound(api.Compound):
+class PublishCompound(api.PXCompoundNode):
     Type = "PublishCompound"
     category = "Shotgun"
     path = api.AttributeDefinition(type_=api.types.kFile, input=True)

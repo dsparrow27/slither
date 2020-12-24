@@ -34,6 +34,36 @@ class Context(dict):
             except KeyError:
                 pass
 
+    def serialize(self):
+        attrData = {"outputs": {}, "inputs": {},
+                    "name": self["name"]}
+        for attrName, attrValue in self["outputs"].items():
+            attrData["outputs"][attrName] = attrValue.value()
+        for attrName, attrValue in self["inputs"].items():
+            attrData["inputs"][attrName] = attrValue.value()
+        return attrData
+
+    @staticmethod
+    def extractContextDataFromNode(node):
+        attrData = {"outputs": {}, "inputs": {}}
+        for attr in node.attributes:
+            if attr.isInput():
+                attrData["inputs"][attr.name()] = attr.value()
+            else:
+                attrData["outputs"][attr.name()] = attr.value()
+        attrData["name"] = node.name
+        return attrData
+
+    @classmethod
+    def fromExtractData(cls, contextData):
+        attrData = {"outputs": {}, "inputs": {}}
+        for attrName, attrValue in contextData["outputs"].items():
+            attrData["outputs"][attrName] = ContextAttr(attrValue)
+        for attrName, attrValue in contextData["inputs"].items():
+            attrData["inputs"][attrName] = ContextAttr(attrValue)
+        attrData["name"] = contextData["name"]
+        return cls(**attrData)
+
     @classmethod
     def fromNode(cls, node):
         attrData = {"outputs": {}, "inputs": {}}
@@ -80,9 +110,9 @@ class BaseNode(object):
     documentation = ""
 
     @classmethod
-    def create(cls, info, graph):
+    def create(cls, info, graph, proxyClass):
         name = info["name"]
-        node = cls(name, graph)
+        node = cls(name, graph, proxyClass)
         node.properties = info.get("properties", {})
         node.nodeUI = info.get("nodeUI", {})
         node.isLocked = info.get("locked", False)
@@ -92,10 +122,11 @@ class BaseNode(object):
         node.Type = info.get("type", "")
         return node
 
-    def __init__(self, name, graph):
+    def __init__(self, name, graph, proxyClass):
         self.graph = graph
         self.id = 0
         self.name = name
+        self.proxyCls = proxyClass
         self.isLocked = False
         self.isInternal = False
         self._parent = None
@@ -204,8 +235,8 @@ class BaseNode(object):
 @six.add_metaclass(NodeMeta)
 class DependencyNode(BaseNode):
     @classmethod
-    def create(cls, info, graph):
-        n = super(DependencyNode, cls).create(info, graph)
+    def create(cls, info, graph, proxyClass):
+        n = super(DependencyNode, cls).create(info, graph, proxyClass)
         for attr in info.get("attributes", []):
             if n.hasAttribute(attr["name"]):
                 continue
@@ -220,9 +251,9 @@ class DependencyNode(BaseNode):
             n.createAttribute(attrDef)
         return n
 
-    def __init__(self, name, graph):
+    def __init__(self, name, graph, proxyClass):
         self.attributes = []
-        super(DependencyNode, self).__init__(name, graph)
+        super(DependencyNode, self).__init__(name, graph, proxyClass)
         for name, attrDef in iter(self.__class__.__dict__.items()):
             if isinstance(attrDef, attribute.AttributeDefinition):
                 self.createAttribute(copy.deepcopy(attrDef))
@@ -391,8 +422,8 @@ class Comment(BaseNode):
     Type = "comment"
     documentation = "A single node with a description"
 
-    def __init__(self, name, graph):
-        super(Comment, self).__init__(name, graph)
+    def __init__(self, name, graph, proxyClass):
+        super(Comment, self).__init__(name, graph, proxyClass)
         self.title = ""
         self.comment = ""
 
@@ -410,35 +441,29 @@ class ComputeNode(DependencyNode):
     """Node which has a computation operation
     """
 
-    def __init__(self, name, graph):
-        super(ComputeNode, self).__init__(name, graph)
+    def __init__(self, name, graph, proxyClass):
+        super(ComputeNode, self).__init__(name, graph, proxyClass)
         self._progress = 0
         self._dirty = False
-
-    def process(self, context):
-        fullName = self.fullName()
-        start = timeit.default_timer()
-        try:
-            logger.debug("Processing node: {}".format(fullName),
-                         extra={"context": context})
-            self.progress = 0
-            self.validate(context)
-            self.execute(context)
-            self.progress = 100
-        except Exception:
-            self.progress = 0
-            logger.error("Failed to execute Node: {}".format(fullName),
-                         exc_info=True)
-            raise
-        logger.debug("Finished executing Node: {}, running time: {}".format(fullName,
-                                                                            timeit.default_timer() - start))
-        self.setDirty(False)
-
-    def validate(self, context):
-        return True
-
-    def execute(self, context):
-        pass
+    #
+    # def process(self, context):
+    #     fullName = self.fullName()
+    #     start = timeit.default_timer()
+    #     try:
+    #         logger.debug("Processing node: {}".format(fullName),
+    #                      extra={"context": context})
+    #         self.progress = 0
+    #         self.validate(context)
+    #         self.compute(context)
+    #         self.progress = 100
+    #     except Exception:
+    #         self.progress = 0
+    #         logger.error("Failed to execute Node: {}".format(fullName),
+    #                      exc_info=True)
+    #         raise
+    #     logger.debug("Finished executing Node: {}, running time: {}".format(fullName,
+    #                                                                         timeit.default_timer() - start))
+    #     self.setDirty(False)
 
     @property
     def progress(self):
@@ -465,61 +490,18 @@ class ComputeNode(DependencyNode):
                 dependent.setDirty(state, propagate)
 
 
-class PythonNode(ComputeNode):
-    Type = "python"
-
-    def __init__(self, name, graph):
-        super(PythonNode, self).__init__(name, graph)
-
-        attrDef = attribute.AttributeDefinition(name="script",
-                                                input=True,
-                                                output=False,
-                                                type_=graph.application.registry.dataTypeClass("kString"),
-                                                default=list(),
-                                                required=True,
-                                                array=False,
-                                                doc="Executable python string")
-        self.createAttribute(attrDef)
-
-    def execute(self, context):
-        script = context.script.value()
-        if not script:
-            raise ValueError("")
-        script = script.replace(u"\u2029", "\n")
-        evalCode = True
-        _locals = {"context": context}
-        try:
-            outputCode = compile(script, "<string>", "eval")
-        except SyntaxError:
-            evalCode = False
-            outputCode = compile(script, "<string>", "exec")
-        except Exception:
-            raise
-        # ok we've compiled the code now exec
-        if evalCode:
-            try:
-                eval(outputCode, globals(), _locals)
-            except Exception:
-                raise
-        else:
-            try:
-                exec(outputCode, globals(), _locals)
-            except Exception:
-                raise
-
-
 class Compound(ComputeNode):
     """The Compound class encapsulates a set of child nodes, which can include other compounds.
     We provide methods to query the children nodes of the current compound.
     """
     Type = "compound"
 
-    def __init__(self, name, graph):
+    def __init__(self, name, graph, proxyClass):
         """
         :param name: The name that this node will have, if the name already exist a number we be appended.
         :type name: str
         """
-        super(Compound, self).__init__(name, graph=graph)
+        super(Compound, self).__init__(name, graph=graph, proxyClass=proxyClass)
         self.children = []
         if not self.nodeUI.get("label"):
             self.nodeUI["label"] = self.Type
@@ -635,3 +617,5 @@ class Compound(ComputeNode):
                 newChildren[nId] = n
             newChildren[child["id"]] = newNode
         return newChildren
+
+

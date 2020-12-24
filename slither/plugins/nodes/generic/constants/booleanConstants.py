@@ -1,8 +1,8 @@
 from slither import api
 
 
-class Boolean(api.ComputeNode):
+class Boolean(api.PXComputeNode):
     Type = "bool"
 
-    def execute(self, context):
+    def compute(self, context):
         context.output.setValue(bool(context.input.value()))

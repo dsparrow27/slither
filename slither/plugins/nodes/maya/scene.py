@@ -1,9 +1,9 @@
 from slither import api
 
 
-class CurrentMayaScene(api.ComputeNode):
+class CurrentMayaScene(api.PXComputeNode):
     Type = "currentMayaScene"
 
-    def execute(self, context):
+    def compute(self, context):
         from maya import OpenMaya as om1
         context.path.setValue(om1.MFileIO.currentFile())

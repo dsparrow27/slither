@@ -4,7 +4,7 @@ import os
 from slither import api
 
 
-class FilesInDirectory(api.ComputeNode):
+class FilesInDirectory(api.PXComputeNode):
     Type = "filesInDirectory"
     # category = "directories"
     # documentation = "returns a list of files in a directory"
@@ -12,7 +12,7 @@ class FilesInDirectory(api.ComputeNode):
     # recursive = api.AttributeDefinition(input=True, type_=api.types.kBool, default=False)
     # output = api.AttributeDefinition(output=True, type_=api.types.kFile, array=True, default=[])
 
-    def execute(self, context):
+    def compute(self, context):
         directory = os.path.normpath(context.directory.value())
         if not context.recursive.value():
             context.output.setValue([f for f in glob.glob(os.path.join(directory, "*")) if os.path.isfile(f)])

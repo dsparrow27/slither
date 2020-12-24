@@ -1,7 +1,7 @@
 from slither import api
 
 
-class Modulo(api.ComputeNode):
+class Modulo(api.PXComputeNode):
     Type = "modulo"
     # category = "math"
     # documentation = "Multiplies the input values together"
@@ -9,5 +9,5 @@ class Modulo(api.ComputeNode):
     # inputB = api.AttributeDefinition(input=True, type_=api.types.kFloat, default=0)
     # output = api.AttributeDefinition(output=True, type_=api.types.kFloat, default=0)
 
-    def execute(self, context):
+    def compute(self, context):
         context.output.setValue(context.inputA.value() % context.inputB.value())

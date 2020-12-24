@@ -4,7 +4,7 @@ import shutil
 from slither import api
 
 
-class CopyFilesToNode(api.ComputeNode):
+class CopyFilesToNode(api.PXComputeNode):
     """Copy a list of files to a directory and returns the new file paths
     """
     Type = "copyFilesTo"
@@ -12,7 +12,7 @@ class CopyFilesToNode(api.ComputeNode):
     # destinationFolder = api.AttributeDefinition(input=True, type_=api.types.kDirectory)
     # result = api.AttributeDefinition(output=True, type_=api.types.kFile, isArray=True)
 
-    def execute(self, context):
+    def compute(self, context):
         source = context.source.value()
         destination = context.destinationFolder.value()
         if not os.path.exists(destination) and not os.path.isdir(destination):

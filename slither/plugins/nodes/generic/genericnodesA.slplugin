@@ -23,7 +23,7 @@
                     "type": "kString"
                 }
             ],
-            "pluginPath": null
+            "pluginPath": "./pythonnode.py"
         },
         {
             "name": "compound",

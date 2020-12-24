@@ -1,7 +1,7 @@
 from slither import api
 
 
-class Multiply(api.ComputeNode):
+class Multiply(api.PXComputeNode):
     Type = "multiply"
     # category = "math"
     # documentation = "Multiplies the input values together"
@@ -9,5 +9,5 @@ class Multiply(api.ComputeNode):
     # inputB = api.AttributeDefinition(input=True, type_=api.types.kFloat, default=0)
     # output = api.AttributeDefinition(output=True, type_=api.types.kFloat, default=0)
 
-    def execute(self, context):
+    def compute(self, context):
         context.output.setValue(context.inputA.value() * context.inputB.value())

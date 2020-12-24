@@ -1,13 +1,13 @@
 from slither import api
 
 
-class LessThanOrEqualToNode(api.ComputeNode):
+class LessThanOrEqualToNode(api.PXComputeNode):
     Type = "lessThanOrEqualTo"
     # value1 = api.AttributeDefinition(api.types.kFloat, input=True)
     # value2 = api.AttributeDefinition(api.types.kFloat, input=True)
     # result = api.AttributeDefinition(api.types.kBool, output=True)
 
-    def execute(self, context):
+    def compute(self, context):
         result = context.value1.value() <= context.value2.value()
 
         context.result.setValue(result)

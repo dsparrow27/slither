@@ -5,8 +5,9 @@ from functools import wraps
 import logging
 import os
 
-from slither.core import scheduler, node, types, graph
+from slither.core import scheduler, node, types, graph, proxyplugins
 from zoo.libs.utils import filesystem, zlogging, modules, env
+from zoo.libs.plugin import pluginmanager
 from blinker import signal
 
 logger = zlogging.getLogger(__name__)
@@ -56,7 +57,7 @@ class EventSystem(object):
 
 class Application(object):
     PARALLELEXECUTOR = "parallel"
-    STANDARDEXECUTOR = "serial"
+    STANDARDEXECUTOR = "inProcess"
 
     def __init__(self):
         env.addToEnv(Registry.LIB_ENV, [os.path.join(os.path.dirname(__file__), "..", "plugins")])
@@ -73,7 +74,7 @@ class Application(object):
     def deleteGraph(self, name):
         g = self.graph(name)
         self.graphs.remove(g)
-        self.events.emit(self.events.graphDeleted, graph=g)
+        self.events.emit(self.events.graphDeleted, sender=self, graph=g)
         return g
 
     def createGraph(self, name):
@@ -96,9 +97,15 @@ class Registry(object):
     LIB_ENV = "SLITHER_PLUGIN_PATH"
 
     def __init__(self):
-        self.nodes = {}
-        self.dataTypes = {}
-        self.schedulers = {}
+        self._nodeRegistry = pluginmanager.PluginManager(interface=proxyplugins.ProxyBase,
+                                                         variableName="Type")
+        self._dataTypeRegistry = pluginmanager.PluginManager(interface=types.DataType,
+                                                             variableName="Type")
+        self._schedulerRegistry = pluginmanager.PluginManager(interface=scheduler.BaseScheduler,
+                                                              variableName="Type")
+        self._nodeInfoCache = {}
+        self._dataTypeCache = {}
+        self._schedulerInfoCache = {}
 
     def nodeClass(self, nodeType, graph, **kwargs):
         """Retrieves the node class for the type.
@@ -110,41 +117,55 @@ class Registry(object):
         :param nodeType: The node Type
         :type nodeType: str
         """
-        registeredTypeInfo = self.nodes.get(nodeType)
-        if not registeredTypeInfo:
-            raise ValueError("fail {}".format(nodeType))
-        # if we've already discovered the object once before
-        # return it from the cache
-        cachedObject = registeredTypeInfo["class"]
-        if cachedObject:
-            info = registeredTypeInfo["info"].copy()
-            info.update(kwargs)
-            logger.debug("Creating Node : {}".format(nodeType))
-            return cachedObject.create(info, graph)
+        proxyClass, info = self.proxyNodeClass(nodeType, **kwargs)
+        # temp
+        if isinstance(proxyClass, proxyplugins.PXComputeNode):
+            return node.ComputeNode.create(info, graph, proxyClass)
+        elif isinstance(proxyClass, proxyplugins.PXCompoundNode):
+            return node.Compound.create(info, graph, proxyClass)
+        elif isinstance(proxyClass, proxyplugins.PXCommentNode):
+            return node.Comment.create(info, graph, proxyClass)
+        elif isinstance(proxyClass, proxyplugins.PXPinNode):
+            return node.Pin.create(info, graph, proxyClass)
         raise ValueError("Failed")
 
-    def dataTypeClass(self, dataType, *args, **kwargs):
-        registeredTypeInfo = self.dataTypes.get(dataType)
+    def proxyNodeClass(self, nodeType, **kwargs):
+        registeredTypeInfo = self._nodeInfoCache[nodeType]
         if not registeredTypeInfo:
-            raise ValueError("fail")
+            raise ValueError("fail {}".format(nodeType))
+        nodeClass = self._nodeRegistry.getPlugin(nodeType)
         # if we've already discovered the object once before
         # return it from the cache
-        cachedObject = registeredTypeInfo["class"]
-        if cachedObject:
+        if nodeClass is None:
+            raise ValueError("Failed")
+        info = registeredTypeInfo["info"].copy()
+        info.update(kwargs)
+        return nodeClass(), info
+
+    def dataTypeClass(self, dataType, *args, **kwargs):
+
+        registeredTypeInfo = self._dataTypeCache.get(dataType)
+        if not registeredTypeInfo:
+            raise ValueError("fail")
+        typeClass = self._dataTypeRegistry.getPlugin(dataType)
+        # if we've already discovered the object once before
+        # return it from the cache
+        if typeClass:
             info = registeredTypeInfo["info"].copy()
             info.update(kwargs)
-            return cachedObject.create(info)
+            return typeClass.create(info)
         raise ValueError("Failed")
 
     def schedulerClass(self, schedulerType, *args, **kwargs):
-        registeredTypeInfo = self.schedulers.get(schedulerType)
+
+        registeredTypeInfo = self._schedulerInfoCache.get(schedulerType)
         if not registeredTypeInfo:
             raise ValueError("fail")
+        typeClass = self._schedulerRegistry.getPlugin(schedulerType)
         # if we've already discovered the object once before
         # return it from the cache
-        cachedObject = registeredTypeInfo["class"]
-        if cachedObject:
-            return cachedObject(*args, **kwargs)
+        if typeClass:
+            return typeClass(*args, **kwargs)
         raise ValueError("Failed")
 
     def discoverPlugins(self):
@@ -173,7 +194,7 @@ class Registry(object):
             self.registerNode(filePath, n)
 
         for dispatch in schedulers:
-            self.registerscheduler(filePath, dispatch)
+            self.registerScheduler(filePath, dispatch)
 
     def registryPluginFolder(self, path):
         for root, dirs, files in os.walk(path):
@@ -182,26 +203,22 @@ class Registry(object):
 
     def registerNode(self, path, nodeInfo):
         pluginPath = nodeInfo.get("pluginPath", "")
-        pluginObj = None
         if pluginPath:
             if not os.path.isabs(pluginPath):
                 pluginPath = os.path.abspath(os.path.join(os.path.dirname(path), pluginPath))
-            module = modules.importModule(modules.asDottedPath(pluginPath))
-            for dataClass in modules.iterMembers(module, predicate=inspect.isclass):
-                if dataClass[1].Type == nodeInfo["type"]:
-                    pluginObj = dataClass[1]
-                    break
-
-        if pluginObj is None:
-            pluginObj = self._nodeObjectByNode(nodeInfo)
-
+            self._nodeRegistry.registerPath(pluginPath)
+        else:
+            proxy = self._nodeObjectByNode(nodeInfo)
+            if not proxy:
+                logger.warning("No Plugin class found for nodeType: {}".format(nodeInfo["info"]))
+                return
+            self._nodeRegistry.registerPlugin(proxy)
         info = {
             "info": nodeInfo,
-            "class": pluginObj,
             "path": pluginPath
         }
 
-        self.nodes[nodeInfo["type"]] = info
+        self._nodeInfoCache[nodeInfo["type"]] = info
 
     def registerDataType(self, path, dataType):
         pluginPath = dataType.get("pluginPath", "")
@@ -209,45 +226,32 @@ class Registry(object):
             raise ValueError("No plugin path specified for path and datatype: {} - {}".format(path, dataType["type"]))
         if not os.path.isabs(pluginPath):
             pluginPath = os.path.abspath(os.path.join(os.path.dirname(path), pluginPath))
-        pluginObj = modules.importModule(pluginPath)
-        for dataClass in modules.iterSubclassesFromModule(pluginObj, types.DataType):
-            if dataClass.Type == dataType["type"]:
-                break
-        else:
-            raise ValueError("No dataType subclass found: {} - {}".format(path, dataType["type"]))
+        self._dataTypeRegistry.registerPath(pluginPath)
         info = {
             "info": dataType,
-            "class": dataClass,
             "path": pluginPath
         }
-        types.__dict__[dataType["type"]] = dataClass
-        self.dataTypes[dataType["type"]] = info
+        self._dataTypeCache[dataType["type"]] = info
 
-    def registerscheduler(self, path, schedulerInfo):
+    def registerScheduler(self, path, schedulerInfo):
         pluginPath = schedulerInfo.get("pluginPath", "")
         if not pluginPath:
             raise ValueError(
                 "No plugin path specified for path and datatype: {} - {}".format(path, schedulerInfo["type"]))
         if not os.path.isabs(pluginPath):
             pluginPath = os.path.abspath(os.path.join(os.path.dirname(path), pluginPath))
-        pluginObj = modules.importModule(pluginPath)
-        for dataClass in modules.iterSubclassesFromModule(pluginObj, scheduler.BaseScheduler):
-            if dataClass.Type == schedulerInfo["type"]:
-                break
-        else:
-            raise ValueError("No scheduler subclass found: {} - {}".format(path, schedulerInfo["type"]))
+        self._schedulerRegistry.registerPath(pluginPath)
         info = {
             "info": schedulerInfo,
-            "class": dataClass,
             "path": pluginPath
         }
-        self.schedulers[schedulerInfo["type"]] = info
+        self._schedulerInfoCache[schedulerInfo["type"]] = info
 
     def _nodeObjectByNode(self, nodeInfo):
+        # temp
         if nodeInfo.get("compound", False):
-            return node.Compound
+            return proxyplugins.PXCompoundNode
         elif nodeInfo.get("comment", False):
-            return node.Comment
+            return proxyplugins.PXCommentNode
         elif nodeInfo.get("pin", False):
-            return node.Pin
-        return node.PythonNode
+            return proxyplugins.PXPinNode

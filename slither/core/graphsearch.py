@@ -25,12 +25,23 @@ def topologicalOrder(nodes):
 
 
 def nodeBreadthFirstSearch(node):
-    visited, stack = [], [node]
-
+    stack = []
+    if node.isCompound():
+        for output in node.outputs():
+            upstream = output.upstream
+            if upstream:
+                n = upstream.node
+                if n not in stack:
+                    stack.append(n)
+    else:
+        stack.append(node)
+    ordered = OrderedDict()
     while stack:
-        current = stack.pop(0)
-        upstreams = current.upstreamNodes()
-        visited.append(current)
-        stack.extend(upstreams)
+        m = stack.pop()
+        depends = m.upstreamNodes()
+        stack.extend(depends)
+        ordered[m] = depends
+    return OrderedDict(reversed(list(ordered.items())))
 
-    return topologicalOrder(visited)
+
+

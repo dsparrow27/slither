@@ -3,7 +3,7 @@ import os
 from slither import api
 
 
-class ExportMayaScene(api.ComputeNode):
+class ExportMayaScene(api.PXComputeNode):
     Type = "exportMayaScene"
     category = "maya"
     documentation = ""
@@ -12,7 +12,7 @@ class ExportMayaScene(api.ComputeNode):
     force = api.AttributeDefinition(input=True, type_=api.types.kBool, array=False, default=False,
                                     required=False)
 
-    def execute(self, context):
+    def compute(self, context):
 
         from zoo.libs.maya.utils import files
         outputPath = context.path.value()

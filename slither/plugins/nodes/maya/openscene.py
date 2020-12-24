@@ -1,28 +1,28 @@
 from slither import api
 
 
-class MayaSceneOpen(api.ComputeNode):
+class MayaSceneOpen(api.PXComputeNode):
     Type = "mayaSceneOpen"
 
-    def execute(self, context):
+    def compute(self, context):
         from zoo.libs.maya.utils import files
         files.openFile(context.sceneFile.value(),
                        force=context.force.value())
 
 
-class MayaSceneImport(api.ComputeNode):
+class MayaSceneImport(api.PXComputeNode):
     Type = "mayaSceneImport"
 
-    def execute(self, context):
+    def compute(self, context):
         from zoo.libs.maya.utils import files
         scene = context.sceneFile.value()
         files.importScene(scene, force=True)
 
 
-class MayaFBXImport(api.ComputeNode):
+class MayaFBXImport(api.PXComputeNode):
     Type = "mayaFBXImport"
 
-    def execute(self, context):
+    def compute(self, context):
         from zoo.libs.maya.utils import files
 
         filepath = context.filePath.value().replace("/", "\\")
@@ -33,10 +33,10 @@ class MayaFBXImport(api.ComputeNode):
                         constraints=context.constraints.value())
 
 
-class MayaAbcImport(api.ComputeNode):
+class MayaAbcImport(api.PXComputeNode):
     Type = "mayaAlembicImport"
 
-    def execute(self, context):
+    def compute(self, context):
         from zoo.libs.maya.utils import files
         filePath = context.filePath.value()
         files.importAlembic(filePath)

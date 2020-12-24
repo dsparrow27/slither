@@ -1,7 +1,9 @@
 import os
 import pprint
 import logging
-from slither.core import node, errors
+import time
+
+from slither.core import node, errors, scheduler, attribute
 from zoo.libs.utils import filesystem, zlogging
 
 logger = logging.getLogger(__name__)
@@ -46,6 +48,14 @@ class Graph(object):
         # mark the root as internal and locked so it can't be deleted.
         _root.isLocked = True
         _root.isInternal = True
+        # execDef = attribute.AttributeDefinition(name="execute",
+        #                                         input=False,
+        #                                         output=True,
+        #                                         type_=self.application.registry.dataTypeClass("kMulti"),
+        #                                         required=True, array=True,
+        #                                         doc="",
+        #                                         internal=True)
+        # _root.createAttribute(execDef)
         self._root = _root
         self.application.events.emit(self.application.events.nodeCreated, sender=self, node=_root)
         return self._root
@@ -70,18 +80,12 @@ class Graph(object):
         return data
 
     def execute(self, n, executorType):
-        logger.debug("Starting execution")
-        exe = self.application.registry.schedulerClass(executorType, graph=self)
-        if exe is None:
-            raise NotImplementedError("No scheduler of type: {}".format(str(executorType)))
-        try:
-            exe.execute(n)
-            logger.debug("Finished Executing graph")
-        except Exception:
-            logger.error("Failed to execute Graph",
-                         exc_info=True)
-            return False
-        return True
+        job = scheduler.Job("testJob", self.application)
+        job.submit(n, executorType)
+        while not job.isCompleted():
+            job.poll()
+        logger.debug("Finished Executing graph")
+        return job
 
     def loadFromFile(self, path):
         self.load(filesystem.loadJson(path))

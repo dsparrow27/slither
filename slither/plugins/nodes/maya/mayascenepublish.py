@@ -1,7 +1,7 @@
 from slither import api
 
 
-class MayaSceneSaveCompound(api.Compound):
+class MayaSceneSaveCompound(api.PXCompoundNode):
     """Standardized maya scene publish graph
 
     graph = root.createNode("MayaScenePublish","MayaSceneSave")

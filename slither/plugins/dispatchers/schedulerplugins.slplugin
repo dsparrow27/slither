@@ -1,6 +1,6 @@
 {
   "schedulers": [
     {"type":  "parallel", "pluginPath":  "./backgroundscheduler.py"},
-    {"type":  "serial", "pluginPath": "./localscheduler.py"}
+    {"type":  "inProcess", "pluginPath": "./localscheduler.py"}
   ]
 }

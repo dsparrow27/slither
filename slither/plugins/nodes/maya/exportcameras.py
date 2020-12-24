@@ -3,7 +3,7 @@ import os
 from slither import api
 
 
-class ExportAlembicCamera(api.ComputeNode):
+class ExportAlembicCamera(api.PXComputeNode):
     Type = "exportAlembicCamera"
 
     def validate(self, context):
@@ -14,7 +14,7 @@ class ExportAlembicCamera(api.ComputeNode):
         if os.path.exists(outputPath) and not context.force.value():
             raise OSError("Path already exists: {}".format(outputPath))
 
-    def execute(self, context):
+    def compute(self, context):
         from zoo.libs.maya.utils import files
         from maya import cmds
 
@@ -33,7 +33,7 @@ class ExportAlembicCamera(api.ComputeNode):
         context.output.setValue(True)
 
 
-class ExportFBXCamera(api.ComputeNode):
+class ExportFBXCamera(api.PXComputeNode):
     Type = "exportFBXCamera"
 
     def validate(self, context):
@@ -44,7 +44,7 @@ class ExportFBXCamera(api.ComputeNode):
         if os.path.exists(outputPath) and not context.force.value():
             raise OSError("Path already exists: {}".format(outputPath))
 
-    def execute(self, context):
+    def compute(self, context):
         from zoo.libs.maya.utils import files
 
         self.validate(context)

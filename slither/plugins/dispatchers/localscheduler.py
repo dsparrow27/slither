@@ -1,46 +1,26 @@
-import timeit
-
 from slither import api
 
 
-class StandardExecutor(api.BaseScheduler):
+class InProcessScheduler(api.BaseScheduler):
     """Serial graph scheduler, in this case all processing will block the
     current process.
     """
-    Type = "serial"
+    Type = "inProcess"
 
-    def _dependents(self, node):
-        if node.isCompound():
-            node.mutate()
-            return node.topologicalOrder()
-        return api.nodeBreadthFirstSearch(node)
+    def __init__(self, *args, **kwargs):
+        super(InProcessScheduler, self).__init__(*args, **kwargs)
+        self._tasks = {}
 
-    def startProcess(self, node):
-        nodes = self._dependents(node)
-        visited = set()
-        for n, dependents in nodes.items():
-            for d in dependents:
-                if d in visited:
-                    dependents.remove(d)
-                    continue
-                if len(dependents) == 1 and dependents[0] == n.parent:
-                    nodes[n] = list()
-                    continue
-                self.processNode(d)
-                visited.add(d)
-            self.processNode(n)
-            visited.add(n)
+    def schedule(self, taskId, nodeInfo):
+        context = api.Context.fromExtractData(nodeInfo["context"])
+        nodeClass, _ = self.job.application.registry.proxyNodeClass(nodeInfo["type"])
+        nodeClass.compute(context=context)
+        self._tasks[taskId] = {"status": api.Status.COMPLETED,
+                               "node": nodeClass,
+                               "context": context}
 
-    def processNode(self, node):
-        if node.isCompound():
-            self.startProcess(node)
-        ctx = api.Context.fromNode(node)
-        ctx["variables"] = self.graph.variables
-        node.process(ctx)
-        self.onNodeCompleted(node, ctx)
+    def taskStatus(self, taskId):
+        return self._tasks.get(taskId, {})["status"]
 
-    def execute(self, node):
-        start = timeit.default_timer()
-        self.processNode(node)
-        self.logger.debug("Total executing time: {}".format(timeit.default_timer()-start))
-        return True
+    def taskResults(self, taskId):
+        return self._tasks.get(taskId)["context"].serialize()

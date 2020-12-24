@@ -1,10 +1,10 @@
 from slither import api
 
 
-class ConvertToVideo(api.ComputeNode):
+class ConvertToVideo(api.PXComputeNode):
     Type = "convertToVideo"
 
-    def execute(self, context):
+    def compute(self, context):
         import ffmpeg
 
         (

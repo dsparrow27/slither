@@ -1,7 +1,7 @@
 from slither import api
 
 
-class ShotgunConnection(api.ComputeNode):
+class ShotgunConnection(api.PXComputeNode):
     Type = "shotgunConnection"
     category = "shotgun"
     documentation = "Creates and returns a shotgun connection instance"
@@ -10,7 +10,7 @@ class ShotgunConnection(api.ComputeNode):
     host = api.AttributeDefinition(input=True, type_=api.types.kString, default="")
     output = api.AttributeDefinition(output=True, type_=api.types.kShotgun, array=False, default=None)
 
-    def execute(self, context):
+    def compute(self, context):
         import shotgun_api3
         apihandle = shotgun_api3.Shotgun(
             context.host.value(),
@@ -21,7 +21,7 @@ class ShotgunConnection(api.ComputeNode):
         context.output.setValue(apihandle)
 
 
-class ShotgunFind(api.ComputeNode):
+class ShotgunFind(api.PXComputeNode):
     type = "shotgunFind"
     category = "shotgun"
     documentation = "Calls 'find' method on the shotgun instance and returns the result as an attribute array"
@@ -31,13 +31,13 @@ class ShotgunFind(api.ComputeNode):
     fields = api.AttributeDefinition(input=True, type_=api.types.kList, array=True, default=list())
     output = api.AttributeDefinition(output=True, type_=api.types.kList, array=True, default=list())
 
-    def execute(self, context):
+    def compute(self, context):
         context.output = context.shotgunConnection.value().find(context.entityType.value(),
                                                                 list(context.filters.value()),
                                                                 list(context.fields.value()))
 
 
-class ShotgunFindOne(api.ComputeNode):
+class ShotgunFindOne(api.PXComputeNode):
     Type = "shotgunFindOne"
     category = "shotgun"
     documentation = "Calls 'find_one' method on the shotgun instance and returns the result as an attribute dict"
@@ -47,7 +47,7 @@ class ShotgunFindOne(api.ComputeNode):
     fields = api.AttributeDefinition(input=True, type_=api.types.kList, array=True, default=list())
     output = api.AttributeDefinition(output=True, type_=api.types.kDict, array=False, default=dict())
 
-    def execute(self, context):
+    def compute(self, context):
         context.output = context.shotgunConnection.value().find_one(context.entityType.value(),
                                                                     context.filters.value(),
                                                                     context.fields.value())

@@ -1,8 +1,8 @@
 from slither import api
 
 
-class StringNode(api.ComputeNode):
+class StringNode(api.PXComputeNode):
     Type = "string"
 
-    def execute(self, context):
+    def compute(self, context):
         context.output.setValue(str(context.value.value()))

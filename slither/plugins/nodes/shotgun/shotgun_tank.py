@@ -8,18 +8,18 @@ from slither import api
 logger = logging.getLogger(__name__)
 
 
-class DestroyTankEngine(api.ComputeNode):
+class DestroyTankEngine(api.PXComputeNode):
     Type = "DestroyTankEngine"
     category = "shotgun"
     documentation = "Destroys the shotgun toolkit engine by calling destroy_engine on the instance"
     engine = api.AttributeDefinition(output=True, type_=api.types.ksgtkEngine, array=False, default=None)
 
-    def execute(self, context):
+    def compute(self, context):
         if self.engine is not None:
             self.engine.destroy_engine()
 
 
-class InitTankEngine(api.ComputeNode):
+class InitTankEngine(api.PXComputeNode):
     Type = "InitTankEngine"
     category = "shotgun"
     documentation = "Initializes a shotgun tank instance using the supplied environment"
@@ -34,7 +34,7 @@ class InitTankEngine(api.ComputeNode):
     engine_name = api.AttributeDefinition(input=True, type_=api.types.kString, default="")
     engine = api.AttributeDefinition(output=True, type_=api.types.ksgtkEngine, array=False, default=None)
 
-    def execute(self, context):
+    def compute(self, context):
         context = self.context.value()
         if not context or not any(i in context.keys() for i in ("SHOTGUN_ENTITY_ID", "SHOTGUN_ENTITY_TYPE")):
             raise ValueError("Incorrect argument context values, must have only:{}, supplied: {}".format(
@@ -70,7 +70,7 @@ class InitTankEngine(api.ComputeNode):
         self.engine = engine
 
 
-class ShotgunTankPublish(api.ComputeNode):
+class ShotgunTankPublish(api.PXComputeNode):
     Type = "ShotgunTankPublish"
     category = "shotgun"
     documentation = "Publishes the file to shotgun using tank.util.register_publish"
@@ -86,7 +86,7 @@ class ShotgunTankPublish(api.ComputeNode):
     sg_fields = api.AttributeDefinition(input=True, type_=api.types.kDict, array=False, default=dict())
     dry_run = api.AttributeDefinition(input=True, type_=api.types.kBool, default=False)
 
-    def execute(self, context):
+    def compute(self, context):
         engine = self.engine.value()
         if engine is None:
             raise ValueError("No toolkit engine supplied!")

@@ -1,8 +1,8 @@
 from slither import api
 
 
-class Substract(api.ComputeNode):
+class Substract(api.PXComputeNode):
     Type = "substract"
 
-    def execute(self, context):
+    def compute(self, context):
         context.output.setValue(context.inputA.value() - context.inputB.value())

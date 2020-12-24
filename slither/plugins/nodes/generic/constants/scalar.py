@@ -1,8 +1,8 @@
 from slither import api
 
 
-class Scalar(api.ComputeNode):
+class Scalar(api.PXComputeNode):
     Type = "scalar"
 
-    def execute(self, context):
+    def compute(self, context):
         context.output.setValue(float(context.value.value()))
