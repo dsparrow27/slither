@@ -63,7 +63,7 @@ class Job(object):
 
     def schedule(self, graphNode, schedulerType):
         self.nodes[graphNode.id] = graphNode
-        scheduler = self.findScheduler(graphNode.scheduler.value())
+        scheduler = self.findScheduler(schedulerType)
         taskId = self.storage.generateUniqueId()
 
         contextData = node.Context.extractContextDataFromNode(graphNode)
