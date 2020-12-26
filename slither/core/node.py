@@ -254,9 +254,6 @@ class DependencyNode(BaseNode):
     def __init__(self, name, graph, proxyClass):
         self.attributes = []
         super(DependencyNode, self).__init__(name, graph, proxyClass)
-        for name, attrDef in iter(self.__class__.__dict__.items()):
-            if isinstance(attrDef, attribute.AttributeDefinition):
-                self.createAttribute(copy.deepcopy(attrDef))
 
     def __getattr__(self, name):
         """Returns the attribute on the current node if it exists.
@@ -307,9 +304,6 @@ class DependencyNode(BaseNode):
         else:
             newAttribute = attribute.Attribute(attributeDefinition, node=self)
 
-        name = newAttribute.name()
-        className = "_{}".format(name) if not name.startswith("_") else name
-        super(DependencyNode, self).__setattr__(className, attributeDefinition)
         self.addAttribute(newAttribute)
         return newAttribute
 
@@ -541,12 +535,6 @@ class Compound(ComputeNode):
 
     def __contains__(self, item):
         return item in self.children
-
-    def mutate(self):
-        """Special method that allows this node to generate(mutate) other nodes as child nodes this can also contain
-        other compounds
-        """
-        pass
 
     def child(self, name):
         for child in self.children:

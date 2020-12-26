@@ -4,15 +4,15 @@ from slither import api
 class PublishCompound(api.PXCompoundNode):
     Type = "PublishCompound"
     category = "Shotgun"
-    path = api.AttributeDefinition(type_=api.types.kFile, input=True)
-
-    description = api.AttributeDefinition(type_=api.types.kString, input=True)
-    templateName = api.AttributeDefinition(type_=api.types.kString, input=True)
-    fields = api.AttributeDefinition(type_=api.types.kDict, input=True)
-    dryRun = api.AttributeDefinition(type_=api.types.kBool, input=True)
-    thumbnail = api.AttributeDefinition(type_=api.types.kFile, input=True)
-    publishType = api.AttributeDefinition(type_=api.types.kString, input=True)
-    dependencies = api.AttributeDefinition(type_=api.types.kList, input=True)
+    # path = api.AttributeDefinition(type_=api.types.kFile, input=True)
+    #
+    # description = api.AttributeDefinition(type_=api.types.kString, input=True)
+    # templateName = api.AttributeDefinition(type_=api.types.kString, input=True)
+    # fields = api.AttributeDefinition(type_=api.types.kDict, input=True)
+    # dryRun = api.AttributeDefinition(type_=api.types.kBool, input=True)
+    # thumbnail = api.AttributeDefinition(type_=api.types.kFile, input=True)
+    # publishType = api.AttributeDefinition(type_=api.types.kString, input=True)
+    # dependencies = api.AttributeDefinition(type_=api.types.kList, input=True)
 
     def mutate(self):
         if self.child("tank"):

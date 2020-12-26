@@ -1,10 +1,13 @@
 import logging
 import pprint
+import timeit
 
 from slither.core import graphsearch
 from slither.core import storage, node
 
 logger = logging.getLogger(__name__)
+
+# todo: error handling, external processes, logging, job directory
 
 
 class Status:
@@ -13,6 +16,7 @@ class Status:
     RUNNING = 2
     FAILED = 3
     COMPLETED = 4
+    SCHEDULED = 5
 
 
 class BaseScheduler(object):
@@ -59,7 +63,7 @@ class Job(object):
 
     def schedule(self, graphNode, schedulerType):
         self.nodes[graphNode.id] = graphNode
-        scheduler = self.findScheduler(schedulerType)
+        scheduler = self.findScheduler(graphNode.scheduler.value())
         taskId = self.storage.generateUniqueId()
 
         contextData = node.Context.extractContextDataFromNode(graphNode)
@@ -69,21 +73,30 @@ class Job(object):
                 "name": graphNode.name,
                 "type": graphNode.Type}
 
-        scheduler.schedule(taskId, info)
-        print("scheduled: {}".format(graphNode.name))
-        self.storage.enqueue(taskId=taskId,
-                             status=Status.QUEUED,
-                             kwargs={"nodeInfo": info,
-                                     },
-                             scheduler=scheduler.Type)
+        returnStatus = scheduler.schedule(taskId, info)
+        if returnStatus == Status.SCHEDULED:
+            print("scheduled: {}".format(graphNode.name))
+            self.storage.enqueue(taskId=taskId,
+                                 status=Status.QUEUED,
+                                 kwargs={"nodeInfo": info,
+                                         },
+
+                                 scheduler=scheduler.Type)
 
     def submit(self, graphNode, schedulerType):
+        print("submitting, ", graphNode)
         nodesToSubmit = []
         graphOrder = graphsearch.nodeBreadthFirstSearch(graphNode)
-
+        
         # grab the leaf nodes
-        for n, dependencies in graphOrder.items():
-            if not dependencies and n.id not in self.nodes:
+        for n, dependencies in list(graphOrder.items()):
+            if not dependencies and n.id in self.nodes:
+                del graphOrder[n]
+                continue
+            for depend in dependencies:
+                if depend.id in self.nodes:
+                    graphOrder[n].remove(depend)
+            if not dependencies:
                 nodesToSubmit.append(n)
 
         if not nodesToSubmit:
@@ -92,6 +105,32 @@ class Job(object):
         for n in nodesToSubmit:
             self.schedule(n, schedulerType)
         return True
+
+    def _taskCompleted(self, task):
+        # get node dependencies
+        self.storage.dequeue(task.id)
+        nodeInfo = task.kwargs["nodeInfo"]
+        nodeId = nodeInfo["id"]
+        node = self.nodes[nodeId]
+        results = task.results
+        outputInfo = results["outputs"]
+        # # in the case where the node is a compound
+        # # the outputs could be connected to child nodes
+        # # so loop the outputs, find the upstream and add the connected value
+        if node.isCompound():
+            for output in node.outputs():
+                upstream = output.upstream
+                if upstream:
+                    outputInfo[output.name()] = upstream.value()
+        node.copyOutputData(results["outputs"])
+        node.setDirty(False)
+        
+        if node.isCompound():
+            self.submit(node, task.scheduler)
+        else:
+            for depend in node.downStreamNodes():
+                if depend.id not in self.nodes:
+                    self.schedule(depend, task.scheduler)
 
     def poll(self):
         completedTasks = []
@@ -107,29 +146,8 @@ class Job(object):
         for task in completedTasks:
             self._taskCompleted(task)
 
-    def _taskCompleted(self, task):
-        # get node dependencies
-        self.storage.dequeue(task.id)
-        nodeInfo = task.kwargs["nodeInfo"]
-        nodeId = nodeInfo["id"]
-        node = self.nodes[nodeId]
-        results = task.results
-        outputInfo = results["outputs"]
-        # # in the case where the node is a compound
-        # # the outputs could be connected to child nodes
-        # # so loop the outputs, find the upstream and add the connected value
-        if node.isCompound:
-            for output in node.outputs():
-                upstream = output.upstream
-                if upstream:
-                    outputInfo[output.name()] = upstream.value()
-        node.copyOutputData(results["outputs"])
-        node.setDirty(False)
-        if node.isCompound:
-            self.submit(node, task.scheduler)
-        else:
-            for depend in node.downStreamNodes():
-                self.schedule(depend, task.scheduler)
+    def __del__(self):
+        self.shutdown()
 
     def shutdown(self):
         for scheduler in self.schedulers.values():

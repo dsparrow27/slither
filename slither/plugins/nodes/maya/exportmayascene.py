@@ -7,10 +7,10 @@ class ExportMayaScene(api.PXComputeNode):
     Type = "exportMayaScene"
     category = "maya"
     documentation = ""
-    path = api.AttributeDefinition(input=True, type_=api.types.kFile, array=False, default="")
-    output = api.AttributeDefinition(output=True, type_=api.types.kBool, array=False, default=False)
-    force = api.AttributeDefinition(input=True, type_=api.types.kBool, array=False, default=False,
-                                    required=False)
+    # path = api.AttributeDefinition(input=True, type_=api.types.kFile, array=False, default="")
+    # output = api.AttributeDefinition(output=True, type_=api.types.kBool, array=False, default=False)
+    # force = api.AttributeDefinition(input=True, type_=api.types.kBool, array=False, default=False,
+    #                                 required=False)
 
     def compute(self, context):
 

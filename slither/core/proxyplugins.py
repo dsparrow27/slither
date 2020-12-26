@@ -13,6 +13,12 @@ class PXComputeNode(ProxyBase):
 class PXCompoundNode(ProxyBase):
     Type = "compound"
 
+    def mutate(self):
+        """Special method that allows this node to generate(mutate) other nodes as child nodes this can also contain
+        other compounds
+        """
+        pass
+
     def compute(self, context):
         pass
 

@@ -29,17 +29,20 @@ def nodeBreadthFirstSearch(node):
     if node.isCompound():
         for output in node.outputs():
             upstream = output.upstream
-            if upstream:
-                n = upstream.node
-                if n not in stack:
-                    stack.append(n)
+            if not upstream:
+                continue
+            n = upstream.node
+            if n not in stack or n != node:
+                stack.append(n)
     else:
         stack.append(node)
     ordered = OrderedDict()
     while stack:
         m = stack.pop()
         depends = m.upstreamNodes()
-        stack.extend(depends)
+        stack.extend([i for i in depends if i not in stack])
+        if m in ordered:
+            continue
         ordered[m] = depends
     return OrderedDict(reversed(list(ordered.items())))
 

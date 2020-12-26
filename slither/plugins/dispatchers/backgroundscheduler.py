@@ -25,6 +25,7 @@ class Parallel(api.BaseScheduler):
                                "process": process,
                                "status": api.Status.RUNNING}
         process.start()
+        return api.Status.SCHEDULED
 
     def taskStatus(self, taskId):
 

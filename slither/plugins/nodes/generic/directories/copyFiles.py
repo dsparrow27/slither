@@ -8,10 +8,6 @@ class CopyFilesToNode(api.PXComputeNode):
     """Copy a list of files to a directory and returns the new file paths
     """
     Type = "copyFilesTo"
-    # source = api.AttributeDefinition(input=True, type_=api.types.kFile, isArray=True)
-    # destinationFolder = api.AttributeDefinition(input=True, type_=api.types.kDirectory)
-    # result = api.AttributeDefinition(output=True, type_=api.types.kFile, isArray=True)
-
     def compute(self, context):
         source = context.source.value()
         destination = context.destinationFolder.value()

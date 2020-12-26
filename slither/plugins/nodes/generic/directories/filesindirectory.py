@@ -6,11 +6,6 @@ from slither import api
 
 class FilesInDirectory(api.PXComputeNode):
     Type = "filesInDirectory"
-    # category = "directories"
-    # documentation = "returns a list of files in a directory"
-    # directory = api.AttributeDefinition(input=True, type_=api.types.kDirectory, default="")
-    # recursive = api.AttributeDefinition(input=True, type_=api.types.kBool, default=False)
-    # output = api.AttributeDefinition(output=True, type_=api.types.kFile, array=True, default=[])
 
     def compute(self, context):
         directory = os.path.normpath(context.directory.value())

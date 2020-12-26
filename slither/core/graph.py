@@ -1,10 +1,11 @@
 import os
 import pprint
 import logging
-import time
 
-from slither.core import node, errors, scheduler, attribute
-from zoo.libs.utils import filesystem, zlogging
+
+from slither.core import node, errors, scheduler
+from zoo.libs.utils import filesystem
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)

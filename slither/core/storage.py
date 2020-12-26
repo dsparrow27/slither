@@ -80,6 +80,9 @@ class Task(object):
         self.results = data["results"]
         self.scheduler = data["scheduler"]
 
+    def __hash__(self):
+        return hash(id(self))
+
     def serialize(self):
         return {
             "taskId": self.id,
