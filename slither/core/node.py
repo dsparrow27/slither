@@ -1,10 +1,8 @@
-import copy
+import six
 import logging
-import timeit
 
 from slither.core import attribute
 from slither.core import graphsearch
-import six
 
 logger = logging.getLogger(__name__)
 

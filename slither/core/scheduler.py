@@ -1,6 +1,4 @@
 import logging
-import pprint
-import timeit
 
 from slither.core import graphsearch
 from slither.core import storage, node
@@ -87,7 +85,7 @@ class Job(object):
         print("submitting, ", graphNode)
         nodesToSubmit = []
         graphOrder = graphsearch.nodeBreadthFirstSearch(graphNode)
-        
+
         # grab the leaf nodes
         for n, dependencies in list(graphOrder.items()):
             if not dependencies and n.id in self.nodes:

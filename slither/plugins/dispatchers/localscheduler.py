@@ -18,6 +18,7 @@ class InProcessScheduler(api.BaseScheduler):
         self._tasks[taskId] = {"status": api.Status.COMPLETED,
                                "node": nodeClass,
                                "context": context}
+        return api.Status.SCHEDULED
 
     def taskStatus(self, taskId):
         return self._tasks.get(taskId, {})["status"]

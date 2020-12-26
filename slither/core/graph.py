@@ -8,7 +8,7 @@ from zoo.libs.utils import filesystem
 
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+
 
 
 class Graph(object):
