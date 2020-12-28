@@ -2,13 +2,10 @@ import os
 import pprint
 import logging
 
-
 from slither.core import node, errors, scheduler
 from zoo.libs.utils import filesystem
 
-
 logger = logging.getLogger(__name__)
-
 
 
 class Graph(object):
@@ -77,7 +74,15 @@ class Graph(object):
     def serialize(self, node=None):
         n = node or self.root
         data = n.serialize()
-        data["connections"] = self.connections
+        connections = []
+        for connection in self.connections:
+            connections.append(dict(
+                source=connection["source"].name,
+                destination=connection["destination"].name,
+                input=connection["input"].name(),
+                output=connection["output"].name()
+            ))
+        data["connections"] = connections
         return data
 
     def execute(self, n, executorType):
@@ -99,16 +104,17 @@ class Graph(object):
             newNodes = {}
             connections = data.get("connections", [])
             children = data.get("children", [])
-            newNodes[data["id"]] = self.root
+            newNodes[data["name"]] = self.root
 
             root = self.root
             root.deserialize(data, includeChildren=False)
+
             for child in children:
                 newNode = self.createNode(child["name"], child["type"], parent=root)
                 for i, n in newNode.deserialize(child).items():
                     newNodes[i] = n
                 # we need to deal with connections so first create a map between the old and the new
-                newNodes[child["id"]] = newNode
+                newNodes[child["name"]] = newNode
             missingConnections = []
             missingNodes = []
             for connection in connections:
@@ -118,13 +124,12 @@ class Graph(object):
                     missingNodes.append(connection)
                     continue
 
-                sourceAttr = sourceNode.attributeById(connection["output"])
-                destAttr = destinationNode.attributeById(connection["input"])
+                sourceAttr = sourceNode.attribute(connection["output"])
+                destAttr = destinationNode.attribute(connection["input"])
                 if sourceAttr is None or destAttr is None:
                     missingConnections.append(connection)
                     continue
                 self.createConnection(sourceAttr, destAttr)
-
             if missingNodes:
                 logger.warning("Couldn't find nodes "
                                "due to missing ids: {}".format(str(missingNodes)))
@@ -141,9 +146,15 @@ class Graph(object):
             return False
         destination.upstream = None
         for index, conn in enumerate(self.connections):
-            if conn["input"] == destination.id and conn["output"] == source.id \
-                    and conn["source"] == source.id and conn["destination"] == destination:
+            if conn["input"] == destination and conn["output"] == source \
+                    and conn["source"] == source and conn["destination"] == destination:
                 self.connections.pop(index)
+                self.application.events.emit(self.application.events.connectionDeleted,
+                                             sender=self,
+                                             sourcePlug=source,
+                                             destinationPlug=destination
+                                             )
+                break
 
     def createConnection(self, source, destination):
         if not source.canConnect(destination):
@@ -153,9 +164,14 @@ class Graph(object):
 
         logger.debug("Creating connection between: {}->{}".format(source.fullName(), destination.fullName()))
         destination.upstream = source
-        connection = {"source": source.node.id, "destination": destination.node.id,
-                      "input": destination.id, "output": source.id}
+        connection = {"source": source.node, "destination": destination.node,
+                      "input": destination, "output": source}
         self.connections.append(connection)
+        self.application.events.emit(self.application.events.connectionCreated,
+                                     sender=self,
+                                     sourcePlug=source,
+                                     destinationPlug=destination
+                                     )
         return connection
 
     def createNode(self, name, type_, parent=None):
@@ -163,10 +179,10 @@ class Graph(object):
         def _create(name, type_, parent):
             parent = parent if parent is not None else self.root
             exists = self.root.child(name)
-            if exists:
+            if exists is not None:
                 newName = name
                 counter = 1
-                while self.root.child(newName):
+                while self.root.child(newName) is not None:
                     newName = name + str(counter)
                     counter += 1
                 name = newName

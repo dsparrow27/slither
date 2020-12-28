@@ -26,6 +26,8 @@ class EventSystem(object):
         self.attributeValueChanged = signal("attributeValueChanged")
         self.schedulerNodeCompleted = signal("schedulerNodeCompleted")
         self.schedulerNodeErrored = signal("schedulerNodeErrored")
+        self.connectionCreated = signal("connectionCreated")
+        self.connectionDeleted = signal("connectionDeleted")
 
     def emit(self, signal, sender, **kwargs):
         """Internal use only
@@ -82,9 +84,9 @@ class Application(object):
 
     def createGraphFromPath(self, name, filePath):
         g = graph.Graph(self, name=name)
+        self.events.emit(self.events.graphCreated, sender=self, graph=g)
         g.loadFromFile(filePath)
         self.graphs.append(g)
-        self.events.emit(self.events.graphCreated, sender=self, graph=g)
         return g
 
 
@@ -103,7 +105,9 @@ class Registry(object):
         self._nodeInfoCache = {}
         self._dataTypeCache = {}
         self._schedulerInfoCache = {}
-
+    @property
+    def nodeTypes(self):
+        return self._nodeInfoCache
     def nodeClass(self, nodeType, graph, **kwargs):
         """Retrieves the node class for the type.
 

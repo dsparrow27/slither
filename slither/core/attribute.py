@@ -23,6 +23,8 @@ class AttributeDefinition(object):
         self.input = kwargs.get("input", False)
         self.output = kwargs.get("output", False)
         self.internal = kwargs.get("internal", False)
+        self.min = kwargs.get("min", -999999)
+        self.max = kwargs.get("max", 999999)
 
         doc += "\nType: {}".format(str(type_))
 

@@ -269,8 +269,9 @@ class DependencyNode(BaseNode):
         return self.graph.createConnection(inputAttribute, destinationAttribute)
 
     def attribute(self, name):
+        shortName = name.split("|")[-1]
         for attr in self.iterAttributes():
-            if attr.name() == name:
+            if attr.name() == shortName:
                 return attr
 
     def attributeById(self, attributeId):
@@ -594,14 +595,13 @@ class Compound(ComputeNode):
         newChildren = {}
         if not includeChildren:
             return newChildren
-
         for child in data.get("children", []):
             newNode = self.createNode(child["name"], type_=child["type"])
             if newNode is None:
                 raise ValueError("Failed to create node: {}".format(child["name"]))
             for nId, n in newNode.deserialize(child).items():
                 newChildren[nId] = n
-            newChildren[child["id"]] = newNode
+            newChildren[child["name"]] = newNode
         return newChildren
 
 

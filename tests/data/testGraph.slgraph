@@ -1,11 +1,13 @@
 {
-    "name": "newGraph",
+    "name": "world",
     "type": "compound",
     "id": 0,
     "category": "organization",
     "documentation": "",
     "tags": [],
-    "nodeUI": {},
+    "nodeUI": {
+        "label": "root"
+    },
     "properties": {},
     "attributes": [
         {
@@ -19,6 +21,7 @@
             "output": true,
             "value": 30,
             "internal": false,
+            "doc": "\nType: <slither.plugins.datatypes.generic.generic.FloatType object at 0x000001E648CBFAC8>",
             "id": 1
         }
     ],
@@ -30,7 +33,9 @@
             "category": "organization",
             "documentation": "",
             "tags": [],
-            "nodeUI": {},
+            "nodeUI": {
+                "label": "root"
+            },
             "properties": {},
             "parent": 0,
             "attributes": [
@@ -45,6 +50,7 @@
                     "output": false,
                     "value": 40,
                     "internal": false,
+                    "doc": "\nType: <slither.plugins.datatypes.generic.generic.FloatType object at 0x000001E648CC7508>",
                     "id": 1
                 },
                 {
@@ -58,6 +64,7 @@
                     "output": true,
                     "value": 30,
                     "internal": false,
+                    "doc": "\nType: <slither.plugins.datatypes.generic.generic.FloatType object at 0x000001E648CBAE48>",
                     "id": 2
                 }
             ],
@@ -84,6 +91,7 @@
                             "output": false,
                             "value": 30,
                             "internal": true,
+                            "doc": "\nType: <slither.plugins.datatypes.generic.generic.FloatType object at 0x000001E648CD0C88>",
                             "id": 2
                         },
                         {
@@ -97,6 +105,7 @@
                             "output": true,
                             "value": 30,
                             "internal": true,
+                            "doc": "\nType: <slither.plugins.datatypes.generic.generic.FloatType object at 0x000001E648CD0D48>",
                             "id": 3
                         }
                     ]
@@ -106,22 +115,22 @@
     ],
     "connections": [
         {
-            "source": 1,
-            "destination": 2,
-            "input": 1,
-            "output": 1
+            "source": "testCompound",
+            "destination": "subsubChild",
+            "input": "inputA",
+            "output": "testInput"
         },
         {
-            "source": 2,
-            "destination": 1,
-            "input": 2,
-            "output": 3
+            "source": "subsubChild",
+            "destination": "testCompound",
+            "input": "testOutput",
+            "output": "output"
         },
         {
-            "source": 1,
-            "destination": 0,
-            "input": 1,
-            "output": 2
+            "source": "testCompound",
+            "destination": "world",
+            "input": "execution",
+            "output": "testOutput"
         }
     ]
 }

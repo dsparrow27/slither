@@ -1,0 +1,189 @@
+{
+    "name": "world",
+    "type": "compound",
+    "id": 0,
+    "category": "organization",
+    "documentation": "",
+    "tags": [],
+    "nodeUI": {
+        "label": "root"
+    },
+    "properties": {},
+    "attributes": [],
+    "children": [
+        {
+            "name": "scalar",
+            "type": "scalar",
+            "id": 1,
+            "category": "constant",
+            "documentation": "Scalar",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "parent": 0,
+            "attributes": [
+                {
+                    "name": "value",
+                    "type_": "kFloat",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 20,
+                    "internal": true,
+                    "doc": "\nType: <slither.plugins.datatypes.generic.generic.FloatType object at 0x0000014067E0DAC8>",
+                    "id": 1
+                }
+            ]
+        },
+        {
+            "name": "sum",
+            "type": "sum",
+            "id": 2,
+            "category": "math",
+            "documentation": "Adds the input values together",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "parent": 0,
+            "attributes": [
+                {
+                    "name": "inputA",
+                    "type_": "kFloat",
+                    "default": 0,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 10,
+                    "internal": true,
+                    "doc": "\nType: <slither.plugins.datatypes.generic.generic.FloatType object at 0x0000014061594108>",
+                    "id": 1
+                }
+            ]
+        },
+        {
+            "name": "notEqualTo",
+            "type": "notEqualTo",
+            "id": 3,
+            "category": "logic",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "parent": 0,
+            "attributes": [
+                {
+                    "name": "value1",
+                    "type_": "kFloat",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 0,
+                    "internal": true,
+                    "doc": "\nType: <slither.plugins.datatypes.generic.generic.FloatType object at 0x000001406159A0C8>",
+                    "id": 1
+                },
+                {
+                    "name": "value2",
+                    "type_": "kFloat",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": 20,
+                    "internal": true,
+                    "doc": "\nType: <slither.plugins.datatypes.generic.generic.FloatType object at 0x000001406159A188>",
+                    "id": 2
+                },
+                {
+                    "name": "result",
+                    "type_": "kBool",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": false,
+                    "output": true,
+                    "value": false,
+                    "internal": true,
+                    "doc": "\nType: <slither.plugins.datatypes.generic.generic.BooleanType object at 0x000001406159A248>",
+                    "id": 3
+                }
+            ]
+        },
+        {
+            "name": "condition",
+            "type": "condition",
+            "id": 4,
+            "category": "logic",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "parent": 0,
+            "attributes": [
+                {
+                    "name": "condition",
+                    "type_": "kBool",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": false,
+                    "input": true,
+                    "output": false,
+                    "value": false,
+                    "internal": true,
+                    "doc": "\nType: <slither.plugins.datatypes.generic.generic.BooleanType object at 0x00000140615A3108>",
+                    "id": 3
+                }
+            ]
+        },
+        {
+            "name": "scalar1",
+            "type": "scalar",
+            "id": 5,
+            "category": "constant",
+            "documentation": "Scalar",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "parent": 0,
+            "attributes": []
+        }
+    ],
+    "connections": [
+        {
+            "source": "scalar",
+            "destination": "sum",
+            "input": "inputA",
+            "output": "output"
+        },
+        {
+            "source": "sum",
+            "destination": "notEqualTo",
+            "input": "value1",
+            "output": "output"
+        },
+        {
+            "source": "notEqualTo",
+            "destination": "condition",
+            "input": "condition",
+            "output": "result"
+        },
+        {
+            "source": "scalar1",
+            "destination": "sum",
+            "input": "inputB",
+            "output": "output"
+        }
+    ]
+}
