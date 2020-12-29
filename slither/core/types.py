@@ -33,6 +33,9 @@ class DataType(object):
     def __ne__(self, other):
         return self.Type != other.Type or self._value != other.value()
 
+    def __repr__(self):
+        return "<{}>value: {}, default: {}".format(self.__class__.__name__, self._value, self.default)
+
     def value(self):
         return self._value
 

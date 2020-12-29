@@ -7,16 +7,6 @@ from slither.plugins.datatypes.generic import vector
 class Quaternion(types.DataType):
     Type = "kQuaternion"
 
-    def __init__(self, quat):
-        """
-        :param quat: list(float4)
-        """
-        super(Quaternion, self).__init__(quat)
-        self._x = quat[0]
-        self._y = quat[1]
-        self._z = quat[2]
-        self._w = quat[3]
-
     def setValue(self, value):
         self._x = value[0]
         self._y = value[1]

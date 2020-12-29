@@ -122,7 +122,6 @@ class BaseNode(object):
 
     def __init__(self, name, graph, proxyClass):
         self.graph = graph
-        self.id = 0
         self.name = name
         self.proxyCls = proxyClass
         self.isLocked = False
@@ -213,7 +212,6 @@ class BaseNode(object):
     def serialize(self):
         data = {"name": self.name,
                 "type": self.Type,
-                "id": self.id,
                 "category": self.category,
                 "documentation": self.documentation,
                 "tags": self.tags,
@@ -221,7 +219,7 @@ class BaseNode(object):
                 "properties": self.properties
                 }
         if self.parent is not None:
-            data["parent"] = self.parent.id
+            data["parent"] = self.parent.name
         return data
 
     def deserialize(self, data):
@@ -274,14 +272,8 @@ class DependencyNode(BaseNode):
             if attr.name() == shortName:
                 return attr
 
-    def attributeById(self, attributeId):
-        for attr in self.iterAttributes():
-            if attr.id == attributeId:
-                return attr
-
     def addAttribute(self, attribute):
         if attribute not in self.attributes:
-            attribute.id = 1 if not self.attributes else max(attr.id for attr in self.attributes) + 1
             self.attributes.append(attribute)
             self.graph.application.events.emit(self.graph.application.events.attributeCreated,
                                                sender=self,
@@ -406,8 +398,7 @@ class DependencyNode(BaseNode):
             else:
                 # temp solution
                 attr["type_"] = self.graph.dataType(attr["type_"])
-                newAttr = self.createAttribute(attributeDefinition=attribute.AttributeDefinition(**attr))
-                newAttr.id = attr["id"]
+                self.createAttribute(attributeDefinition=attribute.AttributeDefinition(**attr))
         return {}
 
 
@@ -599,8 +590,8 @@ class Compound(ComputeNode):
             newNode = self.createNode(child["name"], type_=child["type"])
             if newNode is None:
                 raise ValueError("Failed to create node: {}".format(child["name"]))
-            for nId, n in newNode.deserialize(child).items():
-                newChildren[nId] = n
+            for nName, n in newNode.deserialize(child).items():
+                newChildren[nName] = n
             newChildren[child["name"]] = newNode
         return newChildren
 

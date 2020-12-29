@@ -39,7 +39,8 @@ class TestGraphStandardExecutor(unittest.TestCase):
         comp.createAttribute(createInputAttrDef(name="testInput",
                                                 type_=self.app.registry.dataTypeClass("kFloat")))
         comp.createAttribute(createOutputAttrDef(name="testOutput",
-                                                 type_=self.app.registry.dataTypeClass("kFloat")))
+                                                 type_=self.app.registry.dataTypeClass("kFloat")
+                                                 ))
         subChild = comp.createNode("subsubChild", "sum")
 
         comp.testInput.connect(subChild.inputA)
@@ -55,6 +56,7 @@ class TestGraphStandardExecutor(unittest.TestCase):
         self.assertTrue(comp.hasAttribute("testOutput"))
         self.assertEqual(subChild.inputA.upstream, comp.testInput)
         self.assertEqual(comp.testOutput.upstream, subChild.output)
+
         self.graph.execute(self.graph.root, self.executeType)
         self.assertEqual(comp.testInput.value(), 10)
         self.assertEqual(comp.testOutput.value(), 40.0)

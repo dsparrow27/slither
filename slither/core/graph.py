@@ -1,9 +1,8 @@
-import os
 import pprint
 import logging
 
-from slither.core import node, errors, scheduler
-from zoo.libs.utils import filesystem
+from slither.core import node, errors, scheduler, attribute
+from zoo.libs.utils import filesystem, path
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +23,6 @@ class Graph(object):
         self.name = name
         self._root = None
         self.variables = {}
-        self.nodeIds = set()
         self.connections = []
 
     def shutdown(self):
@@ -41,29 +39,26 @@ class Graph(object):
         if self._root is not None:
             return self._root
         _root = self.application.registry.nodeClass("compound", graph=self, name=self.name or "world")
-        _root.id = self._generateNewNodeId()
         _root.nodeUI["label"] = "root"
         # mark the root as internal and locked so it can't be deleted.
         _root.isLocked = True
         _root.isInternal = True
-        # execDef = attribute.AttributeDefinition(name="execute",
-        #                                         input=False,
-        #                                         output=True,
-        #                                         type_=self.application.registry.dataTypeClass("kMulti"),
-        #                                         required=True, array=True,
-        #                                         doc="",
-        #                                         internal=True)
-        # _root.createAttribute(execDef)
+        execDef = attribute.AttributeDefinition(name="execute",
+                                                input=False,
+                                                output=True,
+                                                type_=self.application.registry.dataTypeClass("kMulti"),
+                                                required=True, array=True,
+                                                doc="",
+                                                default=[],
+                                                internal=True)
+        _root.createAttribute(execDef)
         self._root = _root
         self.application.events.emit(self.application.events.nodeCreated, sender=self, node=_root)
         return self._root
 
     def saveToFile(self, filePath, node=None):
         data = self.serialize(node)
-        pathSplit = filePath.split(os.path.extsep)
-        outputPath = filePath
-        if pathSplit[-1] != ".slgraph":
-            outputPath = pathSplit[0] + ".slgraph"
+        outputPath = path.withExtension(filePath, ".slgraph")
         try:
             filesystem.saveJson(data, outputPath)
         except TypeError:
@@ -86,7 +81,7 @@ class Graph(object):
         return data
 
     def execute(self, n, executorType):
-        job = scheduler.Job("testJob", self.application)
+        job = scheduler.Job("JOB: {}".format(n.name), self.application)
         job.submit(n, executorType)
         while not job.isCompleted():
             job.poll()
@@ -108,13 +103,14 @@ class Graph(object):
 
             root = self.root
             root.deserialize(data, includeChildren=False)
-
+            root.setDirty(True)
             for child in children:
                 newNode = self.createNode(child["name"], child["type"], parent=root)
                 for i, n in newNode.deserialize(child).items():
                     newNodes[i] = n
                 # we need to deal with connections so first create a map between the old and the new
                 newNodes[child["name"]] = newNode
+                newNode.setDirty(True)
             missingConnections = []
             missingNodes = []
             for connection in connections:
@@ -132,10 +128,10 @@ class Graph(object):
                 self.createConnection(sourceAttr, destAttr)
             if missingNodes:
                 logger.warning("Couldn't find nodes "
-                               "due to missing ids: {}".format(str(missingNodes)))
+                               "due to missing names: {}".format(str(missingNodes)))
             if missingConnections:
                 logger.warning("Couldn't create the following connections "
-                               "due to missing ids: {}".format(str(missingConnections)))
+                               "due to missing names: {}".format(str(missingConnections)))
             return {"nodes": newNodes,
                     "missingConnections": missingConnections}
 
@@ -188,7 +184,6 @@ class Graph(object):
                 name = newName
             newNode = self.application.registry.nodeClass(type_, name=name, graph=self)
             if newNode is not None:
-                newNode.id = self._generateNewNodeId()
                 parent.addChild(newNode)
 
                 return newNode
@@ -198,11 +193,6 @@ class Graph(object):
             self.application.events.emit(self.application.events.nodeCreated, sender=self, node=result)
         return result
 
-    def _generateNewNodeId(self):
-        newId = 0 if not self.nodeIds else max(self.nodeIds) + 1
-        self.nodeIds.add(newId)
-        return newId
-
     def removeNode(self, child, parent):
         if child.isLocked or child.isInternal:
             return False
@@ -210,7 +200,6 @@ class Graph(object):
         if child in self:
             if isinstance(child, node.DependencyNode):
                 child.disconnectAll()
-            self.nodeIds.remove(child.id)
             parent.children.remove(child)
             self.application.events.emit(self.application.events.nodeDeleted, sender=self, node=child)
             return True

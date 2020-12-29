@@ -1,21 +1,9 @@
 from slither.core import types
+from zoovendor.six.moves import range
 
 
 class Matrix4(types.DataType):
     Type = "kMatrix4"
-
-    def __init__(self, matrix):
-        super(Matrix4, self).__init__(matrix)
-
-    def __repr__(self):
-        return "{}{}".format(self.__class__.__name__, self._value)
-
-    def __eq__(self, other):
-        """Compares the left with the right of the operator
-        :param other: Matrix
-        :return: boolean
-        """
-        return isinstance(other, self) and self._value == other.value
 
     def __getitem__(self, pos):
         return self._value[pos]
@@ -30,7 +18,7 @@ class Matrix4(types.DataType):
         raise NotImplementedError
 
     def __sub__(self, other):
-        """Substracts the right from the left of the operator
+        """Subtracts the right from the left of the operator
         :param other: Matrix
         """
         raise NotImplementedError
@@ -39,8 +27,8 @@ class Matrix4(types.DataType):
         """Multiples the matrix
         :param other: Matrix
         """
-        for i in xrange(len(self.matrix)):
-            for axis in xrange(len(self.matrix[i])):
+        for i in range(len(self._value)):
+            for axis in range(len(self._value[i])):
                 self._value[i][axis] *= other[i, axis]
         return self
 
@@ -51,16 +39,16 @@ class Matrix4(types.DataType):
         """Sets the matrix identity
         :return:
         """
-        self._value = [[1, 0, 0, 0],
+        self.setValue([[1, 0, 0, 0],
                        [0, 1, 0, 0],
                        [0, 0, 1, 0],
-                       [0, 0, 0, 1]]
+                       [0, 0, 0, 1]])
         return self
 
     def clear(self):
         """Sets the matrix to [[0,0,0,0],[0,0,0,0],[0,0,0,0], [0,0,0,0]]
         """
-        self._value = [[0, 0, 0] for i in xrange(len(self._value))]
+        self.setValue([[0, 0, 0]] * len(self._value))
 
     def translate(self):
         """Returns the translation component of this matrix

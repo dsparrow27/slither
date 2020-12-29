@@ -32,7 +32,7 @@ class AttributeDefinition(object):
         self.validateDefault()
         if self.input and self.output:
             raise NotSupportedAttributeIO(self.name)
-        value = kwargs.get("value")
+        value = kwargs.get("value", default)
         if value is not None:
             self.type.setValue(value)
 
@@ -114,7 +114,6 @@ class Attribute(object):
         self.parent = None
         self._upstream = None
         self._value = self.definition.type
-        self.id = 0
 
     @property
     def upstream(self):
@@ -154,10 +153,10 @@ class Attribute(object):
             pass
 
     def __eq__(self, other):
-        return self.node.id == other.node.id and self.id == other.id
+        return self.node.name == other.node.name and self.name() == other.name()
 
     def __ne__(self, other):
-        return self.node.id != other.node.id or self.id != other.id
+        return self.node.name != other.node.name or self.name() != other.name()
 
     def name(self):
         return self.definition.name
@@ -284,14 +283,11 @@ class Attribute(object):
     def serialize(self):
 
         data = self.definition.serialize()
-        if data:
-            data["id"] = self.id
         return data
 
     def deserialize(self, data):
         if self.definition:
             self.definition.deserialize(data)
-            self.id = data.get("id", self.id)
             self.setValue(data.get("value"))
 
 

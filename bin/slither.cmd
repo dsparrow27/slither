@@ -12,7 +12,7 @@ set ABS_PATH=%CD%
 rem // Restore original directory
 popd
 set ZOO_PACKAGE_VERSION_PATH=%ABS_PATH%\zoo\package_version.config
-set TEST_PATH=%ABS_PATH%/tests
 
+call %ZOOTOOLS_ROOT%\install\core\bin\zoo_cmd.bat env -- py %ABS_PATH%/slither/cli/slithercli.py %*
 
-call %ZOOTOOLS_ROOT%\install\core\bin\zoo_cmd.bat env -- py %ABS_PATH%/tests/runtests.py
+exit /b 1

@@ -189,3 +189,6 @@ class EnumType(types.DataType):
 
 class MultiType(types.DataType):
     Type = "kMulti"
+
+    def supportsType(self, type_):
+        return True

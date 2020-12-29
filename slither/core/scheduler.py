@@ -5,6 +5,7 @@ from slither.core import storage, node
 
 logger = logging.getLogger(__name__)
 
+
 # todo: error handling, external processes, logging, job directory
 
 
@@ -47,6 +48,7 @@ class Job(object):
         self.schedulers = {}
         self.nodes = {}
 
+
     def isCompleted(self):
         return self.storage.queueSize() == 0
 
@@ -60,20 +62,19 @@ class Job(object):
         return scheduler
 
     def schedule(self, graphNode, schedulerType):
-        self.nodes[graphNode.id] = graphNode
+        self.nodes[graphNode.name] = graphNode
         scheduler = self.findScheduler(schedulerType)
         taskId = self.storage.generateUniqueId()
 
         contextData = node.Context.extractContextDataFromNode(graphNode)
         contextData["variables"] = graphNode.graph.variables
         info = {"context": contextData,
-                "id": graphNode.id,
                 "name": graphNode.name,
                 "type": graphNode.Type}
 
         returnStatus = scheduler.schedule(taskId, info)
         if returnStatus == Status.SCHEDULED:
-            print("scheduled: {}".format(graphNode.name))
+            logger.debug("scheduled: {}".format(graphNode.name))
             self.storage.enqueue(taskId=taskId,
                                  status=Status.QUEUED,
                                  kwargs={"nodeInfo": info,
@@ -82,17 +83,16 @@ class Job(object):
                                  scheduler=scheduler.Type)
 
     def submit(self, graphNode, schedulerType):
-        print("submitting, ", graphNode)
+        logger.debug("submitting, {}".format(graphNode))
         nodesToSubmit = []
         graphOrder = graphsearch.nodeBreadthFirstSearch(graphNode)
-
         # grab the leaf nodes
         for n, dependencies in list(graphOrder.items()):
-            if not dependencies and n.id in self.nodes:
+            if not dependencies and n.name in self.nodes:
                 del graphOrder[n]
                 continue
             for depend in dependencies:
-                if depend.id in self.nodes:
+                if depend.name in self.nodes:
                     graphOrder[n].remove(depend)
             if not dependencies:
                 nodesToSubmit.append(n)
@@ -108,8 +108,8 @@ class Job(object):
         # get node dependencies
         self.storage.dequeue(task.id)
         nodeInfo = task.kwargs["nodeInfo"]
-        nodeId = nodeInfo["id"]
-        node = self.nodes[nodeId]
+        nodeName = nodeInfo["name"]
+        node = self.nodes[nodeName]
         results = task.results
         outputInfo = results["outputs"]
         # # in the case where the node is a compound
@@ -122,12 +122,12 @@ class Job(object):
                     outputInfo[output.name()] = upstream.value()
         node.copyOutputData(results["outputs"])
         node.setDirty(False)
-        
+        self.storage.queueSize()
         if node.isCompound():
             self.submit(node, task.scheduler)
         else:
             for depend in node.downStreamNodes():
-                if depend.id not in self.nodes:
+                if depend.name not in self.nodes:
                     self.schedule(depend, task.scheduler)
 
     def poll(self):

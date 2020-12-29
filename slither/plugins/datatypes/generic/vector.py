@@ -8,54 +8,44 @@ class Vector(types.DataType):
     """
     Type = "kVector2D"
 
-    def __init__(self, vec):
+    def __init__(self, value=None, default=None):
         """
         :param vec: list
         """
-        super(Vector, self).__init__(vec)
-        self.vec = vec
-        self._x = vec[0]
-        self._y = vec[1]
+        super(Vector, self).__init__(value or [0, 0], default=default or [0, 0])
 
     def setValue(self, value):
-        self.vec = value
-        self._x = value[0]
-        self._y = value[1]
-        self._value = value
-
-    def __repr__(self):
-        return "{0}{1}".format(type(self).__name__, self.__dict__)
-
-    def __eq__(self, vec):
-        return isinstance(vec, Vector) and self.vec == vec.vec
+        if len(value) != len(self._value):
+            raise ValueError("Incorrect value length must be size 2")
+        return super(Vector, self).setValue(value)
 
     def __len__(self):
         """Returns the length, if its a vector2d then length 2 will be returned
         :return:
         """
-        return len(self.vec)
+        return len(self.value())
 
     def __getitem__(self, item):
         """Gets the index value from the vector
         :param item: int, the index value in the vector to get
         :return: float or int
         """
-        return self.vec[item]
+        return self.value()[item]
 
     def __setitem__(self, key, value):
         """Sets the value within the vector via the index
         :param key:
         :param value:
         """
-        self.vec[key] = value
+        self._value[key] = value
 
     def __add__(self, vec):
         """Adds two vectors together and the returns the resulting example
         :param vec: Vector2D or flost3
         :return: Vector2D
         """
-        assert len(self.vec) == len(vec)
-        return Vector([self.vec[i] + vec[i] for i in range(len(self))])
+        assert len(self) == len(vec)
+        return Vector([self.value()[i] + vec[i] for i in range(len(self))])
 
     def __sub__(self, vec):
         """Subtracts the two vectors
@@ -68,41 +58,41 @@ class Vector(types.DataType):
         """Negates the vector
         :return: new Vector
         """
-        return Vector([vec * -1 for vec in self.vec])
+        return Vector([vec * -1 for vec in self.value()])
 
     def __mul__(self, vec):
         """Dot product(scalar product) of two vectors. Takes Two equal length vectors and returns a single number.
         :param vec: Vector2D instance or float3
         :return: new Vector
         """
-        assert len(self.vec) == len(vec)
-        return sum(Vector([self.vec[i] * vec[i] for i in range(len(self.vec))]))
+        assert len(self) == len(vec)
+        return sum(Vector([self.value()[i] * vec[i] for i in range(len(self.value()))]))
 
     def __rmul__(self, scalar):
         """Vector right multiplication
         :param scalar: float or int
         :return: new Vector
         """
-        return Vector([x * scalar for x in self.vec])
+        return Vector([x * scalar for x in self.value()])
 
     def __abs__(self):
-        return Vector([abs(i) for i in self.vec])
+        return Vector([abs(i) for i in self.value()])
 
     def length(self):
         """Return the length of the vector
         :return: float
         """
-        return math.sqrt(sum(x * x for x in self.vec))
+        return math.sqrt(sum(x * x for x in self.value()))
 
     def normalize(self):
         """Returns the normalized vector, modifies the original vec
         :return:
         """
         length = self.length()
-        self._x /= length
-        self._y /= length
-        self.vec[0] = self._x
-        self.vec[1] = self._y
+        value = self.value()
+        value[0] = value[0] / length
+        value[1] = value[1] / length
+        self.setValue(value)
         return self
 
     def rotate(self, angle):
@@ -111,46 +101,44 @@ class Vector(types.DataType):
         """
         cos = math.cos(angle)
         sin = math.sin(angle)
-        return Vector([self._x * cos - self._y * sin, self._x * sin + self._y * cos])
+        value = self.value()
+        return Vector([value[0] * cos - value[1] * sin, value[0] * sin + value[1] * cos])
 
     @property
     def x(self):
         """Returns the x axis of the vector
         :return: int or float
         """
-        return self.vec[0]
+        return self.value()[0]
 
     @property
     def y(self):
         """Returns the y axis of the vector
         :return: int or float
         """
-        return self.vec[1]
+        return self.value()[1]
 
     @x.setter
     def x(self, value):
         """Sets the x axis of the vector
         """
-        self._x = value
+        self._value[0] = value
 
     @y.setter
     def y(self, value):
         """Sets the y axis of the vector
         """
-        self._y = value
+        self._value[1] = value
 
 
 class Vector3D(Vector):
     Type = "kVector3D"
 
-    def __init__(self, vec=None):
-        super(Vector3D, self).__init__(vec)
-        self.vec = [vec[0], vec[1], vec[2]]
-        self._z = vec[2]
-
-    def setValue(self, value):
-        super(Vector3D, self).setValue(value)
-        self._z = value[2]
+    def __init__(self, value=None, default=None):
+        """
+        :param vec: list
+        """
+        super(Vector, self).__init__(value or [0, 0, 0], default=default or [0, 0, 0])
 
     def __eq__(self, vec):
         return isinstance(vec, Vector3D) and self.vec == vec.vec
@@ -160,41 +148,40 @@ class Vector3D(Vector):
         :param vec: Vector2D or flost3
         :return: Vector2D
         """
-        assert len(self.vec) == len(vec)
-        return Vector3D([self.vec[i] + vec[i] for i in range(len(self))])
+        assert len(self) == len(vec)
+        return Vector3D([self.value()[i] + vec[i] for i in range(len(self))])
 
     def __neg__(self):
         """Negates the vector
         :return: Vector2D, return the negative of the vector, eg (1,-1,2) == (-1,1,-2)
         """
-        return Vector3D([vec * -1 for vec in self.vec])
+        return Vector3D([vec * -1 for vec in self.value()])
 
     def __mul__(self, vec):
         """Dot product(scalar product) of two vectors. Takes Two equal length vectors and returns a single number.
         :param vec: Vector2D instance or float3
         :return: Vector2D
         """
-        assert len(self.vec) == len(vec)
-        return sum(Vector3D([self.vec[i] * vec[i] for i in range(len(self.vec))]))
+        assert len(self.value()) == len(vec)
+        return sum(Vector3D([self.value()[i] * vec[i] for i in range(len(self))]))
 
     def __rmul__(self, scalar):
         """Returns the right multiplication
         :param scalar:
         :return:
         """
-        return Vector3D([x * scalar for x in self.vec])
+        return Vector3D([x * scalar for x in self.value()])
 
     def normalize(self):
         """Returns the normalized vector, modifies the original vec
         :return: self
         """
         length = self.length()
-        self._x /= length
-        self._y /= length
-        self._z /= length
-        self.vec[0] = self._x
-        self.vec[1] = self._y
-        self.vec[2] = self._z
+        value = self.value()
+        value[0] = value[0] / length
+        value[1] = value[1] / length
+        value[2] = value[2] / length
+        self.setValue(value)
         return self
 
     def crossProduct(self, vec):
@@ -202,9 +189,11 @@ class Vector3D(Vector):
         :param vec, Vector3D
         :return: Vector3D
         """
-        x = self._y * vec.z - self._z * vec.y
-        y = self._z * vec.x - self._x * vec.z
-        z = self._x * vec.y - self._y * vec.x
+        _x, _y, _z = self.value()
+
+        x = _y * vec.z - _z * vec.y
+        y = _z * vec.x - _x * vec.z
+        z = _x * vec.y - _y * vec.x
         return Vector3D([x, y, z])
 
     def rotate(self, rotation):
@@ -227,10 +216,10 @@ class Vector3D(Vector):
         """Returns the z axis of the vector
         :return: int or float
         """
-        return self.vec[1]
+        return self._value[2]
 
     @z.setter
     def z(self, value):
         """Sets the x axis of the vector
         """
-        self._z = value
+        self._value[2] = value
