@@ -353,12 +353,14 @@ class DependencyNode(BaseNode):
 
     def downStreamNodes(self):
         nodes = []
-        if self.parent:
-            children = self.parent.children
-            for i in children:
-                if isinstance(i, DependencyNode):
-                    if self in i.upstreamNodes():
-                        nodes.append(i)
+        visited = set()
+        for attr in self.iterOutputs():
+            for downstream in attr.downstream():
+                dsNode = downstream.node
+                if dsNode in visited:
+                    continue
+                visited.add(dsNode)
+                nodes.append(dsNode)
         return nodes
 
     def disconnectAll(self):

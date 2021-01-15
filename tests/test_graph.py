@@ -132,6 +132,23 @@ class TestAttribute(unittest.TestCase):
         self.assertTrue(len(sumA.output.downstream()) == 0)
         self.assertIsNone(sumB.inputA.upstream)
 
+    def test_values(self):
+        sumA = self.graph.createNode("sumA", type_="sum")
+        sumB = self.graph.createNode("sumB", type_="sum")
+        self.assertFalse(sumA.dirty())
+        sumA.output.connect(sumB.inputA)
+        sumA.inputA.setValue(10)
+        self.assertTrue(sumA.dirty())
+        self.assertTrue(sumB.dirty())
+        self.graph.execute(sumB, executorType=self.executeType)
+        self.assertFalse(sumB.dirty())
+        self.assertFalse(sumA.dirty())
+        self.assertFalse(self.graph.root.dirty())
+        sumB.inputB.setValue(10)
+        self.assertFalse(sumA.dirty())
+        self.assertTrue(sumB.dirty())
+        self.assertEqual(sumB.output.value(), 10)
+
 
 if __name__ == "__main__":
     unittest.main()
