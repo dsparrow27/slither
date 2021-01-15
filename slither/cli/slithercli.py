@@ -10,7 +10,7 @@ def runTests():
     runtests.main()
 
 
-def executeGraph(filePath):
+def executeGraph(filePath, scheduler):
     filePath = os.path.abspath(os.path.expandvars(os.path.expanduser(filePath)))
     if not os.path.exists(filePath):
         raise FileNotFoundError(filePath)
@@ -19,7 +19,7 @@ def executeGraph(filePath):
 
     app = api.Application()
     graph = app.createGraphFromPath(name="cliGraph", filePath=filePath)
-    graph.execute(graph.root, "inProcess")  # temp
+    graph.execute(graph.root, scheduler)  # temp
 
 
 def main(args):
@@ -28,13 +28,16 @@ def main(args):
     if args.test:
         runTests()
         return
-    executeGraph(args.graph)
+    executeGraph(args.graph, args.scheduler)
 
 
 def parseArguments(args):
     parser = argparse.ArgumentParser("Slither")
     parser.add_argument("--graph", "-g",
                         type=str, help="Graph to load and execute")
+    parser.add_argument("--scheduler", "-s",
+                        default="inProcess",
+                        type=str, help="Scheduler default name")
     parser.add_argument("--test", action="store_true")
     args = parser.parse_args(args)
     main(args)

@@ -110,5 +110,28 @@ class TestGraphStandardExecutor(unittest.TestCase):
         self.assertEqual(newGraph.root.execution.value(), 40)
 
 
+class TestAttribute(unittest.TestCase):
+    def setUp(self):
+        self.app = api.Application()
+        self.graph = self.app.createGraph("mainGraph")
+        self.executeType = self.app.STANDARDEXECUTOR
+
+    def test_connections(self):
+        sumA = self.graph.createNode("sumA", type_="sum")
+        sumB = self.graph.createNode("sumB", type_="sum")
+        sumA.output.connect(sumB.inputA)
+        self.assertEqual(sumB.inputA.upstream, sumA.output)
+        self.assertTrue(sumB.inputA in sumA.output.downstream())
+        with self.assertRaises(api.AttributeAlreadyConnectedError):
+            sumA.output.connect(sumB.inputA)
+            sumB.inputA.connect(sumA.output)
+        with self.assertRaises(api.UnsupportedConnectionCombinationError):
+            sumA.inputA.connect(sumA.inputB)
+            sumA.inputA.connect(sumB.inputB)
+        sumB.inputA.disconnect()
+        self.assertTrue(len(sumA.output.downstream()) == 0)
+        self.assertIsNone(sumB.inputA.upstream)
+
+
 if __name__ == "__main__":
     unittest.main()

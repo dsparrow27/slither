@@ -125,7 +125,7 @@ class Graph(object):
                 if sourceAttr is None or destAttr is None:
                     missingConnections.append(connection)
                     continue
-                self.createConnection(sourceAttr, destAttr)
+                sourceAttr.connect(destAttr)
             if missingNodes:
                 logger.warning("Couldn't find nodes "
                                "due to missing names: {}".format(str(missingNodes)))
@@ -153,13 +153,6 @@ class Graph(object):
                 break
 
     def createConnection(self, source, destination):
-        if not source.canConnect(destination):
-            raise errors.AttributeCompatiblityError(source, destination)
-        if destination.upstream is not None:
-            raise errors.AttributeAlreadyConnected(source, destination)
-
-        logger.debug("Creating connection between: {}->{}".format(source.fullName(), destination.fullName()))
-        destination.upstream = source
         connection = {"source": source.node, "destination": destination.node,
                       "input": destination, "output": source}
         self.connections.append(connection)

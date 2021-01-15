@@ -1,0 +1,79 @@
+{
+  "nodes": [
+        {
+            "name": "webDownload",
+            "type": "webDownload",
+            "category": "web",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "compound": false,
+            "attributes": [
+                {
+                    "name": "url",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kString"
+                },
+              {
+                    "name": "filePath",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kString"
+                },
+              {
+                    "name": "outputPath",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": false,
+                    "output": true,
+                    "value": "",
+                    "internal": true,
+                    "type": "kString"
+                }
+            ],
+            "pluginPath": "./webnodes.py"
+        },
+    {
+            "name": "webOpen",
+            "type": "webOpen",
+            "category": "web",
+            "documentation": "",
+            "tags": [],
+            "nodeUI": {},
+            "properties": {},
+            "compound": false,
+            "attributes": [
+                {
+                    "name": "url",
+                    "default": null,
+                    "array": false,
+                    "compound": false,
+                    "required": true,
+                    "input": true,
+                    "output": false,
+                    "value": "",
+                    "internal": true,
+                    "type": "kString"
+                }
+
+            ],
+            "pluginPath": "./webnodes.py"
+        }
+    ]
+}

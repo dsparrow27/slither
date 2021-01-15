@@ -1,7 +1,7 @@
-class AttributeAlreadyConnected(Exception):
+class AttributeAlreadyConnectedError(Exception):
     def __init__(self, input, output, *args, **kwargs):
         msg = "Input Plug '{}' already connected to {}".format(input.name(), output.name())
-        super(AttributeAlreadyConnected, self).__init__(msg, *args, **kwargs)
+        super(AttributeAlreadyConnectedError, self).__init__(msg, *args, **kwargs)
 
 
 class AttributeCompatiblityError(Exception):
@@ -14,3 +14,7 @@ class UnsupportedConnectionCombinationError(Exception):
     def __init__(self, attr1, attr2, *args, **kwargs):
         msg = "Unsupported connection combination:\n{} - {}".format(attr1.fullName(), attr2.fullName())
         super(UnsupportedConnectionCombinationError, self).__init__(msg, *args, **kwargs)
+
+
+class NotSupportedAttributeIOError(Exception):
+    pass

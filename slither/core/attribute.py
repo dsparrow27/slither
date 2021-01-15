@@ -5,10 +5,6 @@ from slither.core import errors
 logger = logging.getLogger(__name__)
 
 
-class NotSupportedAttributeIO(Exception):
-    pass
-
-
 class AttributeDefinition(object):
     """Acts as a blob of data to be attached to any given attribute, If you're
     """
@@ -31,7 +27,7 @@ class AttributeDefinition(object):
         self.__doc__ = doc
         self.validateDefault()
         if self.input and self.output:
-            raise NotSupportedAttributeIO(self.name)
+            raise errors.NotSupportedAttributeIOError(self.name)
         value = kwargs.get("value", default)
         if value is not None:
             self.type.setValue(value)
@@ -69,19 +65,20 @@ class AttributeDefinition(object):
         """
         attrValue = self.type.value()
         attrDefault = self.default
-        if attrValue == attrDefault and (self.internal and not includeInternal):
-            return {}
-        return dict(name=self.name,
-                    type_=self.type.typeName,
+        data = dict(name=self.name,
                     default=attrDefault,
-                    array=self.array,
-                    compound=self.compound,
-                    required=self.required,
-                    input=self.input,
-                    output=self.output,
-                    value=attrValue,
-                    internal=self.internal,
-                    doc=self.documentation())
+                    value=attrValue)
+        if not self.internal and not includeInternal:
+            data.update(dict(
+                type_=self.type.typeName,
+                array=self.array,
+                compound=self.compound,
+                required=self.required,
+                input=self.input,
+                output=self.output,
+                internal=self.internal,
+                doc=self.documentation()))
+        return data
 
     def deserialize(self, data):
         """Deserialize the provided data on this definition instance. The data must be
@@ -105,15 +102,18 @@ class Attribute(object):
     def __init__(self, definition, node=None):
         """
         :param definition:
+        :type definition: :class:`AttributeDefinition`
         :param node:
+        :type node: :class:`slither.core.node.DependNode`
         """
         self.definition = definition
         # node that this attribute is attached too.
         self.node = node
         # parent attribute
         self.parent = None
-        self._upstream = None
+        self._upstream = None  # type: Attribute
         self._value = self.definition.type
+        self._downstreamConnections = []  # type: list[Attribute]
 
     @property
     def upstream(self):
@@ -124,6 +124,18 @@ class Attribute(object):
         self._upstream = value
         if self.node is not None:
             self.node.setDirty(True)
+
+    def downstream(self):
+        return self._downstreamConnections
+
+    def addDownsteam(self, attribute):
+        self._downstreamConnections.append(attribute)
+
+    def disconnectDestination(self, attribute):
+        if attribute.upstream is not None:
+            attribute.disconnect(self)
+        connections = [attr for attr in self._downstreamConnections if attr != attribute]
+        self._downstreamConnections = connections
 
     @property
     def isElement(self):
@@ -272,11 +284,20 @@ class Attribute(object):
             if attrParent == selfNode:
                 src = attr
                 dest = self
+        if not src.canConnect(dest):
+            raise errors.AttributeCompatiblityError(src, dest)
+        if dest.upstream is not None:
+            raise errors.AttributeAlreadyConnectedError(src, dest)
+        logger.debug("Creating connection between: {}->{}".format(src.fullName(), dest.fullName()))
+        dest.upstream = src
+        src.addDownsteam(dest)
         self.node.createConnection(src, dest)
 
     def disconnect(self):
         if self.hasUpstream():
+            upstream = self.upstream
             self.upstream = None
+            upstream.disconnectDestination(self)
             return True
         return False
 
