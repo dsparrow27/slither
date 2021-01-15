@@ -338,6 +338,11 @@ class CompoundAttribute(Attribute):
             self.children.remove(child)
             child.setParent(None)
 
+    def connect(self, attr):
+        if not attr.definition.compound:
+            raise errors.AttributeCompatiblityError(self, attr)
+        return super(CompoundAttribute, self).connect(attr)
+
     def serialize(self):
         data = super(CompoundAttribute, self).serialize()
         data["children"] = [i.serialize() for i in self]
@@ -396,7 +401,7 @@ class ArrayAttribute(Attribute):
 
     def append(self, value):
         definition = copy.deepcopy(self.definition)
-        # data["array"] = data
+        definition.array = False
         definition.name = self.name() + "[{}]".format(len(self) + 1)
         attr = Attribute(definition, node=self)
         attr.setValue(value)
@@ -414,3 +419,8 @@ class ArrayAttribute(Attribute):
             attr = self.elements.pop(index)
             attr.disconnect()
             return attr
+
+    def connect(self, attr):
+        if not attr.definition.array:
+            raise errors.AttributeCompatiblityError(self, attr)
+        return super(ArrayAttribute, self).connect(attr)
