@@ -117,8 +117,7 @@ class Job(object):
         # # so loop the outputs, find the upstream and add the connected value
         if node.isCompound():
             for output in node.outputs():
-                upstream = output.upstream
-                if upstream:
+                for upstream in output.upstream():
                     outputInfo[output.name()] = upstream.value()
         node.copyOutputData(results["outputs"])
         node.setDirty(False)

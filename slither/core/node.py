@@ -109,6 +109,16 @@ class BaseNode(object):
 
     @classmethod
     def create(cls, info, graph, proxyClass):
+        """
+        :param info:
+        :type info:
+        :param graph:
+        :type graph:
+        :param proxyClass:
+        :type proxyClass:
+        :return:
+        :rtype: :class:`BaseNode`
+        """
         name = info["name"]
         node = cls(name, graph, proxyClass)
         node.properties = info.get("properties", {})
@@ -233,6 +243,18 @@ class DependencyNode(BaseNode):
     @classmethod
     def create(cls, info, graph, proxyClass):
         n = super(DependencyNode, cls).create(info, graph, proxyClass)
+        for name, _in, _out in (("execInput", True, False), ("execOutput", False, True)):
+            execDef = attribute.AttributeDefinition(name=name,
+                                                    input=_in,
+                                                    output=_out,
+                                                    type_=graph.application.registry.dataTypeClass("kExec"),
+                                                    default=None,
+                                                    required=False, array=False,
+                                                    doc="",
+                                                    internal=True,
+                                                    exec=True,
+                                                    serializable=True)
+            n.createAttribute(execDef)
         for attr in info.get("attributes", []):
             if n.hasAttribute(attr["name"]):
                 continue
@@ -292,6 +314,8 @@ class DependencyNode(BaseNode):
             newAttribute = attribute.ArrayAttribute(attributeDefinition, node=self)
         elif attributeDefinition.compound:
             newAttribute = attribute.CompoundAttribute(attributeDefinition, node=self)
+        elif attributeDefinition.exec:
+            newAttribute = attribute.ExecAttribute(attributeDefinition, node=self)
         else:
             newAttribute = attribute.Attribute(attributeDefinition, node=self)
 
@@ -346,9 +370,10 @@ class DependencyNode(BaseNode):
     def upstreamNodes(self):
         nodes = []
         for input_ in self.iterInputs():
-            upstream = input_.upstream
-            if upstream is not None:
-                nodes.append(upstream.node)
+            for upstream in input_.upstream():
+                node = upstream.node
+                if node is not None:
+                    nodes.append(node)
         return nodes
 
     def downStreamNodes(self):
@@ -431,6 +456,7 @@ class ComputeNode(DependencyNode):
         super(ComputeNode, self).__init__(name, graph, proxyClass)
         self._progress = 0
         self._dirty = False
+
     #
     # def process(self, context):
     #     fullName = self.fullName()
@@ -596,5 +622,3 @@ class Compound(ComputeNode):
                 newChildren[nName] = n
             newChildren[child["name"]] = newNode
         return newChildren
-
-

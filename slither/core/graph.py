@@ -8,10 +8,6 @@ logger = logging.getLogger(__name__)
 
 
 class Graph(object):
-    NODE_LIB_ENV = "SLITHER_NODE_LIB"
-    TYPE_LIB_ENV = "SLITHER_TYPE_LIB"
-    scheduler_LIB_ENV = "scheduler_LIB"
-
     def __init__(self, app, name):
         """
         :param app: The slither application instance
@@ -140,7 +136,7 @@ class Graph(object):
     def removeConnection(self, source, destination):
         if destination.upstream != source:
             return False
-        destination.upstream = None
+        destination.disconnect()
         for index, conn in enumerate(self.connections):
             if conn["input"] == destination and conn["output"] == source \
                     and conn["source"] == source and conn["destination"] == destination:

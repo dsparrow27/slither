@@ -38,12 +38,10 @@ def nodeBreadthFirstSearch(node, dirty=False):
     stack = []
     if node.isCompound():
         for output in node.outputs():
-            upstream = output.upstream
-            if not upstream:
-                continue
-            n = upstream.node
-            if n not in stack or n != node and (not dirty and n.dirty()):
-                stack.append(n)
+            for upstream in output.upstream():
+                n = upstream.node
+                if n not in stack or n != node and (not dirty and n.dirty()):
+                    stack.append(n)
     else:
         stack.append(node)
     while stack:

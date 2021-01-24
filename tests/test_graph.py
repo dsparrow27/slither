@@ -54,8 +54,8 @@ class TestGraphStandardExecutor(unittest.TestCase):
         self.assertTrue(comp.hasChild("subsubChild"))
         self.assertTrue(comp.hasAttribute("testInput"))
         self.assertTrue(comp.hasAttribute("testOutput"))
-        self.assertEqual(subChild.inputA.upstream, comp.testInput)
-        self.assertEqual(comp.testOutput.upstream, subChild.output)
+        self.assertTrue(comp.testInput in subChild.inputA.upstream())
+        self.assertTrue(subChild.output in comp.testOutput.upstream())
 
         self.graph.execute(self.graph.root, self.executeType)
         self.assertEqual(comp.testInput.value(), 10)
@@ -84,8 +84,8 @@ class TestGraphStandardExecutor(unittest.TestCase):
         self.assertTrue(comp.hasChild("subsubChild"))
         self.assertTrue(comp.hasAttribute("testInput"))
         self.assertTrue(comp.hasAttribute("testOutput"))
-        self.assertEqual(subChild.inputA.upstream, comp.testInput)
-        self.assertEqual(comp.testOutput.upstream, subChild.output)
+        self.assertTrue(comp.testInput in subChild.inputA.upstream())
+        self.assertTrue(subChild.output in comp.testOutput.upstream())
         self.graph.execute(self.graph.root, self.executeType)
         serializeData = self.graph.serialize()
         # re load the graph and test setup matches the above
@@ -98,7 +98,7 @@ class TestGraphStandardExecutor(unittest.TestCase):
         self.assertTrue(subChildNew.hasAttribute("testInput"))
         self.assertTrue(subChildNew.hasAttribute("testOutput"))
         self.assertTrue(newGraph.root.hasAttribute("execution"))
-        self.assertIsNotNone(subChildNew.child("subsubChild").inputA.upstream)
+        self.assertEqual(len(subChildNew.child("subsubChild").inputA.upstream()), 1)
 
         newGraph.execute(newGraph.root, self.executeType)
         self.assertEqual(subChildNew.testInput.value(), 10)
@@ -106,7 +106,7 @@ class TestGraphStandardExecutor(unittest.TestCase):
         self.assertEqual(subChildNew.child("subsubChild").inputB.value(), 30)
         self.assertEqual(subChildNew.child("subsubChild").output.value(), 40)
         self.assertEqual(subChildNew.testOutput.value(), 40)
-        self.assertIsNotNone(newGraph.root.execution.upstream)
+        self.assertEqual(len(newGraph.root.execution.upstream()), 1)
         self.assertEqual(newGraph.root.execution.value(), 40)
 
 
@@ -116,11 +116,11 @@ class TestAttribute(unittest.TestCase):
         self.graph = self.app.createGraph("mainGraph")
         self.executeType = self.app.STANDARDEXECUTOR
 
-    def test_connections(self):
+    def test_SingleConnections(self):
         sumA = self.graph.createNode("sumA", type_="sum")
         sumB = self.graph.createNode("sumB", type_="sum")
         sumA.output.connect(sumB.inputA)
-        self.assertEqual(sumB.inputA.upstream, sumA.output)
+        self.assertTrue(sumA.output in sumB.inputA.upstream())
         self.assertTrue(sumB.inputA in sumA.output.downstream())
         with self.assertRaises(api.AttributeAlreadyConnectedError):
             sumA.output.connect(sumB.inputA)
@@ -130,7 +130,17 @@ class TestAttribute(unittest.TestCase):
             sumA.inputA.connect(sumB.inputB)
         sumB.inputA.disconnect()
         self.assertTrue(len(sumA.output.downstream()) == 0)
-        self.assertIsNone(sumB.inputA.upstream)
+        self.assertTrue(len(sumB.inputA.upstream()) == 0)
+
+    def test_multipleConnections(self):
+        sumA = self.graph.createNode("sumA", type_="sum")
+        sumB = self.graph.createNode("sumB", type_="sum")
+        sumC = self.graph.createNode("sumC", type_="sum")
+        sumA.execOutput.connect(sumB.execInput)
+        sumC.execOutput.connect(sumB.execInput)
+        self.assertEqual(len(sumB.execInput.upstream()), 2)
+        with self.assertRaises(api.AttributeAlreadyConnectedError):
+            sumA.execOutput.connect(sumB.execInput)
 
     def test_values(self):
         sumA = self.graph.createNode("sumA", type_="sum")

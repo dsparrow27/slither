@@ -192,3 +192,7 @@ class MultiType(types.DataType):
 
     def supportsType(self, type_):
         return True
+
+
+class ExecType(types.DataType):
+    Type = "kExec"

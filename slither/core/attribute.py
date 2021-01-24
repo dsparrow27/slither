@@ -21,6 +21,8 @@ class AttributeDefinition(object):
         self.internal = kwargs.get("internal", False)
         self.min = kwargs.get("min", -999999)
         self.max = kwargs.get("max", 999999)
+        self.serializable = kwargs.get("serializable", True)
+        self.exec = kwargs.get("exec", False)
 
         doc += "\nType: {}".format(str(type_))
 
@@ -63,6 +65,8 @@ class AttributeDefinition(object):
 
         :rtype: dict
         """
+        if not self.serializable:
+            return {}
         attrValue = self.type.value()
         attrDefault = self.default
         data = dict(name=self.name,
@@ -97,6 +101,8 @@ class AttributeDefinition(object):
 
 
 class Attribute(object):
+    """Base Attribute Class
+    """
     type_ = "generic"
 
     def __init__(self, definition, node=None):
@@ -111,58 +117,66 @@ class Attribute(object):
         self.node = node
         # parent attribute
         self.parent = None
-        self._upstream = None  # type: Attribute
         self._value = self.definition.type
+        self._upstreamConnections = []  # type: list[Attribute]
         self._downstreamConnections = []  # type: list[Attribute]
 
-    @property
     def upstream(self):
-        return self._upstream
+        """
+        :return:
+        :rtype: list[:class:`Attribute`]
+        """
+        return self._upstreamConnections
 
-    @upstream.setter
-    def upstream(self, value):
-        self._upstream = value
-        if self.node is not None:
-            self.node.setDirty(True)
+    def supportsMultipleConnections(self):
+        return False
 
     def downstream(self):
         return self._downstreamConnections
 
-    def addDownsteam(self, attribute):
-        self._downstreamConnections.append(attribute)
-
     def disconnectDestination(self, attribute):
-        if attribute.upstream is not None:
-            attribute.disconnect(self)
+        """
+
+        :param attribute: the downstream attribute to disconnect from
+        :type attribute: :class:`Attribute`
+        :return:
+        :rtype: bool
+        """
+        if attribute.hasUpstream() is not None:
+            attribute.disconnect()
         connections = [attr for attr in self._downstreamConnections if attr != attribute]
         self._downstreamConnections = connections
+        return True
 
     @property
     def isElement(self):
+        """
+
+        :return:
+        :rtype: bool
+        """
         return self.parent.isArray
 
     @property
     def isCompound(self):
+        """
+
+        :return:
+        :rtype: bool
+        """
         return self.definition.compound
 
     @property
     def isArray(self):
+        """
+
+        :return:
+        :rtype: bool
+        """
         return self.definition.array
 
     def __repr__(self):
         return "attribute(%s)" % (self.name())
-
-    def __float__(self):
-        try:
-            return float(self.value())
-        except TypeError:
-            pass
-
-    def __int__(self):
-        try:
-            return int(self.value())
-        except TypeError:
-            pass
 
     def __eq__(self, other):
         return self.node.name == other.node.name and self.name() == other.name()
@@ -171,9 +185,15 @@ class Attribute(object):
         return self.node.name != other.node.name or self.name() != other.name()
 
     def name(self):
+        """
+
+        :return:
+        :rtype: str
+        """
         return self.definition.name
 
     def setName(self, name):
+
         oldName = self.definition.name
         self.definition.setName(name)
         self.node.graph.application.events.emit(self.node.graph.application.events.attributeNameChanged,
@@ -202,11 +222,19 @@ class Attribute(object):
                                                                            self.node.fullName()))
 
     def type(self):
+        """
+
+        :return:
+        :rtype: :class:`slither.core.types.DataType`
+        """
         return self.definition.type
 
     def value(self):
-        if self._upstream is not None:
-            return self._upstream.value()
+        if self.hasUpstream():
+            if self.supportsMultipleConnections():
+                return [upstream.value() for upstream in self._upstreamConnections]
+            for upstream in self._upstreamConnections:
+                return upstream.value()
         return self._value.value()
 
     def setValue(self, value):
@@ -230,43 +258,66 @@ class Attribute(object):
 
         :return: bool
         """
-        return self.upstream is not None
+        return len(self._upstreamConnections) != 0
 
     isConnected = hasUpstream
 
-    def canConnect(self, attribute):
-        isCompound = attribute.node.isCompound() or self.node.isCompound()
-        if attribute.parent == self.node:
+    @staticmethod
+    def canConnect(source, destination):
+        """
+
+        :param source:
+        :type source: :class:`Attribute`
+        :param destination:
+        :type destination: :class:`Attribute`
+        :return:
+        :rtype: bool
+        """
+        isCompound = destination.node.isCompound() or source.node.isCompound()
+        if source == destination:
+            return False
+        if destination.parent == source.node:
             logger.debug("Attribute's is on the same Node")
             return False
-        elif attribute.isInput() and self.isInput() and not isCompound:
+        elif destination.isInput() and source.isInput() and not isCompound:
             logger.debug("Attribute is an input and neither the node nor the attr.node is a compound")
             return False
-        elif attribute.isOutput() and self.isOutput() and not isCompound:
+        elif destination.isOutput() and source.isOutput() and not isCompound:
             logger.debug("Attribute is an output and neither the node nor the attr.node is a compound")
             return False
-        elif not attribute.type().supportsType(self.type()):
-            logger.debug("Attribute types are not the same: {}".format(self.type().Type))
+        elif not destination.type().supportsType(source.type()):
+            logger.debug("Attribute types are not the same: {}".format(source.type().Type))
             return False
+        elif destination.hasUpstream() and not destination.supportsMultipleConnections():
+            raise errors.AttributeAlreadyConnectedError(source, destination)
+        elif source.isConnectedTo(destination):
+            raise errors.AttributeAlreadyConnectedError(source, destination)
+
         logger.debug("Able to connect")
         return True
 
     def isConnectedTo(self, attribute):
         if self.isInput():
-            upstream = self.upstream
-            if upstream is not None and upstream == attribute:
-                return True
+            for upstream in self._upstreamConnections:
+                if upstream == attribute:
+                    return True
         elif self.isOutput():
-            return attribute.isConnectedTo(self)
-        return True
+            for attr in self._downstreamConnections:
+                if attr == attribute:
+                    return True
+        return False
 
     def connect(self, attr):
-        if self == attr:
-            raise errors.UnsupportedConnectionCombinationError(self, attr)
+        """
+
+        :param attr:
+        :type attr: :class:`Attribute`
+        :return:
+        :rtype:
+        """
+
         attrNode = attr.node
         selfNode = self.node
-        if attrNode == selfNode:
-            raise errors.UnsupportedConnectionCombinationError(self, attr)
         src = self
         dest = attr
         attrParent = attrNode.parent
@@ -284,27 +335,30 @@ class Attribute(object):
             if attrParent == selfNode:
                 src = attr
                 dest = self
-        if not src.canConnect(dest):
-            raise errors.AttributeCompatiblityError(src, dest)
-        if dest.upstream is not None:
-            raise errors.AttributeAlreadyConnectedError(src, dest)
+        if not self.canConnect(src, dest):
+            raise errors.UnsupportedConnectionCombinationError(self, attr)
         logger.debug("Creating connection between: {}->{}".format(src.fullName(), dest.fullName()))
-        dest.upstream = src
-        src.addDownsteam(dest)
+
+        if not dest.supportsMultipleConnections():
+            dest.disconnect()
+        dest._upstreamConnections.append(src)
+        if dest.node is not None:
+            dest.node.setDirty(True)
+
+        src._downstreamConnections.append(dest)
         self.node.createConnection(src, dest)
 
     def disconnect(self):
         if self.hasUpstream():
-            upstream = self.upstream
-            self.upstream = None
-            upstream.disconnectDestination(self)
+            upstreams = self._upstreamConnections
+            self._upstreamConnections = []
+            for upstream in upstreams:
+                upstream.disconnectDestination(self)
             return True
         return False
 
     def serialize(self):
-
-        data = self.definition.serialize()
-        return data
+        return self.definition.serialize()
 
     def deserialize(self, data):
         if self.definition:
@@ -383,11 +437,10 @@ class ArrayAttribute(Attribute):
         """override
         :return:
         """
-        if self.upstream is not None:
-            value = self.upstream.value()
-            if not isinstance(value, list):
-                return [value]
-            return value
+        if self._upstreamConnections:
+            if self.supportsMultipleConnections():
+                return [upstream.value() for upstream in self._upstreamConnections]
+            return self._upstreamConnections[0].value()
         return [element.value() for element in self.elements]
 
     def setValue(self, value):
@@ -424,3 +477,16 @@ class ArrayAttribute(Attribute):
         if not attr.definition.array:
             raise errors.AttributeCompatiblityError(self, attr)
         return super(ArrayAttribute, self).connect(attr)
+
+
+class ExecAttribute(Attribute):
+    type_ = "exec"
+
+    def value(self):
+        return
+
+    def setValue(self, value):
+        return
+
+    def supportsMultipleConnections(self):
+        return True
