@@ -1,6 +1,10 @@
 {
   "dataTypes": [
     {
+      "type": "kExec",
+      "pluginPath": "./generic.py"
+    },
+    {
       "type": "kString",
       "pluginPath": "./generic.py"
     },

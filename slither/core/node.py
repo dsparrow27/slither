@@ -117,7 +117,7 @@ class BaseNode(object):
         :param proxyClass:
         :type proxyClass:
         :return:
-        :rtype: :class:`BaseNode`
+        :rtype: :class:`BaseNode` or :class:`DependencyNode`
         """
         name = info["name"]
         node = cls(name, graph, proxyClass)
@@ -252,7 +252,7 @@ class DependencyNode(BaseNode):
                                                     required=False, array=False,
                                                     doc="",
                                                     internal=True,
-                                                    exec=True,
+                                                    exec_=True,
                                                     serializable=True)
             n.createAttribute(execDef)
         for attr in info.get("attributes", []):
@@ -285,9 +285,6 @@ class DependencyNode(BaseNode):
             return attr
         return super(DependencyNode, self).__getattribute__(name)
 
-    def createConnection(self, inputAttribute, destinationAttribute):
-        return self.graph.createConnection(inputAttribute, destinationAttribute)
-
     def attribute(self, name):
         shortName = name.split("|")[-1]
         for attr in self.iterAttributes():
@@ -314,7 +311,7 @@ class DependencyNode(BaseNode):
             newAttribute = attribute.ArrayAttribute(attributeDefinition, node=self)
         elif attributeDefinition.compound:
             newAttribute = attribute.CompoundAttribute(attributeDefinition, node=self)
-        elif attributeDefinition.exec:
+        elif attributeDefinition.exec_:
             newAttribute = attribute.ExecAttribute(attributeDefinition, node=self)
         else:
             newAttribute = attribute.Attribute(attributeDefinition, node=self)
@@ -326,6 +323,7 @@ class DependencyNode(BaseNode):
         for i in range(len(self.attributes)):
             attr = self.attributes[i]
             if attr.name() == name:
+                attr.delete()
                 del self.attributes[i]
                 return True
         return False

@@ -22,7 +22,7 @@ class AttributeDefinition(object):
         self.min = kwargs.get("min", -999999)
         self.max = kwargs.get("max", 999999)
         self.serializable = kwargs.get("serializable", True)
-        self.exec = kwargs.get("exec", False)
+        self.exec_ = kwargs.get("exec_", False)
 
         doc += "\nType: {}".format(str(type_))
 
@@ -120,33 +120,6 @@ class Attribute(object):
         self._value = self.definition.type
         self._upstreamConnections = []  # type: list[Attribute]
         self._downstreamConnections = []  # type: list[Attribute]
-
-    def upstream(self):
-        """
-        :return:
-        :rtype: list[:class:`Attribute`]
-        """
-        return self._upstreamConnections
-
-    def supportsMultipleConnections(self):
-        return False
-
-    def downstream(self):
-        return self._downstreamConnections
-
-    def disconnectDestination(self, attribute):
-        """
-
-        :param attribute: the downstream attribute to disconnect from
-        :type attribute: :class:`Attribute`
-        :return:
-        :rtype: bool
-        """
-        if attribute.hasUpstream() is not None:
-            attribute.disconnect()
-        connections = [attr for attr in self._downstreamConnections if attr != attribute]
-        self._downstreamConnections = connections
-        return True
 
     @property
     def isElement(self):
@@ -252,6 +225,19 @@ class Attribute(object):
         """Returns True if this attribute is an input attribute"""
         return self.definition.output
 
+    def upstream(self):
+        """
+        :return:
+        :rtype: list[:class:`Attribute`]
+        """
+        return self._upstreamConnections
+
+    def downstream(self):
+        return self._downstreamConnections
+
+    def supportsMultipleConnections(self):
+        return False
+
     def hasUpstream(self):
         """Determines if the current attribute has a connection, an attribute can have only one connection if its an
         input.
@@ -315,26 +301,7 @@ class Attribute(object):
         :return:
         :rtype:
         """
-
-        attrNode = attr.node
-        selfNode = self.node
-        src = self
-        dest = attr
-        attrParent = attrNode.parent
-        selfParent = selfNode.parent
-        if self.isInput() and attr.isOutput():
-            src = attr
-            dest = self
-        # compound input attribute to child input
-        elif self.isInput() and attr.isInput():
-            # if we connecting from the child attr to the compound input
-            if selfParent == attrNode:
-                src = attr
-                dest = self
-        elif self.isOutput() and attr.isOutput():
-            if attrParent == selfNode:
-                src = attr
-                dest = self
+        src, dest = self._returnCorrectSourceDestination(self, attr)
         if not self.canConnect(src, dest):
             raise errors.UnsupportedConnectionCombinationError(self, attr)
         logger.debug("Creating connection between: {}->{}".format(src.fullName(), dest.fullName()))
@@ -346,16 +313,58 @@ class Attribute(object):
             dest.node.setDirty(True)
 
         src._downstreamConnections.append(dest)
-        self.node.createConnection(src, dest)
+        self.node.graph.createConnection(src, dest)
+        connection = {"source": src.node, "destination": dest.node,
+                      "input": dest, "output": src}
 
-    def disconnect(self):
-        if self.hasUpstream():
-            upstreams = self._upstreamConnections
+        app = self.node.graph.application
+        self.node.graph.connections.append(connection)
+        app.events.emit(app.events.connectionsCreated,
+                        sender=self,
+                        connections=[dict(sourcePlug=src, destinationPlug=dest)]
+                        )
+
+    def disconnect(self, attribute=None):
+        if not self.isOutput():
+            raise
+        if attribute is None:
+            upstreamConnections = self.upstream()
             self._upstreamConnections = []
-            for upstream in upstreams:
+            for upstream in upstreamConnections:
                 upstream.disconnectDestination(self)
             return True
+        upstreamConnections = self.upstream()
+        _upstreamConnections = []
+        for upstream in upstreamConnections:
+            if upstream != attribute:
+                _upstreamConnections.append(upstream)
+            else:
+                upstream.disconnectDestination(self)
+        self._upstreamConnections = _upstreamConnections
+        # connection = {"source": src.node, "destination": dest.node,
+        #               "input": dest, "output": src}
+        #
+        # app = self.node.graph.application
+        # self.node.graph.connections.append(connection)
+        # app.events.emit(app.events.connectionsCreated,
+        #                 sender=self,
+        #                 connections=[dict(sourcePlug=src, destinationPlug=dest) for ]
+        #                 )
         return False
+
+    def disconnectDestination(self, attribute):
+        """
+
+        :param attribute: the downstream attribute to disconnect from
+        :type attribute: :class:`Attribute`
+        :return:
+        :rtype: bool
+        """
+        if attribute.hasUpstream() is not None:
+            attribute.disconnect()
+        connections = [attr for attr in self._downstreamConnections if attr != attribute]
+        self._downstreamConnections = connections
+        return True
 
     def serialize(self):
         return self.definition.serialize()
@@ -364,6 +373,47 @@ class Attribute(object):
         if self.definition:
             self.definition.deserialize(data)
             self.setValue(data.get("value"))
+
+    def delete(self):
+        self.disconnect()
+        for downstream in self.downstream():
+            self.disconnectDestination(downstream)
+
+    @staticmethod
+    def _returnCorrectSourceDestination(src, dest):
+        """Internal Method to correctly return the right source and destination.
+
+        This is used in situations where the user can pass the source and destination
+        in different orders. ie. src.connect(dest)  vs dest.connect(src). Both a valid
+        but internal logic requires  source -> destination
+
+        :param src:
+        :type src: :class:`Attribute`
+        :param dest:
+        :type dest: :class:`Attribute`
+        :return:
+        :rtype: tuple(:class:`Attribute`, :class:`Attribute`)
+        """
+        attrNode = dest.node
+        selfNode = src.node
+        src = src
+        dest = dest
+        selfParent = selfNode.parent
+        if src.isInput() and dest.isOutput():
+            src = dest
+            dest = src
+        # compound input attribute to child input
+        elif src.isInput() and dest.isInput():
+            # if we connecting from the child attr to the compound input
+            if selfParent == attrNode:
+                src = dest
+                dest = src
+        elif src.isOutput() and dest.isOutput():
+            attrParent = attrNode.parent
+            if attrParent == selfNode:
+                src = dest
+                dest = src
+        return src, dest
 
 
 class CompoundAttribute(Attribute):

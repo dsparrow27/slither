@@ -148,17 +148,6 @@ class Graph(object):
                                              )
                 break
 
-    def createConnection(self, source, destination):
-        connection = {"source": source.node, "destination": destination.node,
-                      "input": destination, "output": source}
-        self.connections.append(connection)
-        self.application.events.emit(self.application.events.connectionCreated,
-                                     sender=self,
-                                     sourcePlug=source,
-                                     destinationPlug=destination
-                                     )
-        return connection
-
     def createNode(self, name, type_, parent=None):
         @self.application.events.blockSignals
         def _create(name, type_, parent):

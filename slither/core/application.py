@@ -26,8 +26,8 @@ class EventSystem(object):
         self.attributeValueChanged = signal("attributeValueChanged")
         self.schedulerNodeCompleted = signal("schedulerNodeCompleted")
         self.schedulerNodeErrored = signal("schedulerNodeErrored")
-        self.connectionCreated = signal("connectionCreated")
-        self.connectionDeleted = signal("connectionDeleted")
+        self.connectionsCreated = signal("connectionCreated")
+        self.connectionsDeleted = signal("connectionDeleted")
 
     def emit(self, signal, sender, **kwargs):
         """Internal use only
@@ -147,7 +147,8 @@ class Registry(object):
 
         registeredTypeInfo = self._dataTypeCache.get(dataType)
         if not registeredTypeInfo:
-            raise ValueError("fail")
+            print(self._dataTypeRegistry.plugins.keys())
+            raise ValueError("No Data type registered: {}".format(dataType))
         typeClass = self._dataTypeRegistry.getPlugin(dataType)
         # if we've already discovered the object once before
         # return it from the cache
