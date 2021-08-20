@@ -3,11 +3,12 @@ import logging
 import os
 
 from slither.core import scheduler, node, types, graph, proxyplugins
-from zoo.libs.utils import filesystem, zlogging, env
-from zoo.libs.plugin import pluginmanager
+from zoo.libs.utils import filesystem
+from zoo.core.util import zlogging, env
+from zoo.core.plugin import pluginmanager
 from blinker import signal
 
-logger = logging.getLogger(__name__)
+logger = zlogging.getLogger(__name__)
 
 
 class EventSystem(object):

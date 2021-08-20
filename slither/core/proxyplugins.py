@@ -1,4 +1,4 @@
-from zoo.libs.plugin import plugin
+from zoo.core.plugin import plugin
 
 
 class ProxyBase(plugin.Plugin):
