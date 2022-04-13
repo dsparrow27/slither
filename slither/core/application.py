@@ -97,11 +97,11 @@ class Registry(object):
     LIB_ENV = "SLITHER_PLUGIN_PATH"
 
     def __init__(self):
-        self._nodeRegistry = pluginmanager.PluginManager(interface=proxyplugins.ProxyBase,
+        self._nodeRegistry = pluginmanager.PluginManager(interface=[proxyplugins.ProxyBase],
                                                          variableName="Type")
-        self._dataTypeRegistry = pluginmanager.PluginManager(interface=types.DataType,
+        self._dataTypeRegistry = pluginmanager.PluginManager(interface=[types.DataType],
                                                              variableName="Type")
-        self._schedulerRegistry = pluginmanager.PluginManager(interface=scheduler.BaseScheduler,
+        self._schedulerRegistry = pluginmanager.PluginManager(interface=[scheduler.BaseScheduler],
                                                               variableName="Type")
         self._nodeInfoCache = {}
         self._dataTypeCache = {}

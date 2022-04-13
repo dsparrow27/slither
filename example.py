@@ -1,6 +1,6 @@
 from zoo.core import api
 import os
-cfg = api.zooFromPath(os.environ["ZOOTOOLS_ROOT"])
+cfg = api.zooFromPath(os.environ["ZOOTOOLS_PRO_ROOT"])
 cfg.resolver.resolveFromPath(cfg.resolver.environmentPath())
 
 from slither import api

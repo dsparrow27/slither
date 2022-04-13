@@ -1,4 +1,4 @@
-import six
+from zoovendor import six
 import logging
 
 from slither.core import attribute
