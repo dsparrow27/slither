@@ -1,7 +1,7 @@
-import logging
-from zoovendor import six
 
-logger = logging.getLogger(__name__)
+from zoovendor import six
+from zoo.core.util import zlogging
+logger = zlogging.getLogger(__name__)
 
 
 class DataType(object):

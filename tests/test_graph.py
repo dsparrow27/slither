@@ -7,13 +7,13 @@ from slither import api
 
 def createInputAttrDef(name, type_):
     return api.AttributeDefinition(name=name, input=True,
-                                   type_=type_)
+                                   type=type_)
 
 
 def createOutputAttrDef(name, type_):
     return api.AttributeDefinition(name=name,
                                    output=True,
-                                   type_=type_)
+                                   type=type_)
 
 
 class TestGraphStandardExecutor(unittest.TestCase):
@@ -41,6 +41,9 @@ class TestGraphStandardExecutor(unittest.TestCase):
         comp.createAttribute(createOutputAttrDef(name="testOutput",
                                                  type_=self.app.registry.dataTypeClass("kFloat")
                                                  ))
+        self.assertTrue(comp.hasChild("input"))
+        self.assertTrue(comp.hasChild("output"))
+
         subChild = comp.createNode("subsubChild", "sum")
 
         comp.testInput.connect(subChild.inputA)

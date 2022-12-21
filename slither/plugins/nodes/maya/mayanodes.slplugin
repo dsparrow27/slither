@@ -404,7 +404,7 @@
                 {
                     "name": "constraints",
                     "default": true,
-                    "array": true,
+                    "array": false,
                     "compound": false,
                     "required": false,
                     "input": true,
@@ -415,7 +415,7 @@
                 {
                     "name": "skeletonDefinitions",
                     "default": true,
-                    "array": true,
+                    "array": false,
                     "compound": false,
                     "required": false,
                     "input": true,
@@ -425,7 +425,7 @@
                 },{
                     "name": "lights",
                     "default": true,
-                    "array": true,
+                    "array": false,
                     "compound": false,
                     "required": false,
                     "input": true,
@@ -435,7 +435,7 @@
                 },{
                     "name": "cameras",
                     "default": true,
-                    "array": true,
+                    "array": false,
                     "compound": false,
                     "required": false,
                     "input": true,

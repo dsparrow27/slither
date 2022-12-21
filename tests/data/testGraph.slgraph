@@ -12,7 +12,7 @@
     "attributes": [
         {
             "name": "execution",
-            "type_": "kFloat",
+            "type": "kFloat",
             "default": null,
             "array": false,
             "compound": false,
@@ -41,7 +41,7 @@
             "attributes": [
                 {
                     "name": "testInput",
-                    "type_": "kFloat",
+                    "type": "kFloat",
                     "default": null,
                     "array": false,
                     "compound": false,
@@ -55,7 +55,7 @@
                 },
                 {
                     "name": "testOutput",
-                    "type_": "kFloat",
+                    "type": "kFloat",
                     "default": null,
                     "array": false,
                     "compound": false,
@@ -82,7 +82,7 @@
                     "attributes": [
                         {
                             "name": "inputB",
-                            "type_": "kFloat",
+                            "type": "kFloat",
                             "default": 0,
                             "array": false,
                             "compound": false,
@@ -96,7 +96,7 @@
                         },
                         {
                             "name": "output",
-                            "type_": "kFloat",
+                            "type": "kFloat",
                             "default": 0,
                             "array": false,
                             "compound": false,

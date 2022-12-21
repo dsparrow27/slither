@@ -8,7 +8,7 @@ class SubStringNode(api.PXComputeNode):
     """
     Type = "subString"
     def compute(self, context):
-        result = [re.sub(context.self.search.value(), context.replace.value(), char) for char in
-                  context.valuePlug_.value()]
+        result = [re.sub(context.search.value(), context.replace.value(), char) for char in
+                  context.value.value()]
         context.output.setValue(result)
         return result

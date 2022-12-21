@@ -1,10 +1,10 @@
 from zoovendor import six
-import logging
+from zoo.core.util import zlogging
 
 from slither.core import attribute
 from slither.core import graphsearch
 
-logger = logging.getLogger(__name__)
+logger = zlogging.getLogger(__name__)
 
 
 class Context(dict):
@@ -44,7 +44,7 @@ class Context(dict):
     @staticmethod
     def extractContextDataFromNode(node):
         attrData = {"outputs": {}, "inputs": {}}
-        for attr in node.attributes:
+        for attr in node.attributes():
             if attr.isInput():
                 attrData["inputs"][attr.name()] = attr.value()
             else:
@@ -65,7 +65,7 @@ class Context(dict):
     @classmethod
     def fromNode(cls, node):
         attrData = {"outputs": {}, "inputs": {}}
-        for attr in node.attributes:
+        for attr in node.attributes():
             if attr.isInput():
                 attrData["inputs"][attr.name()] = ContextAttr(attr.value())
             else:
@@ -139,6 +139,14 @@ class BaseNode(object):
         self._parent = None
         self.properties = {}
         self.nodeUI = {}
+
+    @staticmethod
+    def isInput():
+        return False
+
+    @staticmethod
+    def isOutput():
+        return False
 
     @staticmethod
     def isCompound():
@@ -243,25 +251,25 @@ class DependencyNode(BaseNode):
     @classmethod
     def create(cls, info, graph, proxyClass):
         n = super(DependencyNode, cls).create(info, graph, proxyClass)
-        for name, _in, _out in (("execInput", True, False), ("execOutput", False, True)):
-            execDef = attribute.AttributeDefinition(name=name,
-                                                    input=_in,
-                                                    output=_out,
-                                                    type_=graph.application.registry.dataTypeClass("kExec"),
-                                                    default=None,
-                                                    required=False, array=False,
-                                                    doc="",
-                                                    internal=True,
-                                                    exec_=True,
-                                                    serializable=True)
-            n.createAttribute(execDef)
+        # for name, _in, _out in (("execInput", True, False), ("execOutput", False, True)):
+        #     execDef = attribute.AttributeDefinition(name=name,
+        #                                             input=_in,
+        #                                             output=_out,
+        #                                             type=graph.application.registry.dataTypeClass("kExec"),
+        #                                             default=None,
+        #                                             required=False, array=False,
+        #                                             doc="",
+        #                                             internal=True,
+        #                                             exec=True,
+        #                                             serializable=True)
+        #     n.createAttribute(execDef)
         for attr in info.get("attributes", []):
             if n.hasAttribute(attr["name"]):
                 continue
             attrDef = attribute.AttributeDefinition(name=attr["name"],
                                                     input=attr.get("input", False),
                                                     output=attr.get("output", False),
-                                                    type_=graph.application.registry.dataTypeClass(attr["type"]),
+                                                    type=graph.application.registry.dataTypeClass(attr["type"]),
                                                     default=attr.get("default"),
                                                     required=attr.get("required", False), array=attr["array"],
                                                     doc=attr.get("documentation", ""),
@@ -270,7 +278,7 @@ class DependencyNode(BaseNode):
         return n
 
     def __init__(self, name, graph, proxyClass):
-        self.attributes = []
+        self._attributes = []
         super(DependencyNode, self).__init__(name, graph, proxyClass)
 
     def __getattr__(self, name):
@@ -278,22 +286,44 @@ class DependencyNode(BaseNode):
 
         :param name: The name of the attribute
         :type name: str
-        :rtype: Attribute
+        :rtype: :class:`attribute.Attribute`
         """
         attr = self.attribute(name)
         if attr is not None:
             return attr
         return super(DependencyNode, self).__getattribute__(name)
 
+    def attributes(self):
+        """
+
+        :return:
+        :rtype: list[:class:`attribute.Attribute`]
+        """
+        return self._attributes
+
     def attribute(self, name):
+        """
+
+        :param name:
+        :type name: str
+        :return:
+        :rtype: :class:`attribute.Attribute` or None
+        """
         shortName = name.split("|")[-1]
         for attr in self.iterAttributes():
             if attr.name() == shortName:
                 return attr
 
     def addAttribute(self, attribute):
-        if attribute not in self.attributes:
-            self.attributes.append(attribute)
+        """
+
+        :param attribute:
+        :type attribute: :class:`attribute.Attribute`
+        :return:
+        :rtype: bool
+        """
+        if attribute not in self._attributes:
+            self._attributes.append(attribute)
             self.graph.application.events.emit(self.graph.application.events.attributeCreated,
                                                sender=self,
                                                node=self, attribute=attribute)
@@ -311,7 +341,7 @@ class DependencyNode(BaseNode):
             newAttribute = attribute.ArrayAttribute(attributeDefinition, node=self)
         elif attributeDefinition.compound:
             newAttribute = attribute.CompoundAttribute(attributeDefinition, node=self)
-        elif attributeDefinition.exec_:
+        elif attributeDefinition.exec:
             newAttribute = attribute.ExecAttribute(attributeDefinition, node=self)
         else:
             newAttribute = attribute.Attribute(attributeDefinition, node=self)
@@ -320,11 +350,11 @@ class DependencyNode(BaseNode):
         return newAttribute
 
     def removeAttribute(self, name):
-        for i in range(len(self.attributes)):
-            attr = self.attributes[i]
+        for i in range(len(self._attributes)):
+            attr = self._attributes[i]
             if attr.name() == name:
                 attr.delete()
-                del self.attributes[i]
+                del self._attributes[i]
                 return True
         return False
 
@@ -335,21 +365,21 @@ class DependencyNode(BaseNode):
         return list(self.iterInputs())
 
     def attributeCount(self):
-        return len(self.attributes)
+        return len(self.attributes())
 
     def iterAttributes(self):
-        return iter(self.attributes)
+        return iter(self.attributes())
 
     def outputs(self):
         return list(self.iterOutputs())
 
     def iterInputs(self):
-        for i in self.attributes:
+        for i in self.iterAttributes():
             if i.isInput():
                 yield i
 
     def iterOutputs(self):
-        for i in self.attributes:
+        for i in self.iterAttributes():
             if i.isOutput():
                 yield i
 
@@ -403,14 +433,17 @@ class DependencyNode(BaseNode):
             if attr is not None:
                 attr.setValue(value)
 
-    def serialize(self):
-        data = super(DependencyNode, self).serialize()
+    def serializeAttributes(self):
         attrs = []
-        for attr in self.attributes:
+        for attr in self.iterAttributes():
             attrInfo = attr.serialize()
             if attrInfo:
                 attrs.append(attrInfo)
-        data["attributes"] = attrs
+        return attrs
+
+    def serialize(self):
+        data = super(DependencyNode, self).serialize()
+        data["attributes"] = self.serializeAttributes()
         return data
 
     def deserialize(self, data):
@@ -422,7 +455,7 @@ class DependencyNode(BaseNode):
                 currentAttr.deserialize(attr)
             else:
                 # temp solution
-                attr["type_"] = self.graph.dataType(attr["type_"])
+                attr["type"] = self.graph.dataType(attr["type"])
                 self.createAttribute(attributeDefinition=attribute.AttributeDefinition(**attr))
         return {}
 
@@ -455,38 +488,18 @@ class ComputeNode(DependencyNode):
         self._progress = 0
         self._dirty = False
 
-    #
-    # def process(self, context):
-    #     fullName = self.fullName()
-    #     start = timeit.default_timer()
-    #     try:
-    #         logger.debug("Processing node: {}".format(fullName),
-    #                      extra={"context": context})
-    #         self.progress = 0
-    #         self.validate(context)
-    #         self.compute(context)
-    #         self.progress = 100
-    #     except Exception:
-    #         self.progress = 0
-    #         logger.error("Failed to execute Node: {}".format(fullName),
-    #                      exc_info=True)
-    #         raise
-    #     logger.debug("Finished executing Node: {}, running time: {}".format(fullName,
-    #                                                                         timeit.default_timer() - start))
-    #     self.setDirty(False)
-
     @property
-    def progress(self):
+    def progress(self) -> int:
         return self._progress
 
     @progress.setter
-    def progress(self, value):
+    def progress(self, value: int):
         self._progress = value
 
-    def dirty(self):
+    def dirty(self) -> bool:
         return self._dirty
 
-    def setDirty(self, state, propagate=True):
+    def setDirty(self, state: bool, propagate: bool = True):
         if self._dirty == state:
             return
         self._dirty = state
@@ -498,6 +511,22 @@ class ComputeNode(DependencyNode):
         if state and propagate:
             for dependent in self.downStreamNodes():
                 dependent.setDirty(state, propagate)
+
+
+class InputNode(DependencyNode):
+    Type = "input"
+
+    @staticmethod
+    def isInput() -> bool:
+        return True
+
+
+class OutputNode(DependencyNode):
+    Type = "output"
+
+    @staticmethod
+    def isOutput() -> bool:
+        return True
 
 
 class Compound(ComputeNode):
@@ -515,9 +544,11 @@ class Compound(ComputeNode):
         self.children = []
         if not self.nodeUI.get("label"):
             self.nodeUI["label"] = self.Type
+        self.createNode("input", type_="input")
+        self.createNode("output", type_="output")
 
     @staticmethod
-    def isCompound():
+    def isCompound() -> bool:
         return True
 
     def __len__(self):
@@ -552,14 +583,51 @@ class Compound(ComputeNode):
     def __contains__(self, item):
         return item in self.children
 
-    def child(self, name):
+    def attributes(self):
+        """
+
+        :return:
+        :rtype: list[:class:`attribute.Attribute`]
+        """
+        inputNode = self.child("input")
+        outputNode = self.child("output")
+        return list(inputNode.attributes()) + outputNode.attributes()
+
+    def addAttribute(self, attr: attribute.Attribute):
+        if attr.isInput():
+            ioNode = self.child("inputNode")
+        else:
+            ioNode = self.child("outputNode")
+        return ioNode.addAttribute(attr)
+
+    def createAttribute(self, attributeDefinition: attribute.AttributeDefinition) -> attribute.Attribute:
+        if attributeDefinition.input:
+            ioNode = self.child("input")
+        else:
+            ioNode = self.child("output")
+        return ioNode.createAttribute(attributeDefinition)
+
+    def removeAttribute(self, name: str) -> bool:
+        attr = self.attribute(name)
+        if attr is not None:
+            return attr.node.removeAttribute(name)
+        return False
+
+    def child(self, name: str) -> DependencyNode:
+        """
+
+        :param name:
+        :type name: str
+        :return:
+        :rtype: :class:`DependencyNode`
+        """
         for child in self.children:
             if child.name == name:
                 return child
             elif child.isCompound():
                 return child.child(name)
 
-    def addChild(self, child):
+    def addChild(self, child: DependencyNode) -> bool:
         if child not in self.children:
             self.children.append(child)
             parent = child.parent
@@ -569,10 +637,10 @@ class Compound(ComputeNode):
             return True
         return False
 
-    def createNode(self, name, type_):
+    def createNode(self, name: str, type_: str):
         return self.graph.createNode(name, type_, parent=self)
 
-    def removeChild(self, child):
+    def removeChild(self, child: DependencyNode) -> bool:
         return self.graph.removeNode(child, parent=self)
 
     def clear(self):
@@ -590,7 +658,7 @@ class Compound(ComputeNode):
             return True
         return False
 
-    def hasChild(self, name):
+    def hasChild(self, name: str):
         return any(i.name == name for i in self)
 
     def hasChildren(self):
@@ -601,13 +669,18 @@ class Compound(ComputeNode):
 
     def serialize(self):
         data = super(Compound, self).serialize()
+        attrs = []
         for child in self.children:
+            if child.isInput() or child.isOutput():
+                attrs.append(child.serializeAttributes())
+                continue
             childInfo = child.serialize()
             if childInfo:
                 data.setdefault("children", []).append(childInfo)
+        # data["attributes"] = attrs
         return data
 
-    def deserialize(self, data, includeChildren=True):
+    def deserialize(self, data, includeChildren: bool=True):
         super(Compound, self).deserialize(data)
         newChildren = {}
         if not includeChildren:

@@ -18,5 +18,7 @@ class UnsupportedConnectionCombinationError(Exception):
 
 class NotSupportedAttributeIOError(Exception):
     pass
+
+
 class AttributeConnectedError(Exception):
     pass

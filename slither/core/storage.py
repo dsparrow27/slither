@@ -1,5 +1,7 @@
+import dataclasses
 import threading
 import uuid
+from typing import Any
 
 
 class Storage(object):
@@ -35,23 +37,18 @@ class MemoryStorage(Storage):
     def __init__(self):
         super(MemoryStorage, self).__init__()
         self._lock = threading.RLock()
-        # data = {"taskId": "",
-        #         "kwargs": {},
-        #         "status": "",
-        #         "results": {},
-        #         "scheduler": ""}
-        self.taskQueue = {}
+        self.taskQueue = {}  # type: dict[str, Task]
 
     def generateUniqueId(self):
         return str(uuid.uuid4())
 
     def enqueue(self, taskId, scheduler, status, kwargs):
         with self._lock:
-            self.taskQueue[taskId] = {"taskId": taskId,
-                                      "kwargs": kwargs,
-                                      "status": "queued",
-                                      "results": {},
-                                      "scheduler": scheduler}
+            self.taskQueue[taskId] = Task(id=taskId,
+                                          kwargs=kwargs,
+                                          status="queued",
+                                          results={},
+                                          scheduler=scheduler)
         return True
 
     def dequeue(self, taskId):
@@ -63,7 +60,7 @@ class MemoryStorage(Storage):
         return task
 
     def tasks(self):
-        return map(Task, self.taskQueue.values())
+        return self.taskQueue.values()
 
     def queueSize(self):
         return len(self.taskQueue.keys())
@@ -72,22 +69,13 @@ class MemoryStorage(Storage):
         self.taskQueue = {}
 
 
-class Task(object):
-    def __init__(self, data):
-        self.id = data["taskId"]
-        self.status = data["status"]
-        self.kwargs = data["kwargs"]
-        self.results = data["results"]
-        self.scheduler = data["scheduler"]
-
-    def __hash__(self):
-        return hash(id(self))
+@dataclasses.dataclass
+class Task:
+    id: int
+    status: str
+    kwargs: dict
+    results: dict
+    scheduler: Any = dataclasses.field(repr=False)
 
     def serialize(self):
-        return {
-            "taskId": self.id,
-            "status": self.status,
-            "kwargs": self.kwargs,
-            "results": self.results,
-            "scheduler": self.scheduler.id
-        }
+        return dataclasses.asdict(self)

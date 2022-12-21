@@ -1,10 +1,10 @@
 import pprint
-import logging
+
 
 from slither.core import node, errors, scheduler, attribute
 from zoo.libs.utils import filesystem, path
-
-logger = logging.getLogger(__name__)
+from zoo.core.util import zlogging
+logger = zlogging.getLogger(__name__)
 
 
 class Graph(object):
@@ -39,16 +39,8 @@ class Graph(object):
         # mark the root as internal and locked so it can't be deleted.
         _root.isLocked = True
         _root.isInternal = True
-        execDef = attribute.AttributeDefinition(name="execute",
-                                                input=False,
-                                                output=True,
-                                                type_=self.application.registry.dataTypeClass("kMulti"),
-                                                required=True, array=True,
-                                                doc="",
-                                                default=[],
-                                                internal=True)
-        _root.createAttribute(execDef)
         self._root = _root
+
         self.application.events.emit(self.application.events.nodeCreated, sender=self, node=_root)
         return self._root
 
@@ -95,9 +87,8 @@ class Graph(object):
             newNodes = {}
             connections = data.get("connections", [])
             children = data.get("children", [])
-            newNodes[data["name"]] = self.root
-
             root = self.root
+            newNodes[data["name"]] = root
             root.deserialize(data, includeChildren=False)
             root.setDirty(True)
             for child in children:
@@ -106,7 +97,8 @@ class Graph(object):
                     newNodes[i] = n
                 # we need to deal with connections so first create a map between the old and the new
                 newNodes[child["name"]] = newNode
-                newNode.setDirty(True)
+                if isinstance(newNode, node.ComputeNode):
+                    newNode.setDirty(True)
             missingConnections = []
             missingNodes = []
             for connection in connections:
@@ -133,6 +125,17 @@ class Graph(object):
 
         return _load(data)
 
+    def createConnection(self, source, destination):
+        connection = {"source": source.node, "destination": destination.node,
+                      "input": destination, "output": source}
+        self.connections.append(connection)
+        self.application.events.emit(self.application.events.connectionsCreated,
+                                     sender=self,
+                                     sourcePlug=source,
+                                     destinationPlug=destination
+                                     )
+        return connection
+
     def removeConnection(self, source, destination):
         if destination.upstream != source:
             return False
@@ -152,18 +155,18 @@ class Graph(object):
         @self.application.events.blockSignals
         def _create(name, type_, parent):
             parent = parent if parent is not None else self.root
-            exists = self.root.child(name)
+            exists = parent.child(name)
             if exists is not None:
                 newName = name
                 counter = 1
-                while self.root.child(newName) is not None:
+                while parent.child(newName) is not None:
                     newName = name + str(counter)
                     counter += 1
                 name = newName
             newNode = self.application.registry.nodeClass(type_, name=name, graph=self)
+
             if newNode is not None:
                 parent.addChild(newNode)
-
                 return newNode
 
         result = _create(name, type_, parent)

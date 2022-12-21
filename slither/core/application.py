@@ -6,7 +6,7 @@ from slither.core import scheduler, node, types, graph, proxyplugins
 from zoo.libs.utils import filesystem
 from zoo.core.util import zlogging, env
 from zoo.core.plugin import pluginmanager
-from blinker import signal
+from blinker import signal as blinkerSignal
 
 logger = zlogging.getLogger(__name__)
 
@@ -15,22 +15,22 @@ class EventSystem(object):
 
     def __init__(self):
         self._blockSignal = False
-        self.graphCreated = signal("graphCreated", doc="kwargs(sender, graph)")
-        self.graphDeleted = signal("graphDeleted", doc="kwargs(sender, graph)")
-        self.nodeCreated = signal("nodeCreated", doc="kwargs(sender, node)")
-        self.nodeDeleted = signal("nodeDeleted", doc="kwargs(sender, node)")
-        self.nodeNameChanged = signal("nodeNameChanged", doc="kwargs(sender, node, name)")
-        self.nodeDirtyChanged = signal("nodeDirtyChanged")
-        self.attributeCreated = signal("attributeCreated")
-        self.attributeDeleted = signal("attributeDeleted")
-        self.attributeNameChanged = signal("attributeNameChanged")
-        self.attributeValueChanged = signal("attributeValueChanged")
-        self.schedulerNodeCompleted = signal("schedulerNodeCompleted")
-        self.schedulerNodeErrored = signal("schedulerNodeErrored")
-        self.connectionsCreated = signal("connectionCreated")
-        self.connectionsDeleted = signal("connectionDeleted")
+        self.graphCreated = blinkerSignal("graphCreated", doc="kwargs(sender, graph)")
+        self.graphDeleted = blinkerSignal("graphDeleted", doc="kwargs(sender, graph)")
+        self.nodeCreated = blinkerSignal("nodeCreated", doc="kwargs(sender, node)")
+        self.nodeDeleted = blinkerSignal("nodeDeleted", doc="kwargs(sender, node)")
+        self.nodeNameChanged = blinkerSignal("nodeNameChanged", doc="kwargs(sender, node, name)")
+        self.nodeDirtyChanged = blinkerSignal("nodeDirtyChanged")
+        self.attributeCreated = blinkerSignal("attributeCreated")
+        self.attributeDeleted = blinkerSignal("attributeDeleted")
+        self.attributeNameChanged = blinkerSignal("attributeNameChanged")
+        self.attributeValueChanged = blinkerSignal("attributeValueChanged")
+        self.schedulerNodeCompleted = blinkerSignal("schedulerNodeCompleted")
+        self.schedulerNodeErrored = blinkerSignal("schedulerNodeErrored")
+        self.connectionsCreated = blinkerSignal("connectionCreated")
+        self.connectionsDeleted = blinkerSignal("connectionDeleted")
 
-    def emit(self, signal, sender, **kwargs):
+    def emit(self, signal: blinkerSignal, sender: callable, **kwargs):
         """Internal use only
         """
         if self._blockSignal:
@@ -42,7 +42,7 @@ class EventSystem(object):
         logger.debug("Sending signal: {}".format(signal.name))
         signal.send(sender, **kwargs)
 
-    def blockSignals(self, func):
+    def blockSignals(self, func: callable):
 
         @wraps(func)
         def _block(*args, **kwargs):
@@ -66,24 +66,24 @@ class Application(object):
         self.registry = Registry()
         self.registry.discoverPlugins()
 
-    def graph(self, name):
+    def graph(self, name: str) -> graph.Graph:
         for g in self.graphs:
             if g.name == name:
                 return g
 
-    def deleteGraph(self, name):
+    def deleteGraph(self, name: str) -> "graph.Graph":
         g = self.graph(name)
         self.graphs.remove(g)
         self.events.emit(self.events.graphDeleted, sender=self, graph=g)
         return g
 
-    def createGraph(self, name):
+    def createGraph(self, name: str) -> "graph.Graph":
         g = graph.Graph(self, name=name)
         self.graphs.append(g)
         self.events.emit(self.events.graphCreated, sender=self, graph=g)
         return g
 
-    def createGraphFromPath(self, name, filePath):
+    def createGraphFromPath(self, name: str, filePath: str) -> "graph.Graph":
         g = graph.Graph(self, name=name)
         self.events.emit(self.events.graphCreated, sender=self, graph=g)
         g.loadFromFile(filePath)
@@ -106,9 +106,11 @@ class Registry(object):
         self._nodeInfoCache = {}
         self._dataTypeCache = {}
         self._schedulerInfoCache = {}
+
     @property
-    def nodeTypes(self):
+    def nodeTypes(self) -> dict:
         return self._nodeInfoCache
+
     def nodeClass(self, nodeType, graph, **kwargs):
         """Retrieves the node class for the type.
 
@@ -129,12 +131,18 @@ class Registry(object):
             return node.Comment.create(info, graph, proxyClass)
         elif isinstance(proxyClass, proxyplugins.PXPinNode):
             return node.Pin.create(info, graph, proxyClass)
+        elif isinstance(proxyClass, proxyplugins.PXInputNode):
+            return node.InputNode.create(info, graph, proxyClass)
+        elif isinstance(proxyClass, proxyplugins.PXOutputNode):
+            return node.OutputNode.create(info, graph, proxyClass)
+
         raise ValueError("Failed")
 
     def proxyNodeClass(self, nodeType, **kwargs):
-        registeredTypeInfo = self._nodeInfoCache[nodeType]
+        registeredTypeInfo = self._nodeInfoCache.get(nodeType)
         if not registeredTypeInfo:
-            raise ValueError("fail {}".format(nodeType))
+            raise ValueError(
+                "Invalid node Type: {}, available: {}".format(nodeType, ",".join(self._nodeInfoCache.keys())))
         nodeClass = self._nodeRegistry.getPlugin(nodeType)
         # if we've already discovered the object once before
         # return it from the cache
@@ -212,8 +220,9 @@ class Registry(object):
             self._nodeRegistry.registerPath(pluginPath)
         else:
             proxy = self._nodeObjectByNode(nodeInfo)
+
             if not proxy:
-                logger.warning("No Plugin class found for nodeType: {}".format(nodeInfo["info"]))
+                logger.warning("No Plugin class found for nodeType: {}".format(nodeInfo["type"]))
                 return
             self._nodeRegistry.registerPlugin(proxy)
         info = {
@@ -258,3 +267,7 @@ class Registry(object):
             return proxyplugins.PXCommentNode
         elif nodeInfo.get("pin", False):
             return proxyplugins.PXPinNode
+        elif nodeInfo.get("input", False):
+            return proxyplugins.PXInputNode
+        elif nodeInfo.get("output", False):
+            return proxyplugins.PXOutputNode

@@ -1,9 +1,9 @@
-import logging
-
 from slither.core import graphsearch
 from slither.core import storage, node
+from zoo.core.util import zlogging
 
-logger = logging.getLogger(__name__)
+
+logger = zlogging.getLogger(__name__)
 
 
 # todo: error handling, external processes, logging, job directory

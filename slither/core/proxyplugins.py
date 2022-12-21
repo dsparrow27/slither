@@ -35,3 +35,11 @@ class PXCommentNode(ProxyBase):
 
     def compute(self, context):
         pass
+
+
+class PXInputNode(ProxyBase):
+    Type = "input"
+
+
+class PXOutputNode(ProxyBase):
+    Type = "output"

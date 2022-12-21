@@ -4,7 +4,7 @@
     "description": "Execution engine",
     "displayName": "Slither",
     "environment": {
-        "PATH": ["{self}", "{self}/vendor"],
+        "PATH": ["{self}/bin"],
         "PYTHONPATH": [
             "{self}",
             "{self}/slither/vendor"

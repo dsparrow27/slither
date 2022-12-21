@@ -1,8 +1,8 @@
 import logging
 from collections import OrderedDict
+from zoo.core.util import zlogging
 
-logger = logging.getLogger("Slither")
-
+logger = zlogging.getLogger(__name__)
 
 def topologicalOrder(nodes):
     sortedNodes = OrderedDict()

@@ -1,47 +1,46 @@
-import logging
+import dataclasses
+
 import copy
 from slither.core import errors
+from typing import Any
+from zoo.core.util import zlogging
 
-logger = logging.getLogger(__name__)
+logger = zlogging.getLogger(__name__)
 
 
-class AttributeDefinition(object):
+@dataclasses.dataclass
+class AttributeDefinition:
     """Acts as a blob of data to be attached to any given attribute, If you're
     """
+    name: str
+    type: Any
+    doc: str = ""
+    array: bool = False
+    compound: bool = False
+    required: bool = False
+    input: bool = False
+    output: bool = False
+    internal: bool = False
+    min: float = -999999
+    max: float = 999999
+    serializable: bool = True
+    exec: bool = False
+    default: Any = None
+    value: Any = None
+    id: int = -1
 
-    def __init__(self, type_=None, default=None, array=False, compound=False, doc="", **kwargs):
-        self.name = kwargs.get("name", "")
-        self.type = type_
-        self.default = default
-        self.array = array
-        self.compound = compound
-        self.required = kwargs.get("required", False)
-        self.input = kwargs.get("input", False)
-        self.output = kwargs.get("output", False)
-        self.internal = kwargs.get("internal", False)
-        self.min = kwargs.get("min", -999999)
-        self.max = kwargs.get("max", 999999)
-        self.serializable = kwargs.get("serializable", True)
-        self.exec_ = kwargs.get("exec_", False)
+    def __post_init__(self):
+        self.doc += "\nType: {}".format(str(self.type))
 
-        doc += "\nType: {}".format(str(type_))
-
-        self.__doc__ = doc
+        self.__doc__ = self.doc
         self.validateDefault()
         if self.input and self.output:
             raise errors.NotSupportedAttributeIOError(self.name)
-        value = kwargs.get("value", default)
+
+        value = self.value or self.default
         if value is not None:
             self.type.setValue(value)
 
-    def __eq__(self, other):
-        if not isinstance(other, AttributeDefinition):
-            return False
-        if self.name != other.name or self.type != other.type:
-            return False
-        if self.default != other.default or self.array != other.array:
-            return False
-        return True
 
     def setName(self, name):
         if name != self.name:
@@ -74,7 +73,7 @@ class AttributeDefinition(object):
                     value=attrValue)
         if not self.internal and not includeInternal:
             data.update(dict(
-                type_=self.type.typeName,
+                type=self.type.typeName,
                 array=self.array,
                 compound=self.compound,
                 required=self.required,
@@ -260,24 +259,33 @@ class Attribute(object):
         :rtype: bool
         """
         isCompound = destination.node.isCompound() or source.node.isCompound()
+
         if source == destination:
+            logger.debug("Source and Destination attributes are the same")
+            # print("source is the same", source, destination)
             return False
         if destination.parent == source.node:
             logger.debug("Attribute's is on the same Node")
+            # print("Attribute's is on the same Node")
             return False
         elif destination.isInput() and source.isInput() and not isCompound:
             logger.debug("Attribute is an input and neither the node nor the attr.node is a compound")
+            # print("Attribute is an input and neither the node nor the attr.node is a compound")
             return False
         elif destination.isOutput() and source.isOutput() and not isCompound:
             logger.debug("Attribute is an output and neither the node nor the attr.node is a compound")
+            # print("Attribute is an output and neither the node nor the attr.node is a compound")
             return False
         elif not destination.type().supportsType(source.type()):
             logger.debug("Attribute types are not the same: {}".format(source.type().Type))
+            # print("Attribute types are not the same: {}".format(source.type().Type))
             return False
         elif destination.hasUpstream() and not destination.supportsMultipleConnections():
-            raise errors.AttributeAlreadyConnectedError(source, destination)
+            # print("already contains upsteam")
+            return False
         elif source.isConnectedTo(destination):
-            raise errors.AttributeAlreadyConnectedError(source, destination)
+            # print(source, destination, "already connected")
+            return False
 
         logger.debug("Able to connect")
         return True
@@ -325,8 +333,10 @@ class Attribute(object):
                         )
 
     def disconnect(self, attribute=None):
-        if not self.isOutput():
-            raise
+        # if self.isOutput():
+        #     return self.disconnectDestination(attribute)
+        # if self.isOutput():
+        #     raise ValueError("Attribute must not be a Output: {}".format(self))
         if attribute is None:
             upstreamConnections = self.upstream()
             self._upstreamConnections = []
@@ -396,24 +406,25 @@ class Attribute(object):
         """
         attrNode = dest.node
         selfNode = src.node
-        src = src
-        dest = dest
+        source = src
+        destination = dest
         selfParent = selfNode.parent
         if src.isInput() and dest.isOutput():
-            src = dest
-            dest = src
+            source = dest
+            destination = src
         # compound input attribute to child input
         elif src.isInput() and dest.isInput():
             # if we connecting from the child attr to the compound input
             if selfParent == attrNode:
-                src = dest
-                dest = src
+                source = dest
+                destination = src
         elif src.isOutput() and dest.isOutput():
             attrParent = attrNode.parent
             if attrParent == selfNode:
-                src = dest
-                dest = src
-        return src, dest
+                source = dest
+                destination = src
+        # print(src, dest)
+        return source, destination
 
 
 class CompoundAttribute(Attribute):

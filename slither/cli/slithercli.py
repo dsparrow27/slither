@@ -23,7 +23,7 @@ def executeGraph(filePath, scheduler):
 
 
 def main(args):
-    cfg = zooapi.zooFromPath(os.environ["ZOOTOOLS_ROOT"])
+    cfg = zooapi.zooFromPath(os.environ["ZOOTOOLS_PRO_ROOT"])
     cfg.resolver.resolveFromPath(cfg.resolver.environmentPath())
     if args.test:
         runTests()
@@ -32,6 +32,7 @@ def main(args):
 
 
 def parseArguments(args):
+    print(args)
     parser = argparse.ArgumentParser("Slither")
     parser.add_argument("--graph", "-g",
                         type=str, help="Graph to load and execute")
@@ -44,4 +45,5 @@ def parseArguments(args):
 
 
 if __name__ == "__main__":
-    parseArguments(None)
+    sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+    parseArguments(sys.argv[1:])
